@@ -1,0 +1,81 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Explora el catálogo de instrumentos musicales, equipos de sonido y accesorios de Sonido Vivo.">
+    <title>Catálogo | Sonido Vivo</title>
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <link rel="stylesheet" href="../assets/css/catalogo.css">
+    <script src="../assets/js/data/productos.js" defer></script>
+    <script src="../assets/js/catalogo.js" defer></script>
+</head>
+<body>
+    <a class="salto-contenido" href="#contenido-principal">Saltar al contenido principal</a>
+    <header class="encabezado-sitio">
+        <div class="contenedor barra-navegacion">
+            <a class="marca" href="../index.html" aria-label="Sonido Vivo, volver al inicio">
+                <span class="marca__simbolo" aria-hidden="true">SV</span>
+                <span class="marca__texto">
+                    <strong>Sonido Vivo</strong>
+                    <small>Instrumentos y equipos musicales</small>
+                </span>
+            </a>
+            <nav class="navegacion-principal" aria-label="Navegación principal">
+                <ul>
+                    <li><a href="../index.html">Inicio</a></li>
+                    <li><a href="#contenido-principal" aria-current="page">Catálogo</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="catalogo contenedor" id="contenido-principal">
+        <section class="catalogo__introduccion" aria-labelledby="titulo-catalogo">
+            <p class="etiqueta-seccion">Instrumentos, sonido y accesorios</p>
+            <h1 id="titulo-catalogo">Catálogo de productos</h1>
+            <p>Explora los productos de Sonido Vivo. Busca por nombre, marca, modelo o código y filtra por categoría.</p>
+        </section>
+
+        <section class="catalogo__filtros" aria-labelledby="titulo-filtros">
+            <h2 id="titulo-filtros">Encuentra tu producto</h2>
+            <div class="catalogo__controles">
+                <div class="catalogo__campo">
+                    <label for="busqueda-catalogo">Buscar productos</label>
+                    <input type="search" id="busqueda-catalogo" name="busqueda" placeholder="Nombre, marca, modelo o código" aria-controls="lista-productos" disabled>
+                </div>
+                <div class="catalogo__campo">
+                    <label for="categoria-catalogo">Categoría</label>
+                    <select id="categoria-catalogo" name="categoria" aria-controls="lista-productos" disabled>
+                        <option value="">Todas las categorías</option>
+                    </select>
+                </div>
+            </div>
+            <p class="catalogo__contador" id="contador-resultados" role="status" aria-live="polite" aria-atomic="true">Esperando productos…</p>
+        </section>
+
+        <section class="catalogo__resultados" aria-labelledby="titulo-resultados">
+            <h2 id="titulo-resultados">Productos</h2>
+            <p class="aviso" id="estado-catalogo">El catálogo necesita JavaScript y la fuente de productos para mostrar el listado.</p>
+            <div class="catalogo__grilla" id="lista-productos"></div>
+        </section>
+    </main>
+
+    <footer class="pie-sitio">
+        <div class="contenedor pie-sitio__contenido">
+            <div>
+                <p class="pie-sitio__marca">Sonido Vivo</p>
+                <p>Tienda de instrumentos y equipos musicales.</p>
+                <p>Viña del Mar, Región de Valparaíso.</p>
+            </div>
+            <nav aria-label="Navegación del pie de página">
+                <ul class="pie-sitio__enlaces">
+                    <li><a href="../index.html">Volver al inicio</a></li>
+                    <li><a href="#contenido-principal">Volver al catálogo</a></li>
+                </ul>
+            </nav>
+            <p class="pie-sitio__academico">Proyecto académico · DSY1104 Desarrollo Fullstack II</p>
+        </div>
+    </footer>
+</body>
+</html>
