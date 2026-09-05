@@ -1,13 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="descripcion" content="Inicio de Sesion Sonido Vivo">
+    <meta name="description" content="Inicio de Sesion Sonido Vivo">
 
     <title>Iniciar Sesion | Sonido Vivo</title>
 
     <link rel="stylesheet" href="../assets/css/base.css">
+
+    <script src="../assets/js/login.js" defer></script>
 </head>
 
 <body>
@@ -17,7 +19,7 @@
             
 
             <a class="marca" href="../index.html">
-                <span class="marca__simbolo">asd</span>
+                <span class="marca__simbolo">SV</span>
                 
                 <span class="marca__texto">
                     <strong>Sonido Vivo</strong>
@@ -47,7 +49,7 @@
 
             <p>Ingresa tus datos para acceder a Sonido Vivo</p>
 
-            <form id="formulario-login">
+            <form id="formulario-login" novalidate>
 
                 <div>
                     <label for="correo">Correo electronico</label>
@@ -64,18 +66,18 @@
                 </div>
 
                 <div>
-                    <label for="contraseña">Contraseña</label>
+                    <label for="contrasena">Contraseña</label>
                     
                     <input 
                         type="password"
-                        id="contraseña"
-                        name="contraseña"
+                        id="contrasena"
+                        name="contrasena"
                         minlength="4"
                         maxlength="10"
                         autocomplete="current-password"
                         required
                     >
-                    <p id="error-contraseña"></p>
+                    <p id="error-contrasena"></p>
                 </div>
 
                 <button type="submit">Ingresar</button>
