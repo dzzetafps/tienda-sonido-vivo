@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sonido Vivo, tienda de instrumentos musicales, equipos de sonido y accesorios en Viña del Mar.">
+    <title>Sonido Vivo | Instrumentos y equipos musicales</title>
+    <link rel="stylesheet" href="./assets/css/base.css">
+    <link rel="stylesheet" href="./assets/css/inicio.css">
+    <script src="./assets/js/data/productos.js" defer></script>
+    <script src="./assets/js/inicio.js" defer></script>
+</head>
+<body>
+    <a class="salto-contenido" href="#contenido-principal">Saltar al contenido principal</a>
+
+    <header class="encabezado-sitio">
+        <div class="contenedor barra-navegacion">
+            <a class="marca" href="#inicio" aria-label="Sonido Vivo, volver al inicio">
+                <span class="marca__simbolo" aria-hidden="true">SV</span>
+                <span class="marca__texto">
+                    <strong>Sonido Vivo</strong>
+                    <small>Instrumentos y equipos musicales</small>
+                </span>
+            </a>
+
+            <nav class="navegacion-principal" aria-label="Navegación principal">
+                <ul>
+                    <li><a href="#inicio">Inicio</a></li>
+                    <li><a href="#destacados">Destacados</a></li>
+                    <li><a href="#nosotros-resumen">Sonido Vivo</a></li>
+                    <li><a href="#multimedia">Multimedia</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main id="contenido-principal">
+        <section class="hero" id="inicio" aria-labelledby="titulo-principal">
+            <div class="hero__media" aria-hidden="true">
+                <img
+                    class="hero__imagen"
+                    src="./assets/img/sitio/hero-sonido-vivo.png"
+                    alt=""
+                    width="1774"
+                    height="887"
+                    fetchpriority="high"
+                >
+            </div>
+
+            <div class="contenedor hero__contenido">
+                <p class="etiqueta-seccion">Viña del Mar · Región de Valparaíso</p>
+                <h1 id="titulo-principal">Sonido Vivo</h1>
+                <p class="hero__frase">Instrumentos y equipos para darle forma a tu música.</p>
+                <p class="hero__descripcion">
+                    Tienda especializada en instrumentos musicales, equipos de sonido y accesorios,
+                    con 11 años acompañando a músicos desde Viña del Mar.
+                </p>
+                <a class="boton boton--primario" href="#destacados">Explorar destacados</a>
+            </div>
+        </section>
+
+        <section class="seccion destacados" id="destacados" aria-labelledby="titulo-destacados">
+            <div class="contenedor">
+                <div class="encabezado-seccion">
+                    <div>
+                        <p class="etiqueta-seccion">Una muestra del catálogo</p>
+                        <h2 id="titulo-destacados">Productos destacados</h2>
+                    </div>
+                    <p>
+                        Una selección representativa de instrumentos y equipos disponibles en el
+                        catálogo oficial de Sonido Vivo.
+                    </p>
+                </div>
+
+                <div class="grilla-productos" id="lista-destacados" aria-live="polite">
+                    <p class="aviso">Activa JavaScript para visualizar los productos destacados.</p>
+                </div>
+
+                <p class="nota-imagenes">Imágenes referenciales creadas para esta propuesta académica.</p>
+            </div>
+        </section>
+
+        <section class="seccion nosotros-resumen" id="nosotros-resumen" aria-labelledby="titulo-nosotros">
+            <div class="contenedor nosotros-resumen__grilla">
+                <div class="nosotros-resumen__contenido">
+                    <p class="etiqueta-seccion">Nuestra tienda</p>
+                    <h2 id="titulo-nosotros">Música, sonido y experiencia local</h2>
+                    <p>
+                        Sonido Vivo es una tienda especializada en instrumentos musicales, equipos
+                        de sonido y accesorios, ubicada en Viña del Mar. Su catálogo incluye guitarras,
+                        bajos, baterías, teclados, amplificadores, micrófonos y pedales de efectos.
+                    </p>
+                    <p>
+                        Además de su oferta de productos, la tienda realiza reparación de instrumentos
+                        de cuerda.
+                    </p>
+                </div>
+
+                <dl class="datos-tienda">
+                    <div class="dato-tienda">
+                        <dt>11</dt>
+                        <dd>años de funcionamiento</dd>
+                    </div>
+                    <div class="dato-tienda">
+                        <dt>340</dt>
+                        <dd>referencias en el catálogo completo</dd>
+                    </div>
+                    <div class="dato-tienda">
+                        <dt>10</dt>
+                        <dd>categorías principales</dd>
+                    </div>
+                </dl>
+            </div>
+        </section>
+
+        <section class="seccion multimedia" id="multimedia" aria-labelledby="titulo-multimedia">
+            <div class="contenedor multimedia__grilla">
+                <div class="multimedia__contenido">
+                    <p class="etiqueta-seccion">Cultura musical</p>
+                    <h2 id="titulo-multimedia">Practicar también es parte del sonido</h2>
+                    <p>
+                        Este recurso educativo presenta cinco errores habituales al practicar guitarra
+                        y propone una forma más consciente de estudiar un instrumento.
+                    </p>
+                    <p class="multimedia__fuente">
+                        Video de Brandon Acker, disponible en YouTube.
+                    </p>
+                </div>
+
+                <div class="video-responsive">
+                    <iframe
+                        src="https://www.youtube-nocookie.com/embed/HkaBsEZU8Pw"
+                        title="Cinco errores comunes al practicar guitarra, por Brandon Acker"
+                        loading="lazy"
+                        referrerpolicy="strict-origin-when-cross-origin"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowfullscreen
+                    ></iframe>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="pie-sitio" id="contacto-informativo">
+        <div class="contenedor pie-sitio__contenido">
+            <div>
+                <p class="pie-sitio__marca">Sonido Vivo</p>
+                <p>Tienda de instrumentos y equipos musicales.</p>
+                <p>Viña del Mar, Región de Valparaíso.</p>
+            </div>
+
+            <nav aria-label="Navegación del pie de página">
+                <ul class="pie-sitio__enlaces">
+                    <li><a href="#inicio">Inicio</a></li>
+                    <li><a href="#destacados">Destacados</a></li>
+                    <li><a href="#nosotros-resumen">Sonido Vivo</a></li>
+                    <li><a href="#multimedia">Multimedia</a></li>
+                </ul>
+            </nav>
+
+            <p class="pie-sitio__academico">Proyecto académico · DSY1104 Desarrollo Fullstack II</p>
+        </div>
+    </footer>
+</body>
+</html>
