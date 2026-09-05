@@ -1,0 +1,99 @@
+﻿.detalle {
+    padding-block: 2rem 4.5rem;
+}
+
+.detalle__volver {
+    display: inline-block;
+    padding-block: 0.75rem;
+    margin-bottom: 1rem;
+    color: var(--color-acento-oscuro);
+    font-weight: 700;
+}
+
+.detalle h1 {
+    margin-bottom: 2rem;
+    font-size: clamp(2.25rem, 6vw, 4rem);
+    letter-spacing: -0.04em;
+}
+
+.detalle__producto {
+    padding: 1.4rem;
+    border: 1px solid var(--color-borde);
+    border-top: 0.25rem solid var(--color-acento);
+    border-radius: var(--radio-medio);
+    background: var(--color-superficie);
+    overflow-wrap: anywhere;
+}
+
+.detalle__producto h2 {
+    margin-bottom: 1.5rem;
+    font-size: clamp(1.6rem, 4vw, 2.5rem);
+    letter-spacing: -0.02em;
+}
+
+.detalle__producto h3 {
+    font-size: 1.1rem;
+    line-height: 1.4;
+}
+
+.detalle__contenido {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.5rem;
+}
+
+.detalle__informacion,
+.detalle__disponibilidad {
+    min-width: 0;
+}
+
+.detalle__datos {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.5rem 1rem;
+    margin: 0 0 2rem;
+}
+
+.detalle__datos dt,
+.detalle__descripcion,
+.detalle__stock {
+    color: var(--color-tinta-suave);
+}
+
+.detalle__datos dd {
+    margin: 0;
+    font-weight: 600;
+}
+
+.detalle__descripcion {
+    margin-bottom: 0;
+}
+
+.detalle__disponibilidad {
+    padding: 1.25rem;
+    border: 1px solid var(--color-borde);
+    border-radius: var(--radio-pequeno);
+    background: var(--color-fondo);
+}
+
+.detalle__precio {
+    margin-bottom: 0.75rem;
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 800;
+}
+
+.detalle__stock {
+    margin-bottom: 0;
+}
+
+@media (min-width: 48rem) {
+    .detalle__producto {
+        padding: 2rem;
+    }
+
+    .detalle__contenido {
+        grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+        align-items: start;
+        gap: 2rem;
+    }
+}

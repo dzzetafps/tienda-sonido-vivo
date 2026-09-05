@@ -1,4 +1,17 @@
-﻿function iniciarCatalogo() {
+﻿// Abre el detalle del producto seleccionado.
+function verDetalle(codigoProducto) {
+    if (typeof codigoProducto !== "string") {
+        return;
+    }
+
+    if (codigoProducto.trim() === "") {
+        return;
+    }
+
+    window.location.href = "detalle-producto.html?codigo=" + encodeURIComponent(codigoProducto.trim());
+}
+
+function iniciarCatalogo() {
     "use strict";
 
     const listaProductos = document.getElementById("lista-productos");
@@ -105,6 +118,20 @@
         pieTarjeta.appendChild(precio);
         pieTarjeta.appendChild(stock);
         tarjetaProducto.appendChild(pieTarjeta);
+
+        const codigoProducto = obtenerTexto(producto.codigo, "");
+        if (codigoProducto !== "") {
+            const botonDetalle = document.createElement("button");
+            botonDetalle.type = "button";
+            botonDetalle.className = "boton boton--primario";
+            botonDetalle.textContent = "Ver detalle";
+            botonDetalle.setAttribute("aria-label", "Ver detalle de " + obtenerTexto(producto.nombre, codigoProducto));
+            botonDetalle.onclick = function () {
+                verDetalle(codigoProducto);
+            };
+            pieTarjeta.appendChild(botonDetalle);
+        }
+
         return tarjetaProducto;
     }
 

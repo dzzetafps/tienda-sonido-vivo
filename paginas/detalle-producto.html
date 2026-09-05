@@ -1,0 +1,81 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Consulta la información de un producto del catálogo de Sonido Vivo.">
+    <title>Detalle de producto | Sonido Vivo</title>
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <link rel="stylesheet" href="../assets/css/detalle-producto.css">
+</head>
+<body>
+    <a class="salto-contenido" href="#contenido-principal">Saltar al contenido principal</a>
+    <header class="encabezado-sitio">
+        <div class="contenedor barra-navegacion">
+            <a class="marca" href="../index.html" aria-label="Sonido Vivo, volver al inicio">
+                <span class="marca__simbolo" aria-hidden="true">SV</span>
+                <span class="marca__texto">
+                    <strong>Sonido Vivo</strong>
+                    <small>Instrumentos y equipos musicales</small>
+                </span>
+            </a>
+            <nav class="navegacion-principal" aria-label="Navegación principal">
+                <ul>
+                    <li><a href="../index.html">Inicio</a></li>
+                    <li><a href="catalogo.html">Catálogo</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="detalle contenedor" id="contenido-principal">
+        <a class="detalle__volver" href="catalogo.html">Volver al catálogo</a>
+        <h1>Detalle de producto</h1>
+        <p class="aviso" id="estado-detalle" role="status" aria-live="polite">Cargando producto…</p>
+        <noscript><p class="aviso">Activa JavaScript para consultar la información del producto.</p></noscript>
+
+        <section class="detalle__producto" id="detalle-producto" aria-labelledby="producto-nombre" hidden>
+            <p class="etiqueta-seccion" id="producto-categoria"></p>
+            <h2 id="producto-nombre"></h2>
+            <div class="detalle__contenido">
+                <div class="detalle__informacion">
+                    <dl class="detalle__datos">
+                        <dt>Marca</dt>
+                        <dd id="producto-marca"></dd>
+                        <dt>Modelo</dt>
+                        <dd id="producto-modelo"></dd>
+                        <dt>Código</dt>
+                        <dd id="producto-codigo"></dd>
+                    </dl>
+                    <h3>Descripción</h3>
+                    <p class="detalle__descripcion" id="producto-descripcion"></p>
+                </div>
+                <div class="detalle__disponibilidad">
+                    <h3>Precio y disponibilidad</h3>
+                    <p class="detalle__precio" id="producto-precio"></p>
+                    <p class="detalle__stock" id="producto-stock"></p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="pie-sitio">
+        <div class="contenedor pie-sitio__contenido">
+            <div>
+                <p class="pie-sitio__marca">Sonido Vivo</p>
+                <p>Tienda de instrumentos y equipos musicales.</p>
+                <p>Viña del Mar, Región de Valparaíso.</p>
+            </div>
+            <nav aria-label="Navegación del pie de página">
+                <ul class="pie-sitio__enlaces">
+                    <li><a href="../index.html">Volver al inicio</a></li>
+                    <li><a href="catalogo.html">Volver al catálogo</a></li>
+                </ul>
+            </nav>
+            <p class="pie-sitio__academico">Proyecto académico · DSY1104 Desarrollo Fullstack II</p>
+        </div>
+    </footer>
+    <script src="../assets/js/data/productos.js"></script>
+    <script src="../assets/js/detalle-producto.js"></script>
+</body>
+</html>
