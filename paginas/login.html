@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="descripcion" content="Inicio de Sesion Sonido Vivo">
+
+    <title>Iniciar Sesion | Sonido Vivo</title>
+
+    <link rel="stylesheet" href="../assets/css/base.css">
+</head>
+
+<body>
+    
+    <header class="encabezado-sitio">
+        <div class="contenedor barra-navegacion">
+            
+
+            <a class="marca" href="../index.html">
+                <span class="marca__simbolo">asd</span>
+                
+                <span class="marca__texto">
+                    <strong>Sonido Vivo</strong>
+                    <small>Instrumentos y equipos musicales</small>
+                </span>
+            </a>
+    
+            <nav class="navegacion-principal">
+                <ul>
+                    <li><a href="../index.html" class="">Inicio</a></li>
+                    <li><a href="./productos.html">Productos</a></li>
+                    <li><a href="./nosotros.html">Nosotros</a></li>
+                    <li><a href="./blogs.html">Blogs</a></li>
+                    <li><a href="./contacto.html">Contacto</a></li>
+                    <li><a href="./login.html">Iniciar Sesion</a></li>
+                    <li><a href="./carrito.html">Carrito</a></li>
+
+                </ul>
+            </nav>
+    
+        </div>        
+    </header>
+    
+    <main class="contenedor">
+        <section>
+            <h1>Iniciar Sesion</h1>
+
+            <p>Ingresa tus datos para acceder a Sonido Vivo</p>
+
+            <form id="formulario-login">
+
+                <div>
+                    <label for="correo">Correo electronico</label>
+                    <input 
+                        type="email"
+                        id="correo"
+                        name="correo"
+                        maxlength="100"
+                        autocomplete="email"
+                        required
+                    >
+                    <p id="error-correo"></p>
+
+                </div>
+
+                <div>
+                    <label for="contraseña">Contraseña</label>
+                    
+                    <input 
+                        type="password"
+                        id="contraseña"
+                        name="contraseña"
+                        minlength="4"
+                        maxlength="10"
+                        autocomplete="current-password"
+                        required
+                    >
+                    <p id="error-contraseña"></p>
+                </div>
+
+                <button type="submit">Ingresar</button>
+                
+            </form>
+            <p>¿Aun no te registras?</p>
+            <a href="./registro.html">Registrate Aqui</a>
+                
+        </section>
+
+    </main>
+
+    <footer class="pie-sitio">
+        
+        <div class="contenedor">
+            <p>Sonido Vivo</p>
+            <p>Viña del Mar, Region de Valparaiso</p>
+            <p>Direccion: </p>
+
+
+        </div>
+
+    </footer>
+
+</body>
+</html>
