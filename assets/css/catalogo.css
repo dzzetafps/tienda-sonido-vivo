@@ -1,0 +1,165 @@
+﻿.catalogo {
+    padding-block: 3rem 4.5rem;
+}
+
+.catalogo__introduccion {
+    max-width: 48rem;
+    margin-bottom: 2rem;
+}
+
+.catalogo h1 {
+    margin-bottom: 1rem;
+    font-size: clamp(2.25rem, 6vw, 4rem);
+    letter-spacing: -0.04em;
+}
+
+.catalogo__introduccion > p:last-child {
+    color: var(--color-tinta-suave);
+}
+
+.catalogo h2 {
+    font-size: clamp(1.35rem, 3vw, 1.75rem);
+    letter-spacing: -0.02em;
+}
+
+.catalogo__filtros {
+    padding: 1.25rem;
+    border: 1px solid var(--color-borde);
+    border-radius: var(--radio-medio);
+    background: var(--color-superficie);
+}
+
+.catalogo__controles {
+    display: grid;
+    gap: 1rem;
+}
+
+.catalogo__campo {
+    min-width: 0;
+}
+
+.catalogo__campo label {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-weight: 700;
+}
+
+.catalogo__campo input,
+.catalogo__campo select {
+    width: 100%;
+    min-width: 0;
+    min-height: 3rem;
+    padding: 0.7rem;
+    border: 1px solid var(--color-tinta-suave);
+    border-radius: var(--radio-pequeno);
+    background: var(--color-blanco);
+    color: var(--color-tinta);
+    font: inherit;
+}
+
+.catalogo__campo input::placeholder {
+    color: var(--color-tinta-suave);
+    opacity: 1;
+}
+
+.catalogo__campo :disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+.catalogo__contador {
+    margin: 1rem 0 0;
+    color: var(--color-acento-oscuro);
+    font-weight: 700;
+}
+
+.catalogo__resultados {
+    margin-top: 2rem;
+}
+
+.catalogo__grilla {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.25rem;
+}
+
+.catalogo__tarjeta {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    padding: 1.4rem;
+    border: 1px solid var(--color-borde);
+    border-top: 0.25rem solid var(--color-acento);
+    border-radius: var(--radio-medio);
+    background: var(--color-superficie);
+    overflow-wrap: anywhere;
+}
+
+.catalogo__categoria {
+    margin-bottom: 0.75rem;
+    color: var(--color-acento-oscuro);
+    font-size: 0.8rem;
+    font-weight: 800;
+}
+
+.catalogo__nombre {
+    margin-bottom: 1rem;
+    font-size: 1.3rem;
+    line-height: 1.25;
+}
+
+.catalogo__datos {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.25rem 0.75rem;
+    margin: 0 0 1rem;
+    font-size: 0.9rem;
+}
+
+.catalogo__datos dt {
+    color: var(--color-tinta-suave);
+}
+
+.catalogo__datos dd {
+    margin: 0;
+    font-weight: 600;
+}
+
+.catalogo__descripcion {
+    color: var(--color-tinta-suave);
+    font-size: 0.95rem;
+}
+
+.catalogo__pie-tarjeta {
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid var(--color-borde);
+}
+
+.catalogo__precio {
+    margin-bottom: 0.4rem;
+    font-size: 1.5rem;
+    font-weight: 800;
+}
+
+.catalogo__stock {
+    margin-bottom: 0;
+    color: var(--color-tinta-suave);
+    font-size: 0.9rem;
+}
+
+@media (min-width: 48rem) {
+    .catalogo__controles {
+        grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    }
+
+    .catalogo__grilla {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 70rem) {
+    .catalogo__grilla {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
