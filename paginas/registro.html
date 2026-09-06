@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Registro de usuario Sonido Vivo">
+
+    <title>Registro | Sonido Vivo</title>
+
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <script src="../assets/js/registro.js" defer></script>
+</head>
+
+<body>
+
+    <header class="encabezado-sitio">
+        <div class="contenedor barra-navegacion">
+            
+
+            <a class="marca" href="../index.html">
+                <span class="marca__simbolo">SV</span>
+                
+                <span class="marca__texto">
+                    <strong>Sonido Vivo</strong>
+                    <small>Instrumentos y equipos musicales</small>
+                </span>
+            </a>
+    
+            <nav class="navegacion-principal">
+                <ul>
+                    <li><a href="../index.html" class="">Inicio</a></li>
+                    <li><a href="./productos.html">Productos</a></li>
+                    <li><a href="./nosotros.html">Nosotros</a></li>
+                    <li><a href="./blogs.html">Blogs</a></li>
+                    <li><a href="./contacto.html">Contacto</a></li>
+                    <li><a href="./login.html">Iniciar Sesion</a></li>
+                    <li><a href="./carrito.html">Carrito</a></li>
+
+                </ul>
+            </nav>
+    
+        </div>        
+    </header>
+
+    <main class="contenedor">
+
+        <section>
+            <h1>Crear cuenta</h1>
+            <p>
+                Registrate para acceder a Sonido Vivo
+            </p>
+            <form id="formulario-registro" novalidate>
+
+
+                <div>
+                    <label for="run">RUT</label>
+
+                    <input 
+                        type="text"
+                        id="run"
+                        name="run"
+                        minlength="7"
+                        maxlength="9"
+                        placeholder="218086365"
+                        required  
+                        >
+
+                        <p id="error-run"></p>
+
+                </div>
+
+                <div>
+
+                    
+                    <label for="nombre">Nombre</label>
+                    <input
+                    type="text"
+                    id="nombre"
+                    name="nombre"
+                    maxlength="50"
+                    autocomplete="given-name"
+                    required
+                    >
+                    
+                    <p id="error-nombre"></p>
+
+                </div>
+
+                <div>
+                    <label for="apellidos">Apellidos</label>
+                    <input 
+                    type="text"
+                    id="apellidos"
+                    name="apellidos"
+                    maxlength="100"
+                    autocomplete="family-name"
+                    required
+                    >
+                    
+                    <p id="error-apellidos"></p>
+
+                </div>
+
+                <div>
+                    <label for="correo">Correo</label>
+                    <input 
+                    type="email"
+                    id="correo"
+                    name="correo"
+                    maxlength="100"
+                    autocomplete="email"
+                    required
+                    >
+                    
+                    <p id="error-correo"></p>
+                
+                </div>
+
+                <div>
+                    <label for="fecha-nacimiento">Fecha de nacimiento </label>
+                    <input 
+                    type="date"
+                    id="fecha-nacimiento"
+                    name="fecha-nacimiento"
+                    autocomplete="bday"
+                    >
+                    
+                    <p id="error-fecha-nacimiento"></p>
+                    
+                </div>
+                
+                <div>
+                    <label for="region">Region</label>
+                    
+                    <select 
+                        id="region"
+                        name="region"
+                        required
+                        >
+                    
+                        <option value="">Selecciona una region</option>
+                        
+                </select>
+                
+                    <p id="error-region"></p>
+              </div>
+
+                <div>
+                    <label for="comuna">Comuna</label>
+                
+                    <select
+                        id="comuna"
+                        name="comuna"
+                        required
+                        >
+
+                    <option value="">Selecciona una Comuna</option>
+            
+                </select>
+
+                 <p id="error-comuna"></p>
+            </div>
+            
+            <div>
+                  <label for="direccion">Direccion</label>
+
+                 <input 
+                    type="text"
+                    id="direccion"
+                    name="direccion"
+                    maxlength="300"
+                    autocomplete="street-address"
+                    required
+                    >
+
+                    <p id="error-direccion"></p>
+            </div>
+
+
+            <div>
+                <button
+                    type="submit"
+                    class="boton boton-primario"
+                >
+                Registrarme
+            </button>
+        </div>
+
+        </form>
+             <p>¿Ya tienes una cuenta?
+                <a href="./login.html">Inicia sesion Aqui</a>
+            </p>
+        </section>
+        
+    </main>
+
+     <footer class="pie-sitio">
+        
+        <div class="contenedor">
+            <p>Sonido Vivo</p>
+            <p>Viña del Mar, Region de Valparaiso</p>
+            <p>Direccion: </p>
+
+
+        </div>
+
+    </footer>
+                    
+            
+
+</body>
+</html>
