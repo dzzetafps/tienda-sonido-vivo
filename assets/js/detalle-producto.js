@@ -11,10 +11,11 @@
     const descripcionProducto = document.getElementById("producto-descripcion");
     const precioProducto = document.getElementById("producto-precio");
     const stockProducto = document.getElementById("producto-stock");
+    const imagenProducto = document.getElementById("imagen-producto");
 
     if (!detalleProducto || !estadoDetalle || !categoriaProducto || !nombreProducto ||
         !marcaProducto || !modeloProducto || !codigoProductoTexto || !descripcionProducto ||
-        !precioProducto || !stockProducto) {
+        !precioProducto || !stockProducto || !imagenProducto) {
         console.error("No se encontraron los elementos necesarios para mostrar el detalle.");
         return;
     }
@@ -58,6 +59,14 @@
     if (!productoEncontrado) {
         mostrarError("El producto solicitado no fue encontrado.");
         return;
+    }
+
+    if (typeof productoEncontrado.imagen === "string" && productoEncontrado.imagen.trim() !== "") {
+        imagenProducto.src = productoEncontrado.imagen;
+        imagenProducto.alt = obtenerTexto(productoEncontrado.nombre);
+        imagenProducto.hidden = false;
+    } else {
+        imagenProducto.hidden = true;
     }
 
     // Muestra los datos del producto como texto.
