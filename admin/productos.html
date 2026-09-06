@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de productos | Sonido Vivo</title>
+    <link rel="stylesheet" href="../assets/css/base.css">
+</head>
+<body class="admin">
+    <a class="salto-contenido" href="#contenido-principal">Saltar al contenido principal</a>
+    <header class="encabezado-sitio admin-encabezado">
+        <div class="contenedor barra-navegacion">
+            <a class="marca" href="./index.html">
+                <span class="marca__simbolo" aria-hidden="true">SV</span>
+                <span class="marca__texto">
+                    <strong>Sonido Vivo</strong>
+                    <small>Área administrativa</small>
+                </span>
+            </a>
+            <nav class="navegacion-principal admin-navegacion" aria-label="Navegación administrativa">
+                <ul>
+                    <li><a href="./index.html">Dashboard</a></li>
+                    <li><a href="./productos.html" aria-current="page">Productos</a></li>
+                    <li><a href="./usuarios.html">Usuarios</a></li>
+                    <li><a href="../index.html">Volver al sitio público</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    <main class="contenedor seccion admin-contenido" id="contenido-principal" tabindex="-1">
+        <h1>Gestión de productos</h1>
+        <p>Consulta y organiza los productos del catálogo.</p>
+        <a class="boton boton--primario admin-boton" href="./nuevo-producto.html">Nuevo producto</a>
+        <p id="integracion-pendiente" class="aviso">La carga de datos, la búsqueda y el filtro se habilitarán al integrar JavaScript.</p>
+        <section class="admin-seccion" aria-labelledby="titulo-busqueda">
+            <h2 id="titulo-busqueda">Buscar productos</h2>
+            <div class="admin-filtros" role="search" aria-describedby="integracion-pendiente">
+                <label for="buscar-productos">Buscar por código, nombre, marca o modelo</label>
+                <input type="search" id="buscar-productos" name="busqueda" autocomplete="off" data-accion="buscar-productos">
+                <label for="filtro-categoria">Categoría</label>
+                <select id="filtro-categoria" name="categoria" data-accion="filtrar-categoria">
+                    <option value="">Todas las categorías</option>
+                </select>
+            </div>
+        </section>
+        <section class="admin-seccion" aria-labelledby="titulo-listado">
+            <h2 id="titulo-listado">Listado de productos</h2>
+            <p id="estado-productos" role="status">Listado pendiente de carga.</p>
+            <div class="admin-tabla-contenedor" role="region" aria-labelledby="titulo-listado" tabindex="0">
+                <table class="admin-tabla">
+                    <caption>Catálogo de productos; precios en pesos chilenos (CLP).</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Código</th>
+                            <th scope="col">Nombre</th>
+                            <th scope="col">Categoría</th>
+                            <th scope="col">Marca</th>
+                            <th scope="col">Modelo</th>
+                            <th scope="col">Precio</th>
+                            <th scope="col">Stock</th>
+                            <th scope="col">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-productos">
+                    </tbody>
+                </table>
+            </div>
+            <p id="sin-resultados-productos" class="aviso" role="status" hidden>No se encontraron productos que coincidan con la búsqueda.</p>
+            <!-- La integración agregará las filas y enlaces a editar-producto.html con el identificador correspondiente. -->
+        </section>
+    </main>
+    <footer class="pie-sitio admin-pie">
+        <div class="contenedor">
+            <p>Sonido Vivo · Área administrativa</p>
+            <p>DSY1104 – Evaluación Parcial 1 · Proyecto académico</p>
+        </div>
+    </footer>
+</body>
+</html>
