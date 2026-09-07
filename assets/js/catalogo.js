@@ -78,6 +78,14 @@ function iniciarCatalogo() {
         tarjetaProducto.className = "catalogo__tarjeta";
         tarjetaProducto.dataset.codigo = obtenerTexto(producto.codigo, "");
 
+        if (typeof producto.imagen === "string" && producto.imagen.trim() !== "") {
+            const imagen = document.createElement("img");
+            imagen.className = "catalogo__imagen";
+            imagen.src = producto.imagen;
+            imagen.alt = obtenerTexto(producto.nombre, "Producto");
+            tarjetaProducto.appendChild(imagen);
+        }
+
         const categoria = document.createElement("p");
         categoria.className = "catalogo__categoria";
         categoria.textContent = obtenerTexto(producto.categoria, "Categoría no informada");

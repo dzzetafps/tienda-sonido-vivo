@@ -30,6 +30,7 @@
 
     <main class="detalle contenedor" id="contenido-principal">
         <a class="detalle__volver" href="catalogo.html">Volver al catálogo</a>
+        <a class="detalle__volver" href="carrito.html">Ver carrito</a>
         <h1>Detalle de producto</h1>
         <p class="aviso" id="estado-detalle" role="status" aria-live="polite">Cargando producto…</p>
         <noscript><p class="aviso">Activa JavaScript para consultar la información del producto.</p></noscript>
@@ -37,6 +38,7 @@
         <section class="detalle__producto" id="detalle-producto" aria-labelledby="producto-nombre" hidden>
             <p class="etiqueta-seccion" id="producto-categoria"></p>
             <h2 id="producto-nombre"></h2>
+            <img id="imagen-producto" class="detalle__imagen" alt="" hidden>
             <div class="detalle__contenido">
                 <div class="detalle__informacion">
                     <dl class="detalle__datos">
@@ -54,6 +56,7 @@
                     <h3>Precio y disponibilidad</h3>
                     <p class="detalle__precio" id="producto-precio"></p>
                     <p class="detalle__stock" id="producto-stock"></p>
+                    <p><button type="button" class="boton boton--primario" onclick="agregarAlCarrito()">Agregar al carrito</button></p>
                 </div>
             </div>
         </section>
@@ -77,5 +80,6 @@
     </footer>
     <script src="../assets/js/data/productos.js"></script>
     <script src="../assets/js/detalle-producto.js"></script>
+    <script src="../assets/js/carrito.js"></script>
 </body>
 </html>
