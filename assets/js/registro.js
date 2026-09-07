@@ -183,7 +183,7 @@ function cargarRegiones(){
         
     }
 
-    const nombreIngresado  = nombre.value.trim(); //////////////////
+    const nombreIngresado  = nombre.value.trim(); 
     
     if(nombreIngresado === ""){
 
