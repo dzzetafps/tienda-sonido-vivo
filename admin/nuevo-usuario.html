@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuevo usuario | Sonido Vivo</title>
+    <link rel="stylesheet" href="../assets/css/base.css">
+</head>
+<body class="admin">
+    <a class="salto-contenido" href="#contenido-principal">Saltar al contenido principal</a>
+    <header class="encabezado-sitio admin-encabezado">
+        <div class="contenedor barra-navegacion">
+            <a class="marca" href="./index.html">
+                <span class="marca__simbolo" aria-hidden="true">SV</span>
+                <span class="marca__texto">
+                    <strong>Sonido Vivo</strong>
+                    <small>Área administrativa</small>
+                </span>
+            </a>
+            <nav class="navegacion-principal admin-navegacion" aria-label="Navegación administrativa">
+                <ul>
+                    <li><a href="./index.html">Dashboard</a></li>
+                    <li><a href="./productos.html">Productos</a></li>
+                    <li><a href="./usuarios.html">Usuarios</a></li>
+                    <li><a href="../index.html">Volver al sitio público</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    <main class="contenedor seccion admin-contenido" id="contenido-principal" tabindex="-1">
+        <h1>Nuevo usuario</h1>
+        <p>Completa los datos del nuevo usuario.</p>
+        <p id="integracion-pendiente" class="aviso">La carga de regiones, comunas y el guardado se habilitarán al integrar JavaScript.</p>
+        <form id="formulario-usuario" class="admin-formulario" data-modo="nuevo" method="post" aria-describedby="integracion-pendiente">
+            <div class="admin-campo">
+                <label for="run">RUN (sin puntos ni guion)</label>
+                <input type="text" id="run" name="run" required minlength="8" maxlength="9" pattern="[0-9]{7,8}[0-9Kk]" autocomplete="off" aria-describedby="ayuda-run error-run">
+                <p id="error-run" class="admin-error" aria-live="polite"></p>
+            </div>
+            <p id="ayuda-run">Ingrese los dígitos y el dígito verificador, que puede ser K, sin puntos ni guion.</p>
+            <div class="admin-campo">
+                <label for="nombre">Nombre</label>
+                <input type="text" id="nombre" name="nombre" required maxlength="50" autocomplete="given-name" aria-describedby="error-nombre">
+                <p id="error-nombre" class="admin-error" aria-live="polite"></p>
+            </div>
+            <div class="admin-campo">
+                <label for="apellidos">Apellidos</label>
+                <input type="text" id="apellidos" name="apellidos" required maxlength="100" autocomplete="family-name" aria-describedby="error-apellidos">
+                <p id="error-apellidos" class="admin-error" aria-live="polite"></p>
+            </div>
+            <div class="admin-campo">
+                <label for="correo">Correo</label>
+                <input type="email" id="correo" name="correo" required maxlength="100" autocomplete="email" aria-describedby="error-correo">
+                <p id="error-correo" class="admin-error" aria-live="polite"></p>
+            </div>
+            <div class="admin-campo">
+                <label for="fecha-nacimiento">Fecha de nacimiento</label>
+                <input type="date" id="fecha-nacimiento" name="fecha-nacimiento" required autocomplete="bday" aria-describedby="error-fecha-nacimiento">
+                <p id="error-fecha-nacimiento" class="admin-error" aria-live="polite"></p>
+            </div>
+            <div class="admin-campo">
+                <label for="rol">Tipo / Rol</label>
+                <select id="rol" name="rol" required aria-describedby="error-rol">
+                    <option value="">Seleccione un rol</option>
+                    <option value="administrador">Administrador</option>
+                    <option value="cliente">Cliente</option>
+                </select>
+                <p id="error-rol" class="admin-error" aria-live="polite"></p>
+            </div>
+            <div class="admin-campo">
+                <label for="region">Región</label>
+                <select id="region" name="region" required autocomplete="address-level1" data-carga="regiones" aria-describedby="error-region">
+                    <option value="">Seleccione una región</option>
+                </select>
+                <p id="error-region" class="admin-error" aria-live="polite"></p>
+            </div>
+            <div class="admin-campo">
+                <label for="comuna">Comuna</label>
+                <select id="comuna" name="comuna" required disabled autocomplete="address-level2" data-depende-de="region" aria-describedby="ayuda-comuna error-comuna">
+                    <option value="">Seleccione una comuna</option>
+                </select>
+                <p id="error-comuna" class="admin-error" aria-live="polite"></p>
+            </div>
+            <p id="ayuda-comuna">Las comunas se habilitarán al seleccionar una región cuando se integre la carga de datos.</p>
+            <div class="admin-campo">
+                <label for="direccion">Dirección</label>
+                <input type="text" id="direccion" name="direccion" required maxlength="300" autocomplete="street-address" aria-describedby="error-direccion">
+                <p id="error-direccion" class="admin-error" aria-live="polite"></p>
+            </div>
+            <p id="mensaje-formulario" role="status"></p>
+            <div class="admin-acciones">
+                <button class="boton boton--primario admin-boton" type="submit" id="guardar-usuario" disabled aria-describedby="integracion-pendiente">Guardar usuario</button>
+                <a href="./usuarios.html">Cancelar / Volver a usuarios</a>
+            </div>
+        </form>
+    </main>
+    <footer class="pie-sitio admin-pie">
+        <div class="contenedor">
+            <p>Sonido Vivo · Área administrativa</p>
+            <p>DSY1104 – Evaluación Parcial 1 · Proyecto académico</p>
+        </div>
+    </footer>
+</body>
+</html>
