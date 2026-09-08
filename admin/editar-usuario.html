@@ -1,107 +1,255 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Editar usuario | Sonido Vivo</title>
+
     <link rel="stylesheet" href="../assets/css/base.css">
     <link rel="stylesheet" href="../assets/css/admin.css">
 </head>
+
 <body class="admin">
-    <a class="salto-contenido" href="#contenido-principal">Saltar al contenido principal</a>
+
     <header class="encabezado-sitio admin-encabezado">
+
         <div class="contenedor barra-navegacion">
+
             <a class="marca" href="./index.html">
-                <span class="marca__simbolo" aria-hidden="true">SV</span>
+
+                <span class="marca__simbolo">SV</span>
+
                 <span class="marca__texto">
                     <strong>Sonido Vivo</strong>
                     <small>Área administrativa</small>
                 </span>
+
             </a>
-            <nav class="navegacion-principal admin-navegacion" aria-label="Navegación administrativa">
+
+            <nav class="navegacion-principal admin-navegacion">
+
                 <ul>
                     <li><a href="./index.html">Inicio</a></li>
                     <li><a href="./productos.html">Productos</a></li>
                     <li><a href="./usuarios.html">Usuarios</a></li>
-                    <li><a href="../index.html">Volver al sitio público</a></li>
+                    <li><a href="../index.html">Volver a la tienda</a></li>
+
+                    <li>
+                        <button
+                            type="button"
+                            id="cerrar-sesion"
+                            class="admin-cerrar-sesion">
+                            Cerrar sesión
+                        </button>
+                    </li>
                 </ul>
+
             </nav>
+
         </div>
+
     </header>
-    <main class="contenedor seccion admin-contenido" id="contenido-principal" tabindex="-1">
+
+
+    <main
+        class="contenedor seccion admin-contenido"
+        id="contenido-principal">
+
         <h1>Editar usuario</h1>
-        <p>Actualiza la información del usuario seleccionado. El RUN no se puede modificar.</p>
-        <p id="integracion-pendiente" class="aviso">La carga del usuario, las regiones, las comunas y el guardado se habilitarán al integrar JavaScript.</p>
-        <form id="formulario-usuario" class="admin-formulario" data-modo="editar" method="post" aria-describedby="integracion-pendiente">
+
+        <p>
+            Modifica los datos y el rol del usuario.
+        </p>
+
+
+        <form
+            id="formulario-usuario"
+            class="admin-formulario"
+            data-modo="editar">
+
+
             <div class="admin-campo">
                 <label for="run">RUN (sin puntos ni guion)</label>
                 <input type="text" id="run" name="run" autocomplete="off" readonly aria-describedby="ayuda-run error-run">
                 <p id="error-run" class="admin-error" aria-live="polite"></p>
             </div>
-            <p id="ayuda-run">Ingrese los dígitos y el dígito verificador, que puede ser K, sin puntos ni guion.</p>
+
+
             <div class="admin-campo">
-                <label for="nombre">Nombre</label>
-                <input type="text" id="nombre" name="nombre" required maxlength="50" autocomplete="given-name" aria-describedby="error-nombre">
-                <p id="error-nombre" class="admin-error" aria-live="polite"></p>
+
+                <label for="nombre">
+                    Nombre
+                </label>
+
+                <input
+                    type="text"
+                    id="nombre"
+                    name="nombre"
+                    required>
+
             </div>
+
+
             <div class="admin-campo">
-                <label for="apellidos">Apellidos</label>
-                <input type="text" id="apellidos" name="apellidos" required maxlength="100" autocomplete="family-name" aria-describedby="error-apellidos">
-                <p id="error-apellidos" class="admin-error" aria-live="polite"></p>
+
+                <label for="apellidos">
+                    Apellidos
+                </label>
+
+                <input
+                    type="text"
+                    id="apellidos"
+                    name="apellidos"
+                    required>
+
             </div>
+
+
             <div class="admin-campo">
-                <label for="correo">Correo</label>
-                <input type="email" id="correo" name="correo" required maxlength="100" autocomplete="email" aria-describedby="error-correo">
-                <p id="error-correo" class="admin-error" aria-live="polite"></p>
+
+                <label for="correo">
+                    Correo electrónico
+                </label>
+
+                <input
+                    type="email"
+                    id="correo"
+                    name="correo"
+                    required>
+
             </div>
+
+
             <div class="admin-campo">
                 <label for="fecha-nacimiento">Fecha de nacimiento</label>
                 <input type="date" id="fecha-nacimiento" name="fecha-nacimiento" autocomplete="bday" aria-describedby="error-fecha-nacimiento">
                 <p id="error-fecha-nacimiento" class="admin-error" aria-live="polite"></p>
             </div>
+
+
             <div class="admin-campo">
-                <label for="rol">Tipo / Rol</label>
-                <select id="rol" name="rol" required aria-describedby="error-rol">
-                    <option value="">Seleccione un rol</option>
-                    <option value="administrador">Administrador</option>
-                    <option value="cliente">Cliente</option>
+
+                <label for="rol">
+                    Rol
+                </label>
+
+                <select
+                    id="rol"
+                    name="rol"
+                    required>
+
+                    <option value="">
+                        Seleccione un rol
+                    </option>
+
+                    <option value="administrador">
+                        Administrador
+                    </option>
+
+                    <option value="vendedor">
+                        Vendedor
+                    </option>
+
+                    <option value="cliente">
+                        Cliente
+                    </option>
+
                 </select>
-                <p id="error-rol" class="admin-error" aria-live="polite"></p>
+
             </div>
+
+
             <div class="admin-campo">
-                <label for="region">Región</label>
-                <select id="region" name="region" required autocomplete="address-level1" data-carga="regiones" aria-describedby="error-region">
-                    <option value="">Seleccione una región</option>
+
+                <label for="region">
+                    Región
+                </label>
+
+                <select
+                    id="region"
+                    name="region"
+                    required>
+
+                    <option value="">
+                        Seleccione una región
+                    </option>
+
                 </select>
-                <p id="error-region" class="admin-error" aria-live="polite"></p>
+
             </div>
+
+
             <div class="admin-campo">
-                <label for="comuna">Comuna</label>
-                <select id="comuna" name="comuna" required disabled autocomplete="address-level2" data-depende-de="region" aria-describedby="ayuda-comuna error-comuna">
-                    <option value="">Seleccione una comuna</option>
+
+                <label for="comuna">
+                    Comuna
+                </label>
+
+                <select
+                    id="comuna"
+                    name="comuna"
+                    required
+                    disabled>
+
+                    <option value="">
+                        Seleccione una comuna
+                    </option>
+
                 </select>
-                <p id="error-comuna" class="admin-error" aria-live="polite"></p>
+
             </div>
-            <p id="ayuda-comuna">Las comunas se habilitarán al seleccionar una región cuando se integre la carga de datos.</p>
+
+
             <div class="admin-campo">
-                <label for="direccion">Dirección</label>
-                <input type="text" id="direccion" name="direccion" required maxlength="300" autocomplete="street-address" aria-describedby="error-direccion">
-                <p id="error-direccion" class="admin-error" aria-live="polite"></p>
+
+                <label for="direccion">
+                    Dirección
+                </label>
+
+                <input
+                    type="text"
+                    id="direccion"
+                    name="direccion"
+                    required>
+
             </div>
-            <p id="mensaje-formulario" role="status"></p>
+
+
             <div class="admin-acciones">
-                <button class="boton boton--primario admin-boton" type="submit" id="guardar-usuario" disabled aria-describedby="integracion-pendiente">Guardar cambios</button>
-                <a href="./usuarios.html">Cancelar / Volver a usuarios</a>
+
+                <button
+                    class="boton boton--primario"
+                    type="submit"
+                    id="guardar-usuario">
+
+                    Guardar cambios
+
+                </button>
+
+
+                <a href="./usuarios.html">
+                    Cancelar
+                </a>
+
             </div>
+
         </form>
+
     </main>
+
+
     <footer class="pie-sitio admin-pie">
+
         <div class="contenedor">
             <p>Sonido Vivo</p>
             <p>Contactanos: info@sonidovivo.com</p>
         </div>
+
     </footer>
     <script src="../assets/js/data/regiones.js"></script>
     <script src="../assets/js/admin/admin-usuario-formulario.js"></script>
 </body>
+
 </html>

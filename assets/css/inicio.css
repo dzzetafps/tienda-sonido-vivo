@@ -1,0 +1,492 @@
+/* =====================================================
+   INICIO - SONIDO VIVO
+===================================================== */
+
+
+/* =====================================================
+   HERO
+===================================================== */
+
+.hero {
+    position: relative;
+
+    width: min(100% - 3rem, 74rem);
+    min-height: 32rem;
+
+    margin: 2.5rem auto 0;
+
+    display: flex;
+    align-items: center;
+
+    overflow: hidden;
+
+    border-radius: 1.5rem;
+
+    background: #e9e2d6;
+
+    box-shadow: 0 1rem 2.5rem rgba(31, 25, 18, 0.12);
+}
+
+.hero__media {
+    position: absolute;
+    inset: 0;
+}
+
+.hero__imagen {
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+    object-position: center;
+
+    display: block;
+}
+
+
+/* Capa clara para poder leer el texto */
+
+.hero::after {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+
+    background: linear-gradient(
+        90deg,
+        rgba(255, 253, 249, 0.98) 0%,
+        rgba(255, 253, 249, 0.88) 28%,
+        rgba(255, 253, 249, 0.45) 48%,
+        rgba(255, 253, 249, 0.05) 72%
+    );
+
+    pointer-events: none;
+}
+
+
+/* Texto del hero */
+
+.hero__contenido {
+    position: relative;
+    z-index: 1;
+
+    margin: 0;
+
+    width: 58%;
+    max-width: 40rem;
+
+    padding: 4rem;
+}
+
+.hero h1 {
+    margin-bottom: 1rem;
+
+    font-size: clamp(3rem, 7vw, 5rem);
+
+    color: #181817;
+}
+
+.hero__frase {
+    margin-bottom: 1rem;
+
+    max-width: 32rem;
+
+    color: #181817;
+
+    font-size: clamp(1.25rem, 2vw, 1.65rem);
+    font-weight: 700;
+
+    line-height: 1.35;
+}
+
+.hero__descripcion {
+    max-width: 32rem;
+
+    margin-bottom: 2rem;
+
+    font-size: 1.05rem;
+}
+
+
+/* =====================================================
+   ENCABEZADOS DE SECCIONES
+===================================================== */
+
+.encabezado-seccion {
+    display: grid;
+
+    gap: 1.5rem;
+
+    margin-bottom: 2.5rem;
+}
+
+.encabezado-seccion > p {
+    max-width: 35rem;
+}
+
+
+/* =====================================================
+   PRODUCTOS DESTACADOS
+===================================================== */
+
+.destacados {
+    background: #f5f1e9;
+}
+
+.grilla-productos {
+    display: grid;
+
+    grid-template-columns: repeat(
+        auto-fit,
+        minmax(min(100%, 15rem), 1fr)
+    );
+
+    gap: 1.5rem;
+}
+
+.tarjeta-producto {
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+
+    border: 1px solid #d9d2c6;
+    border-radius: 1rem;
+
+    background: #fffdf9;
+
+    box-shadow: 0 0.5rem 1.5rem rgba(31, 25, 18, 0.08);
+
+    transition:
+        transform 160ms ease,
+        box-shadow 160ms ease;
+}
+
+.tarjeta-producto:hover {
+    transform: translateY(-0.3rem);
+
+    box-shadow: 0 1rem 2.5rem rgba(31, 25, 18, 0.12);
+}
+
+.tarjeta-producto__imagen {
+    width: 100%;
+    height: 15rem;
+
+    padding: 1.25rem;
+
+    object-fit: contain;
+
+    background: #ffffff;
+}
+
+.tarjeta-producto__contenido {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+
+    padding: 1.3rem;
+}
+
+.tarjeta-producto__categoria {
+    margin-bottom: 0.5rem;
+
+    color: #a85111;
+
+    font-size: 0.78rem;
+    font-weight: 800;
+
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.tarjeta-producto__marca {
+    margin-bottom: 1.5rem;
+
+    font-size: 0.92rem;
+}
+
+.tarjeta-producto__pie {
+    margin-top: auto;
+
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+
+    gap: 1rem;
+
+    padding-top: 1rem;
+
+    border-top: 1px solid #e6dfd4;
+}
+
+.tarjeta-producto__precio {
+    margin: 0;
+
+    color: #a85111;
+
+    font-size: 1.2rem;
+    font-weight: 800;
+}
+
+.tarjeta-producto__stock {
+    margin: 0;
+
+    font-size: 0.82rem;
+}
+
+.nota-imagenes {
+    margin-top: 1.5rem;
+
+    font-size: 0.8rem;
+
+    text-align: center;
+}
+
+
+/* =====================================================
+   NOSOTROS RESUMEN
+===================================================== */
+
+.nosotros-resumen {
+    background: #fffdf9;
+}
+
+.nosotros-resumen__grilla {
+    display: grid;
+
+    gap: 3rem;
+
+    align-items: center;
+}
+
+.nosotros-resumen__contenido {
+    max-width: 42rem;
+}
+
+.datos-tienda {
+    margin: 0;
+
+    display: grid;
+
+    grid-template-columns: repeat(3, 1fr);
+
+    gap: 1rem;
+}
+
+.dato-tienda {
+    padding: 1.5rem 1rem;
+
+    border: 1px solid #d9d2c6;
+    border-radius: 1rem;
+
+    background: #f5f1e9;
+
+    text-align: center;
+}
+
+.dato-tienda dt {
+    color: #d47a24;
+
+    font-size: 2.5rem;
+    font-weight: 900;
+
+    line-height: 1;
+}
+
+.dato-tienda dd {
+    margin: 0.75rem 0 0;
+
+    color: #5e5b54;
+
+    font-size: 0.9rem;
+}
+
+
+/* =====================================================
+   VIDEO
+===================================================== */
+
+.multimedia {
+    background: #111213;
+}
+
+.multimedia__grilla {
+    display: grid;
+
+    gap: 3rem;
+
+    align-items: center;
+}
+
+.multimedia h2 {
+    color: #ffffff;
+}
+
+.multimedia p {
+    color: #d8d5cf;
+}
+
+.multimedia .etiqueta-seccion {
+    color: #ec963f;
+}
+
+.multimedia__fuente {
+    font-size: 0.85rem;
+}
+
+.video-responsive {
+    overflow: hidden;
+
+    border-radius: 1rem;
+
+    background: #000000;
+
+    box-shadow: 0 1rem 2.5rem rgba(0, 0, 0, 0.3);
+}
+
+.video-responsive iframe {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+
+    border: 0;
+}
+
+
+/* =====================================================
+   ESCRITORIO
+===================================================== */
+
+@media (min-width: 48rem) {
+
+    .encabezado-seccion {
+        grid-template-columns: 1fr 1fr;
+
+        align-items: end;
+    }
+
+    .nosotros-resumen__grilla {
+        grid-template-columns: 1.2fr 0.8fr;
+    }
+
+    .multimedia__grilla {
+        grid-template-columns: 0.8fr 1.2fr;
+    }
+}
+
+
+/* =====================================================
+   CELULAR
+===================================================== */
+
+@media (max-width: 47.99rem) {
+
+    .hero {
+        width: calc(100% - 1.5rem);
+        min-height: 34rem;
+
+        margin-top: 1rem;
+
+        align-items: flex-start;
+
+        border-radius: 1rem;
+    }
+
+    .hero__imagen {
+        object-position: 65% center;
+    }
+
+    .hero::after {
+        background: linear-gradient(
+            180deg,
+            rgba(255, 253, 249, 0.97) 0%,
+            rgba(255, 253, 249, 0.86) 52%,
+            rgba(255, 253, 249, 0.1) 100%
+        );
+    }
+
+    .hero__contenido {
+        width: 100%;
+
+        padding: 2.5rem 1.5rem;
+    }
+
+    .hero h1 {
+        font-size: 3rem;
+    }
+
+    .datos-tienda {
+        grid-template-columns: 1fr;
+    }
+}
+/* ========================================
+   SECCIÓN CULTURA MUSICAL
+======================================== */
+
+main > section.multimedia.multimedia {
+    background: #fffdf9;
+    color: #181817;
+
+    border: 1px solid #d9d2c6;
+    border-radius: 24px;
+
+    padding: 3rem;
+
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.07);
+}
+
+.multimedia__grilla {
+    display: grid;
+    grid-template-columns: 0.8fr 1.2fr;
+    gap: 3rem;
+    align-items: center;
+}
+
+.multimedia__contenido .etiqueta-seccion {
+    color: #d47a24;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.multimedia__contenido h2 {
+    color: #181817;
+    font-size: clamp(2rem, 4vw, 3.3rem);
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+}
+
+.multimedia__contenido p {
+    color: #5e5b54;
+    line-height: 1.7;
+}
+
+.multimedia__contenido .multimedia__fuente {
+    color: #77736b;
+    font-size: 0.9rem;
+    margin-top: 1.5rem;
+}
+
+.video-responsive {
+    overflow: hidden;
+    border-radius: 18px;
+    background: #111213;
+
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.18);
+}
+
+.video-responsive iframe {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border: 0;
+}
+
+@media (max-width: 768px) {
+
+    .multimedia__grilla {
+        grid-template-columns: 1fr;
+    }
+
+    main > section.multimedia.multimedia {
+        padding: 1.5rem;
+    }
+}

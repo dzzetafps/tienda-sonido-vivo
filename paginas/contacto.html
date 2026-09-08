@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Contacto Sonido Vivo">
+
+    <title>Contacto | Sonido Vivo</title>
+
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <script src="../assets/js/contacto.js" defer></script>
+</head>
+
+<body>
+
+    <header class="encabezado-sitio">
+        <div class="contenedor barra-navegacion">
+            
+
+            <a class="marca" href="../index.html">
+                <span class="marca__simbolo">SV</span>
+                
+                <span class="marca__texto">
+                    <strong>Sonido Vivo</strong>
+                    <small>Instrumentos y equipos musicales</small>
+                </span>
+            </a>
+    
+            <nav class="navegacion-principal">
+                <ul>
+                    <li><a href="../index.html" class="">Inicio</a></li>
+                    <li><a href="./catalogo.html">Productos</a></li>
+                    <li><a href="./nosotros.html">Nosotros</a></li>
+                    <li><a href="./blogs.html">Blogs</a></li>
+                    <li><a href="./contacto.html">Contacto</a></li>
+                    <li><a href="./login.html">Iniciar Sesion</a></li>
+                    <li><a href="./carrito.html">Carrito</a></li>
+
+                </ul>
+            </nav>
+    
+        </div>        
+    </header>
+
+    <main class="contenedor">
+        <section>
+                <h1>Contacto</h1>
+                
+                <p>Envianos tu consulta y nos pondremos en contacto contigo</p>
+                
+                <form id="formulario-contacto" novalidate>
+
+                    <div>
+                        <label for="nombre">Nombre</label>
+                        <input 
+                            type="text"
+                            id="nombre"
+                            name="nombre"
+                            maxlength="100"
+                            required
+                            >
+                            <p id="error-nombre"></p>
+    
+                    </div>
+
+                    <div>
+                        <label for="correo">Correo</label>
+                        <input 
+                            type="email"
+                            id="correo"
+                            name="correo"
+                            maxlength="100"
+                            required
+                            >
+                            <p id="error-correo"></p>
+
+                    </div>
+
+                    <div>
+                        <label for="comentario">Comentario</label>
+                        <textarea 
+                            id="comentario"
+                            name="comentario"
+                            maxlength="500"
+                            rows="6"
+                            required
+                            ></textarea>
+
+                            <p id="error-comentario"></p>
+
+                    </div>
+
+                    <button
+                        type="submit"
+                        class="boton boton-primario">Enviar Mensaje</button>
+                </form>
+            </section>
+        
+    </main>
+
+     <footer class="pie-sitio">
+        
+        <div class="contenedor">
+            <p>Sonido Vivo</p>
+            <p>Viña del Mar, Region de Valparaiso</p>
+            <p>Direccion: </p>
+
+
+        </div>
+
+    </footer>
+                    
+</body>
+</html>

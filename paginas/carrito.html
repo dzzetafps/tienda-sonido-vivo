@@ -1,0 +1,101 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Carrito de compras Sonido Vivo">
+
+    <title>Carrito | Sonido Vivo</title>
+
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <link rel="stylesheet" href="../assets/css/carrito.css">
+</head>
+<body>
+
+    <header class="encabezado-sitio">
+        <div class="contenedor barra-navegacion">
+            <a class="marca" href="../index.html">
+                <span class="marca__simbolo">SV</span>
+                <span class="marca__texto">
+                    <strong>Sonido Vivo</strong>
+                    <small>Instrumentos y equipos musicales</small>
+                </span>
+            </a>
+
+            <nav class="navegacion-principal">
+                <ul>
+                    <li><a href="../index.html">Inicio</a></li>
+                    <li><a href="./catalogo.html">Productos</a></li>
+                    <li><a href="./nosotros.html">Nosotros</a></li>
+                    <li><a href="./blogs.html">Blogs</a></li>
+                    <li><a href="./contacto.html">Contacto</a></li>
+                    <li><a href="./login.html">Iniciar Sesion</a></li>
+                    <li><a href="./carrito.html">Carrito</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="contenedor carrito">
+        <section class="carrito__encabezado">
+            <div>
+                <p class="etiqueta-seccion">Tu compra</p>
+                <h1>Carrito de compras</h1>
+                <p>Revisa tus productos antes de continuar con el pago.</p>
+            </div>
+
+            <a class="carrito__volver" href="./catalogo.html">← Seguir comprando</a>
+        </section>
+
+        <section class="carrito__contenido">
+            <div class="carrito__productos">
+                <div id="carrito-vacio" class="carrito__vacio" hidden>
+                    <h2>Tu carrito esta vacio</h2>
+                    <p>No has agregado productos todavia.</p>
+                    <a href="./catalogo.html" class="boton boton--primario">Ir al catalogo</a>
+                </div>
+
+                <div id="lista-carrito"></div>
+            </div>
+
+            <aside class="carrito__resumen">
+                <h2>Resumen de compra</h2>
+
+                <div class="carrito__resumen-fila">
+                    <span>Productos</span>
+                    <strong id="cantidad-productos">0</strong>
+                </div>
+
+                <div class="carrito__resumen-fila">
+                    <span>Subtotal</span>
+                    <strong id="subtotal-carrito">$0</strong>
+                </div>
+
+                <div class="carrito__resumen-fila carrito__resumen-total">
+                    <span>Total</span>
+                    <strong id="total-carrito">$0</strong>
+                </div>
+
+                <button id="boton-pagar" class="boton boton--primario carrito__boton">
+                    Pagar
+                </button>
+
+                <button id="vaciar-carrito" class="boton carrito__boton carrito__boton-secundario">
+                    Vaciar carrito
+                </button>
+            </aside>
+        </section>
+    </main>
+
+    <footer class="pie-sitio">
+        <div class="contenedor">
+            <p>Sonido Vivo</p>
+            <p>Viña del Mar, Region de Valparaiso</p>
+            <p>Direccion: </p>
+        </div>
+    </footer>
+
+    <script src="../assets/js/data/productos.js"></script>
+    <script src="../assets/js/carrito.js"></script>
+</body>
+</html>
