@@ -34,7 +34,7 @@
         <form id="formulario-usuario" class="admin-formulario" data-modo="nuevo" method="post" aria-describedby="integracion-pendiente">
             <div class="admin-campo">
                 <label for="run">RUN (sin puntos ni guion)</label>
-                <input type="text" id="run" name="run" required minlength="8" maxlength="9" pattern="[0-9]{7,8}[0-9Kk]" autocomplete="off" aria-describedby="ayuda-run error-run">
+                <input type="text" id="run" name="run" required autocomplete="off" aria-describedby="ayuda-run error-run">
                 <p id="error-run" class="admin-error" aria-live="polite"></p>
             </div>
             <p id="ayuda-run">Ingrese los dígitos y el dígito verificador, que puede ser K, sin puntos ni guion.</p>
@@ -55,7 +55,7 @@
             </div>
             <div class="admin-campo">
                 <label for="fecha-nacimiento">Fecha de nacimiento</label>
-                <input type="date" id="fecha-nacimiento" name="fecha-nacimiento" required autocomplete="bday" aria-describedby="error-fecha-nacimiento">
+                <input type="date" id="fecha-nacimiento" name="fecha-nacimiento" autocomplete="bday" aria-describedby="error-fecha-nacimiento">
                 <p id="error-fecha-nacimiento" class="admin-error" aria-live="polite"></p>
             </div>
             <div class="admin-campo">
@@ -96,9 +96,11 @@
     </main>
     <footer class="pie-sitio admin-pie">
         <div class="contenedor">
-            <p>Sonido Vivo · Área administrativa</p>
-            <p>DSY1104 – Evaluación Parcial 1 · Proyecto académico</p>
+            <p>Sonido Vivo</p>
+            <p>Contactanos: info@sonidovivo.com</p>
         </div>
     </footer>
+    <script src="../assets/js/data/regiones.js"></script>
+    <script src="../assets/js/admin/admin-usuario-formulario.js"></script>
 </body>
 </html>
