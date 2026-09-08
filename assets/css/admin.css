@@ -1,0 +1,197 @@
+/* Área administrativa: complemento de base.css */
+.admin {
+    background-color: var(--color-fondo);
+    color: var(--color-tinta);
+}
+
+.admin-encabezado {
+    border-bottom: 3px solid var(--color-acento);
+}
+
+.admin-navegacion a[aria-current="page"] {
+    color: var(--color-acento);
+}
+
+.admin-contenido {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+.admin-contenido h1 {
+    margin-bottom: 0.75rem;
+    font-size: 2rem;
+}
+
+.admin-contenido .admin-boton {
+    margin-bottom: 1.5rem;
+}
+
+.admin-seccion {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    border: 1px solid var(--color-borde);
+    border-top: 4px solid var(--color-acento);
+    border-radius: var(--radio-medio);
+    background-color: var(--color-superficie);
+}
+
+.admin-seccion h2 {
+    font-size: 1.35rem;
+    letter-spacing: normal;
+}
+
+/* Formularios y campos */
+.admin-formulario {
+    width: 100%;
+    max-width: 48rem;
+    padding: 1rem;
+    border: 1px solid var(--color-borde);
+    border-top: 4px solid var(--color-acento);
+    border-radius: var(--radio-medio);
+    background-color: var(--color-superficie);
+}
+
+.admin-campo {
+    margin-bottom: 1rem;
+}
+
+.admin-campo label,
+.admin-filtros label {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-weight: 600;
+}
+
+.admin-campo input,
+.admin-campo select,
+.admin-campo textarea,
+.admin-filtros input,
+.admin-filtros select {
+    width: 100%;
+    min-width: 0;
+    padding: 0.75rem;
+    border: 1px solid var(--color-tinta-suave);
+    border-radius: var(--radio-pequeno);
+    background-color: var(--color-blanco);
+    color: var(--color-tinta);
+    font-family: inherit;
+    font-size: 1rem;
+}
+
+.admin-campo input:focus,
+.admin-campo select:focus,
+.admin-campo textarea:focus,
+.admin-filtros input:focus,
+.admin-filtros select:focus {
+    border-color: var(--color-acento-oscuro);
+}
+
+.admin-campo select:disabled {
+    background-color: var(--color-fondo);
+    color: var(--color-tinta-suave);
+    cursor: not-allowed;
+}
+
+.admin-error {
+    min-height: 1.4rem;
+    margin-top: 0.35rem;
+    margin-bottom: 0;
+    color: #a12424;
+    font-size: 0.9rem;
+}
+
+/* Buscadores y filtros */
+.admin-filtros {
+    display: grid;
+    gap: 0.5rem;
+}
+
+.admin-filtros input,
+.admin-filtros select {
+    margin-bottom: 0.75rem;
+}
+
+/* Tablas */
+.admin-tabla-contenedor {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.admin-tabla {
+    width: 100%;
+    min-width: 52rem;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+
+.admin-tabla caption {
+    padding: 0.75rem 0;
+    color: var(--color-tinta-suave);
+    text-align: left;
+}
+
+.admin-tabla th,
+.admin-tabla td {
+    padding: 0.85rem;
+    border-bottom: 1px solid var(--color-borde);
+    text-align: left;
+    vertical-align: top;
+}
+
+.admin-tabla th {
+    background-color: var(--color-fondo);
+    font-weight: 700;
+}
+
+.admin-tabla tbody tr:hover {
+    background-color: var(--color-fondo);
+}
+
+.admin-tabla a {
+    display: inline-block;
+    padding: 0.25rem;
+    color: var(--color-acento-oscuro);
+    font-weight: 600;
+    text-decoration: underline;
+}
+
+/* Acciones */
+.admin-acciones {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.admin-boton {
+    font-family: inherit;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.admin-boton:disabled {
+    background-color: var(--color-borde);
+    color: var(--color-tinta-suave);
+    cursor: not-allowed;
+}
+
+/* Responsive */
+@media (min-width: 768px) {
+    .admin-seccion,
+    .admin-formulario {
+        padding: 1.5rem;
+    }
+
+    .admin-filtros {
+        grid-template-columns: 16rem 1fr;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .admin-filtros label,
+    .admin-filtros input,
+    .admin-filtros select {
+        margin-bottom: 0;
+    }
+}
