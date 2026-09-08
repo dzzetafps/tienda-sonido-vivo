@@ -26,7 +26,7 @@
     margin-bottom: 1.5rem;
 }
 
-.admin-seccion {
+.admin-contenido .admin-seccion {
     margin-bottom: 1.5rem;
     padding: 1rem;
     border: 1px solid var(--color-borde);
@@ -140,6 +140,7 @@
 
 .admin-tabla th {
     background-color: var(--color-fondo);
+    color: var(--color-tinta);
     font-weight: 700;
 }
 
@@ -178,7 +179,7 @@
 
 /* Responsive */
 @media (min-width: 768px) {
-    .admin-seccion,
+    .admin-contenido .admin-seccion,
     .admin-formulario {
         padding: 1.5rem;
     }
