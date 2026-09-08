@@ -1,4 +1,4 @@
-﻿"use strict";
+"use strict";
 
 const CLAVE_CARRITO = "sonidoVivoCarrito";
 
@@ -79,88 +79,6 @@ function buscarProductoPorCodigo(codigoProducto) {
    AGREGAR PRODUCTO AL CARRITO
 ========================================= */
 
-function agregarProductoAlCarrito(codigoProducto) {
-
-    const productoSeleccionado =
-        buscarProductoPorCodigo(codigoProducto);
-
-    if (productoSeleccionado === null) {
-
-        alert("No se pudo encontrar el producto.");
-
-        return;
-    }
-
-
-    if (
-        !Number.isInteger(productoSeleccionado.stock) ||
-        productoSeleccionado.stock <= 0
-    ) {
-
-        alert("Este producto no tiene stock disponible.");
-
-        return;
-    }
-
-
-    const carrito = obtenerCarrito();
-
-
-    const productoExistente =
-        carrito.find(function (item) {
-
-            return item.codigo === codigoProducto;
-
-        });
-
-
-    if (productoExistente) {
-
-        if (
-            productoExistente.cantidad >=
-            productoSeleccionado.stock
-        ) {
-
-            alert("No hay más unidades disponibles.");
-
-            return;
-        }
-
-
-        productoExistente.cantidad += 1;
-
-        productoExistente.stock =
-            productoSeleccionado.stock;
-
-    } else {
-
-        carrito.push({
-
-            codigo: productoSeleccionado.codigo,
-
-            nombre: productoSeleccionado.nombre,
-
-            precio: productoSeleccionado.precio,
-
-            imagen: productoSeleccionado.imagen,
-
-            stock: productoSeleccionado.stock,
-
-            cantidad: 1
-
-        });
-
-    }
-
-
-    guardarCarrito(carrito);
-
-
-    alert("Producto agregado al carrito.");
-
-
-    mostrarCarrito();
-}
 
 
 /* =========================================

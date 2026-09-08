@@ -1,58 +1,61 @@
-# tienda-sonido-vivo
-Proyecto - Desarrollo FullStack II (Sonido Vivo)
+# Sonido Vivo
 
-index.html
+Proyecto frontend académico desarrollado para DSY1104 – Desarrollo Fullstack II, Evaluación Parcial 1.
 
-pages/
-    nosotros.html
-    novedades.html
-    novedad-detalle.html
-    contacto.html
-    registro.html
-    login.html
-    catalogo.html
-    producto-detalle.html
-    carrito.html
+Sonido Vivo es una tienda de instrumentos y equipos musicales.
 
-admin/
-    index.html
-    productos.html
-    producto-formulario.html
-    usuarios.html
-    usuario-formulario.html
+## Tecnologías utilizadas
 
-assets/css/
-    base.css
-    inicio.css si ya existe o resulta necesario
-    catalogo.css
-    carrito.css
-    contenido.css
-    formularios.css
-    admin.css
+- HTML5
+- CSS3
+- JavaScript
+- LocalStorage
+- Git
+- GitHub
 
-assets/js/
-    data/
-        productos.js
-        novedades.js
-        regiones.js
+## Estructura del proyecto
 
-    inicio.js
-    catalogo.js
-    producto-detalle.js
-    carrito.js
+```text
+/
+├── index.html
+├── paginas/
+│   ├── catalogo.html
+│   ├── detalle-producto.html
+│   ├── carrito.html
+│   ├── nosotros.html
+│   ├── blogs.html
+│   ├── detalle-blog-1.html
+│   ├── detalle-blog-2.html
+│   ├── contacto.html
+│   ├── login.html
+│   └── registro.html
+├── admin/
+│   ├── index.html
+│   ├── productos.html
+│   ├── nuevo-producto.html
+│   ├── editar-producto.html
+│   ├── usuarios.html
+│   ├── nuevo-usuario.html
+│   └── editar-usuario.html
+└── assets/
+    ├── css/
+    ├── js/
+    └── img/
+```
 
-    formularios/
-        validaciones.js
-        contacto.js
-        login.js
-        usuario.js
+## Funcionalidades principales
 
-    admin/
-        dashboard.js
-        productos.js
-        usuarios.js
+- Catálogo generado mediante JavaScript, con búsqueda y filtro de productos.
+- Vista de detalle de producto.
+- Carrito persistente mediante LocalStorage.
+- Formularios con validaciones JavaScript.
+- Registro con regiones y comunas dependientes.
+- Administración de productos y usuarios, con creación y edición.
 
-assets/img/
-    sitio/
-    productos/
-    novedades/
+El login utiliza credenciales de demostración y el botón Pagar es una simulación.
+
+## Ejecución
+
+Abrir el proyecto mediante Live Server o un servidor local.
+
+Página principal: `index.html`.
