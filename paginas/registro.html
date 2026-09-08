@@ -8,6 +8,7 @@
     <title>Registro | Sonido Vivo</title>
 
     <link rel="stylesheet" href="../assets/css/base.css">
+    <script src="../assets/js/data/regiones.js" defer></script>
     <script src="../assets/js/registro.js" defer></script>
 </head>
 
@@ -29,7 +30,7 @@
             <nav class="navegacion-principal">
                 <ul>
                     <li><a href="../index.html" class="">Inicio</a></li>
-                    <li><a href="./productos.html">Productos</a></li>
+                    <li><a href="./catalogo.html">Productos</a></li>
                     <li><a href="./nosotros.html">Nosotros</a></li>
                     <li><a href="./blogs.html">Blogs</a></li>
                     <li><a href="./contacto.html">Contacto</a></li>
@@ -59,8 +60,6 @@
                         type="text"
                         id="run"
                         name="run"
-                        minlength="7"
-                        maxlength="9"
                         placeholder="218086365"
                         required  
                         >
@@ -130,6 +129,15 @@
                 </div>
                 
                 <div>
+                    <label for="rol">Tipo / Rol</label>
+                    <select id="rol" name="rol" required aria-describedby="error-rol">
+                        <option value="">Seleccione un tipo de usuario</option>
+                        <option value="cliente">Cliente</option>
+                    </select>
+                    <p id="error-rol"></p>
+                </div>
+
+                <div>
                     <label for="region">Region</label>
                     
                     <select 
@@ -138,7 +146,7 @@
                         required
                         >
                     
-                        <option value="">Selecciona una region</option>
+                        <option value="">Seleccione una región</option>
                         
                 </select>
                 
@@ -152,9 +160,10 @@
                         id="comuna"
                         name="comuna"
                         required
+                        disabled
                         >
 
-                    <option value="">Selecciona una Comuna</option>
+                    <option value="">Seleccione una comuna</option>
             
                 </select>
 
@@ -199,7 +208,6 @@
         <div class="contenedor">
             <p>Sonido Vivo</p>
             <p>Viña del Mar, Region de Valparaiso</p>
-            <p>Direccion: </p>
 
 
         </div>

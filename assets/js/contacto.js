@@ -35,25 +35,14 @@ formulario.addEventListener("submit",function(evento){
     const correoIngresado = correo.value.trim().toLowerCase();
     const formatoCorreo = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if(correoIngresado === ""){
-        errorCorreo.textContent = "El correo es Obligatorio"
-        formularioValido = false;
-
-    } else if (!formatoCorreo.test(correoIngresado)){
-        errorCorreo.textContent = "Ingrese un correo electronico valido"
-        formularioValido = false;
-
-    } else if (correoIngresado.length > 100){
-        errorCorreo.textContent = "El correo no puede tener mas de 100 caracteres"
-        formularioValido = false;
-    } else if (
-        !correoIngresado.endsWith("@duocuc.cl") &&
-        !correoIngresado.endsWith("@profesor.duoc.cl") &&
-        !correoIngresado.endsWith("@gmail.com") 
-
-    ){
-        errorCorreo.textContent = "El correo debe ser @duocuc.cl, @profesor.duoc.cl o @gmail.com"
-        formularioValido = false;
+    if (correoIngresado !== "") {
+        if (correoIngresado.length > 100) {
+            errorCorreo.textContent = "El correo no puede tener mas de 100 caracteres";
+            formularioValido = false;
+        } else if (!formatoCorreo.test(correoIngresado)) {
+            errorCorreo.textContent = "Ingrese un correo electronico valido";
+            formularioValido = false;
+        }
     }
 
     const comentarioIngresado = comentario.value.trim();

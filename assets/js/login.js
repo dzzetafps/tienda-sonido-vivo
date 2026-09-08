@@ -77,16 +77,6 @@ formulario.addEventListener("submit", function (evento) {
 
         formularioValido = false;
 
-    } else if (
-        !correoIngresado.endsWith("@duoc.cl") &&
-        !correoIngresado.endsWith("@profesor.duoc.cl") &&
-        !correoIngresado.endsWith("@gmail.com")
-    ) {
-
-        errorCorreo.textContent =
-            "El correo debe ser @duoc.cl, @profesor.duoc.cl o @gmail.com";
-
-        formularioValido = false;
     }
 
 

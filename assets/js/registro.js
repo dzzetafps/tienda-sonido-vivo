@@ -5,6 +5,7 @@ const nombre = document.getElementById("nombre");
 const apellidos = document.getElementById("apellidos");
 const correo = document.getElementById("correo");
 const fechaNacimiento = document.getElementById("fecha-nacimiento");
+const rol = document.getElementById("rol");
 const region  = document.getElementById("region");
 const comuna  = document.getElementById("comuna");
 const direccion  = document.getElementById("direccion");  
@@ -14,99 +15,46 @@ const errorRun = document.getElementById("error-run");
 const errorNombre = document.getElementById("error-nombre");
 const errorApellidos = document.getElementById("error-apellidos");
 const errorCorreo = document.getElementById("error-correo");
+const errorRol = document.getElementById("error-rol");
 const errorRegion = document.getElementById("error-region");
 const errorComuna = document.getElementById("error-comuna");
 const errorDireccion = document.getElementById("error-direccion");
 
 
 
-const regionesComunas = [
-    {
-        region: "Region de Valparaiso",
-        comunas:[
-            "Valparaiso",
-            "Viña del Mar",
-            "Quilpue",
-            "Villa Alemana",
-            "Concon",
-            "Quillota",
-            "San Antonio",
-        ]
+function cargarRegiones() {
+    region.innerHTML = '<option value="">Seleccione una región</option>';
 
-    },
-    {
-        region: "Region Metropolitana",
-        comunas: [
-            "Santiago",
-            "Providencia",
-            "Las Condes",
-            "Ñuñoa",
-            "Maipu",
-            "Puente Alto",
-            "La Florida",
-            "Quilicura",
-            "Colina"
-            
-        ]
-    },
-    {
-        region: "Region del Maule",
-        comunas: [
-            "Talca",
-            "Curico",
-            "Linares",
-            "Cauquenes",
-
-        ]
-    },
-
-    {
-        region: "Region del BioBio",
-        comunas: [
-            "Concepcion",
-            "Talcahuano",
-            "San Pedro de la Paz",
-            "Los Angeles",
-            "Coronel"       
-        ]
+    for (let i = 0; i < regiones.length; i++) {
+        const opcion = document.createElement("option");
+        opcion.value = regiones[i].nombre;
+        opcion.textContent = regiones[i].nombre;
+        region.appendChild(opcion);
     }
-];
-
-function cargarRegiones(){
-        regionesComunas.forEach(function(item){
-
-            const opcion = document.createElement("option");
-            opcion.value = item.region
-            opcion.textContent = item.region;
-
-            region.appendChild(opcion);
-        });
 }
-    cargarRegiones();
 
-    region.addEventListener("change", function (){
+function cargarComunas() {
+    comuna.innerHTML = '<option value="">Seleccione una comuna</option>';
+    comuna.disabled = true;
 
-        comuna.innerHTML = '<option value="">Selecciona una comuna</option>';
-        const regionSeleccionada = regionesComunas.find(
-            function (item){
-                return item.region === region.value;
+    for (let i = 0; i < regiones.length; i++) {
+        if (regiones[i].nombre === region.value) {
+            for (let j = 0; j < regiones[i].comunas.length; j++) {
+                const opcion = document.createElement("option");
+                opcion.value = regiones[i].comunas[j];
+                opcion.textContent = regiones[i].comunas[j];
+                comuna.appendChild(opcion);
             }
-        );
 
-        if(!regionSeleccionada){
-            return;
+            comuna.disabled = false;
+            break;
         }
-        regionSeleccionada.comunas.forEach(function(nombreComuna){
-            
-            const opcion = document.createElement("option");
-            
-            opcion.value = nombreComuna;
-            opcion.textContent= nombreComuna;
-            
-            comuna.appendChild(opcion);
+    }
+}
 
-        });
-    });
+cargarRegiones();
+cargarComunas();
+region.onchange = cargarComunas;
 
 
     formulario.addEventListener("submit",function(evento){
@@ -118,6 +66,7 @@ function cargarRegiones(){
         errorNombre.textContent = "";
         errorApellidos.textContent = "";
         errorCorreo.textContent = "";
+        errorRol.textContent = "";
         errorRegion.textContent = "";
         errorComuna.textContent = "";
         errorDireccion.textContent = "";
@@ -136,10 +85,6 @@ function cargarRegiones(){
         function validarRun(runIngresado){
 
         const runLimpio = runIngresado.trim().toUpperCase();
-
-        if(runLimpio.length < 7 ||  runLimpio.length > 9){
-            return false;
-        }
 
         const formatoRun = /^[0-9]+[0-9K]$/;
         
@@ -223,13 +168,10 @@ function cargarRegiones(){
         errorCorreo.textContent = "El correo no puede superar los 100 caracteres"
         formularioValido = false;
 
-    } else if (
-        !correoIngresado.endsWith("@duocuc.cl") &&
-        !correoIngresado.endsWith("@profesor.duoc.cl") &&
-        !correoIngresado.endsWith("@gmail.com") 
-        
-    ) {
-        errorCorreo.textContent = "El correo debe ser @duocuc.cl, @profesor.duoc.cl o @gmail.com"
+    }
+
+    if (rol.value !== "cliente") {
+        errorRol.textContent = "Seleccione Cliente como tipo de usuario.";
         formularioValido = false;
     }
      
