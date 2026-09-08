@@ -1,75 +1,182 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Gestión de usuarios | Sonido Vivo</title>
+
     <link rel="stylesheet" href="../assets/css/base.css">
+
+    <script src="../assets/js/admin-auth.js" defer></script>
+    <script src="../assets/js/admin.js" defer></script>
 </head>
+
 <body class="admin">
-    <a class="salto-contenido" href="#contenido-principal">Saltar al contenido principal</a>
+
     <header class="encabezado-sitio admin-encabezado">
+
         <div class="contenedor barra-navegacion">
+
             <a class="marca" href="./index.html">
-                <span class="marca__simbolo" aria-hidden="true">SV</span>
+
+                <span class="marca__simbolo">SV</span>
+
                 <span class="marca__texto">
                     <strong>Sonido Vivo</strong>
                     <small>Área administrativa</small>
                 </span>
+
             </a>
-            <nav class="navegacion-principal admin-navegacion" aria-label="Navegación administrativa">
+
+
+            <nav class="navegacion-principal admin-navegacion">
+
                 <ul>
-                    <li><a href="./index.html">Dashboard</a></li>
-                    <li><a href="./productos.html">Productos</a></li>
-                    <li><a href="./usuarios.html" aria-current="page">Usuarios</a></li>
-                    <li><a href="../index.html">Volver al sitio público</a></li>
+
+                    <li>
+                        <a href="./index.html">
+                            Dashboard
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="./productos.html">
+                            Productos
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="./usuarios.html" aria-current="page">
+                            Usuarios
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="../index.html">
+                            Volver a la tienda
+                        </a>
+                    </li>
+
+                    <li>
+                        <button
+                            type="button"
+                            id="cerrar-sesion"
+                            class="admin-cerrar-sesion">
+                            Cerrar sesión
+                        </button>
+                    </li>
+
                 </ul>
+
             </nav>
+
         </div>
+
     </header>
-    <main class="contenedor seccion admin-contenido" id="contenido-principal" tabindex="-1">
+
+
+    <main
+        class="contenedor seccion admin-contenido"
+        id="contenido-principal">
+
         <h1>Gestión de usuarios</h1>
-        <p>Consulta y organiza la información de los usuarios.</p>
-        <a class="boton boton--primario admin-boton" href="./nuevo-usuario.html">Nuevo usuario</a>
-        <p id="integracion-pendiente" class="aviso">La carga de datos y la búsqueda se habilitarán al integrar JavaScript.</p>
-        <section class="admin-seccion" aria-labelledby="titulo-busqueda">
-            <h2 id="titulo-busqueda">Buscar usuarios</h2>
-            <div class="admin-filtros" role="search" aria-describedby="integracion-pendiente">
-                <label for="buscar-usuarios">Buscar por RUN, nombre, apellidos o correo</label>
-                <input type="search" id="buscar-usuarios" name="busqueda" autocomplete="off" data-accion="buscar-usuarios">
+
+        <p>
+            Agrega, busca, edita o elimina usuarios.
+        </p>
+
+
+        <a
+            class="boton boton--primario admin-boton"
+            href="./nuevo-usuario.html">
+
+            Nuevo usuario
+
+        </a>
+
+
+        <section class="admin-seccion">
+
+            <h2>Buscar usuarios</h2>
+
+            <div class="admin-filtros">
+
+                <label for="buscar-usuarios">
+                    Buscar por RUN, nombre, apellidos o correo
+                </label>
+
+                <input
+                    type="search"
+                    id="buscar-usuarios"
+                    name="busqueda"
+                    autocomplete="off">
+
             </div>
+
         </section>
-        <section class="admin-seccion" aria-labelledby="titulo-listado">
-            <h2 id="titulo-listado">Listado de usuarios</h2>
-            <p id="estado-usuarios" role="status">Listado pendiente de carga.</p>
-            <div class="admin-tabla-contenedor" role="region" aria-labelledby="titulo-listado" tabindex="0">
+
+
+        <section class="admin-seccion">
+
+            <h2>Listado de usuarios</h2>
+
+            <p id="estado-usuarios" role="status"></p>
+
+
+            <div class="admin-tabla-contenedor">
+
                 <table class="admin-tabla">
-                    <caption>Usuarios del proyecto.</caption>
+
                     <thead>
+
                         <tr>
-                            <th scope="col">RUN</th>
-                            <th scope="col">Nombre</th>
-                            <th scope="col">Apellidos</th>
-                            <th scope="col">Correo</th>
-                            <th scope="col">Rol</th>
-                            <th scope="col">Región</th>
-                            <th scope="col">Comuna</th>
-                            <th scope="col">Acciones</th>
+                            <th>RUN</th>
+                            <th>Nombre</th>
+                            <th>Apellidos</th>
+                            <th>Correo</th>
+                            <th>Rol</th>
+                            <th>Región</th>
+                            <th>Comuna</th>
+                            <th>Acciones</th>
                         </tr>
+
                     </thead>
+
+
                     <tbody id="tabla-usuarios">
                     </tbody>
+
                 </table>
+
             </div>
-            <p id="sin-resultados-usuarios" class="aviso" role="status" hidden>No se encontraron usuarios que coincidan con la búsqueda.</p>
-            <!-- La integración agregará las filas y enlaces a editar-usuario.html con el identificador correspondiente. -->
+
+
+            <p
+                id="sin-resultados-usuarios"
+                class="aviso"
+                hidden>
+
+                No se encontraron usuarios.
+
+            </p>
+
         </section>
+
     </main>
+
+
     <footer class="pie-sitio admin-pie">
+
         <div class="contenedor">
+
             <p>Sonido Vivo · Área administrativa</p>
-            <p>DSY1104 – Evaluación Parcial 1 · Proyecto académico</p>
+
         </div>
+
     </footer>
+
 </body>
+
 </html>

@@ -1,51 +1,153 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Administración | Sonido Vivo</title>
+
+    <title>Administración | Sonido Vivo</title>
+
     <link rel="stylesheet" href="../assets/css/base.css">
+
+    <script src="../assets/js/admin-auth.js" defer></script>
 </head>
-<body class="admin">
-    <a class="salto-contenido" href="#contenido-principal">Saltar al contenido principal</a>
-    <header class="encabezado-sitio admin-encabezado">
+
+<body>
+
+    <header class="encabezado-sitio">
+
         <div class="contenedor barra-navegacion">
+
             <a class="marca" href="./index.html">
-                <span class="marca__simbolo" aria-hidden="true">SV</span>
+
+                <span class="marca__simbolo">SV</span>
+
                 <span class="marca__texto">
                     <strong>Sonido Vivo</strong>
                     <small>Área administrativa</small>
                 </span>
+
             </a>
-            <nav class="navegacion-principal admin-navegacion" aria-label="Navegación administrativa">
+
+            <nav class="navegacion-principal">
+
                 <ul>
-                    <li><a href="./index.html" aria-current="page">Dashboard</a></li>
+                    <li><a href="./index.html">Dashboard</a></li>
                     <li><a href="./productos.html">Productos</a></li>
                     <li><a href="./usuarios.html">Usuarios</a></li>
-                    <li><a href="../index.html">Volver al sitio público</a></li>
+                    <li><a href="../index.html">Volver a la tienda</a></li>
                 </ul>
+
             </nav>
+
         </div>
+
     </header>
-    <main class="contenedor seccion admin-contenido" id="contenido-principal" tabindex="-1">
-        <h1>Panel de Administración</h1>
-        <p>Bienvenido al área administrativa de Sonido Vivo. Accede a los mantenedores de productos y usuarios.</p>
-        <section class="admin-seccion" aria-labelledby="titulo-productos">
-            <h2 id="titulo-productos">Productos</h2>
-            <p>Organiza la información de instrumentos, equipos musicales y accesorios del catálogo.</p>
-            <a class="boton boton--primario admin-boton" href="./productos.html">Gestionar productos</a>
-        </section>
-        <section class="admin-seccion" aria-labelledby="titulo-usuarios">
-            <h2 id="titulo-usuarios">Usuarios</h2>
-            <p>Administra los datos y roles de los usuarios del proyecto.</p>
-            <a class="boton boton--primario admin-boton" href="./usuarios.html">Gestionar usuarios</a>
-        </section>
-    </main>
-    <footer class="pie-sitio admin-pie">
-        <div class="contenedor">
-            <p>Sonido Vivo · Área administrativa</p>
-            <p>DSY1104 – Evaluación Parcial 1 · Proyecto académico</p>
+
+
+    <main class="contenedor admin-panel">
+
+        <div class="admin-panel__titulo">
+
+            <p class="etiqueta-seccion">
+                Administración
+            </p>
+
+            <h1>Panel de Administración</h1>
+
+            <p>
+                Administra los productos y usuarios de Sonido Vivo.
+            </p>
+
         </div>
+
+
+        <section class="admin-opciones">
+
+            <article class="admin-opcion">
+
+                <div class="admin-opcion__icono">
+                    +
+                </div>
+
+                <h2>Agregar producto</h2>
+
+                <p>
+                    Registra un nuevo producto en el catálogo.
+                </p>
+
+                <a
+                    href="./nuevo-producto.html"
+                    class="boton boton--primario">
+
+                    Agregar producto
+
+                </a>
+
+            </article>
+
+
+            <article class="admin-opcion">
+
+                <div class="admin-opcion__icono">
+                    P
+                </div>
+
+                <h2>Gestionar productos</h2>
+
+                <p>
+                    Revisa, edita o elimina productos de la tienda.
+                </p>
+
+                <a
+                    href="./productos.html"
+                    class="boton boton--primario">
+
+                    Gestionar productos
+
+                </a>
+
+            </article>
+
+
+            <article class="admin-opcion">
+
+                <div class="admin-opcion__icono">
+                    U
+                </div>
+
+                <h2>Gestionar usuarios</h2>
+
+                <p>
+                    Administra los usuarios y sus roles.
+                </p>
+
+                <a
+                    href="./usuarios.html"
+                    class="boton boton--primario">
+
+                    Gestionar usuarios
+
+                </a>
+
+            </article>
+
+        </section>
+
+    </main>
+
+
+    <footer class="pie-sitio">
+
+        <div class="contenedor">
+
+            <p>Sonido Vivo</p>
+            <p>Área administrativa</p>
+
+        </div>
+
     </footer>
+
 </body>
+
 </html>

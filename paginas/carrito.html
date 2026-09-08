@@ -3,65 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Revisa los productos y cantidades de tu carrito de Sonido Vivo.">
-    <title>Carrito de compras | Sonido Vivo</title>
+    <meta name="description" content="Carrito de compras Sonido Vivo">
+
+    <title>Carrito | Sonido Vivo</title>
+
     <link rel="stylesheet" href="../assets/css/base.css">
     <link rel="stylesheet" href="../assets/css/carrito.css">
 </head>
 <body>
-    <a class="salto-contenido" href="#contenido-principal">Saltar al contenido principal</a>
+
     <header class="encabezado-sitio">
         <div class="contenedor barra-navegacion">
-            <a class="marca" href="../index.html" aria-label="Sonido Vivo, volver al inicio">
-                <span class="marca__simbolo" aria-hidden="true">SV</span>
+            <a class="marca" href="../index.html">
+                <span class="marca__simbolo">SV</span>
                 <span class="marca__texto">
                     <strong>Sonido Vivo</strong>
                     <small>Instrumentos y equipos musicales</small>
                 </span>
             </a>
-            <nav class="navegacion-principal" aria-label="Navegación principal">
+
+            <nav class="navegacion-principal">
                 <ul>
                     <li><a href="../index.html">Inicio</a></li>
-                    <li><a href="catalogo.html">Catálogo</a></li>
-                    <li><a href="#contenido-principal" aria-current="page">Carrito</a></li>
+                    <li><a href="./catalogo.html">Catalogo</a></li>
+                    <li><a href="./nosotros.html">Nosotros</a></li>
+                    <li><a href="./blogs.html">Blogs</a></li>
+                    <li><a href="./contacto.html">Contacto</a></li>
+                    <li><a href="./login.html">Iniciar Sesion</a></li>
+                    <li><a href="./carrito.html">Carrito</a></li>
                 </ul>
             </nav>
         </div>
     </header>
 
-    <main class="carrito contenedor" id="contenido-principal">
-        <h1>Carrito de compras</h1>
-        <p><a class="carrito__volver" href="catalogo.html">Volver al catálogo</a></p>
-        <noscript><p class="aviso">Activa JavaScript para consultar y modificar tu carrito.</p></noscript>
+    <main class="contenedor carrito">
+        <section class="carrito__encabezado">
+            <div>
+                <p class="etiqueta-seccion">Tu compra</p>
+                <h1>Carrito de compras</h1>
+                <p>Revisa tus productos antes de continuar con el pago.</p>
+            </div>
 
-        <section class="carrito__listado" aria-label="Productos del carrito">
-            <p class="aviso" id="estado-carrito" role="status" hidden></p>
-            <p class="aviso" id="carrito-vacio">El carrito está vacío.</p>
-            <div id="lista-carrito"></div>
+            <a class="carrito__volver" href="./catalogo.html">← Seguir comprando</a>
         </section>
 
-        <section class="carrito__resumen" aria-labelledby="titulo-total">
-            <h2 id="titulo-total">Resumen del carrito</h2>
-            <p role="status" aria-live="polite" aria-atomic="true">Total: <span id="total-carrito">$0</span></p>
+        <section class="carrito__contenido">
+            <div class="carrito__productos">
+                <div id="carrito-vacio" class="carrito__vacio" hidden>
+                    <h2>Tu carrito esta vacio</h2>
+                    <p>No has agregado productos todavia.</p>
+                    <a href="./catalogo.html" class="boton boton--primario">Ir al catalogo</a>
+                </div>
+
+                <div id="lista-carrito"></div>
+            </div>
+
+            <aside class="carrito__resumen">
+                <h2>Resumen de compra</h2>
+
+                <div class="carrito__resumen-fila">
+                    <span>Productos</span>
+                    <strong id="cantidad-productos">0</strong>
+                </div>
+
+                <div class="carrito__resumen-fila">
+                    <span>Subtotal</span>
+                    <strong id="subtotal-carrito">$0</strong>
+                </div>
+
+                <div class="carrito__resumen-fila carrito__resumen-total">
+                    <span>Total</span>
+                    <strong id="total-carrito">$0</strong>
+                </div>
+
+                <button id="boton-pagar" class="boton boton--primario carrito__boton">
+                    Pagar
+                </button>
+
+                <button id="vaciar-carrito" class="boton carrito__boton carrito__boton-secundario">
+                    Vaciar carrito
+                </button>
+            </aside>
         </section>
     </main>
 
     <footer class="pie-sitio">
-        <div class="contenedor pie-sitio__contenido">
-            <div>
-                <p class="pie-sitio__marca">Sonido Vivo</p>
-                <p>Tienda de instrumentos y equipos musicales.</p>
-                <p>Viña del Mar, Región de Valparaíso.</p>
-            </div>
-            <nav aria-label="Navegación del pie de página">
-                <ul class="pie-sitio__enlaces">
-                    <li><a href="../index.html">Volver al inicio</a></li>
-                    <li><a href="catalogo.html">Volver al catálogo</a></li>
-                </ul>
-            </nav>
-            <p class="pie-sitio__academico">Proyecto académico · DSY1104 Desarrollo Fullstack II</p>
+        <div class="contenedor">
+            <p>Sonido Vivo</p>
+            <p>Viña del Mar, Region de Valparaiso</p>
+            <p>Direccion: </p>
         </div>
     </footer>
+
+    <script src="../assets/js/data/productos.js"></script>
     <script src="../assets/js/carrito.js"></script>
 </body>
 </html>

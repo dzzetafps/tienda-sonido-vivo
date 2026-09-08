@@ -4,23 +4,23 @@
 const DESTACADOS_HOME = [
     {
         codigo: "GA001",
-        imagen: "./assets/img/productos/GA001.png",
-        textoAlternativo: "Ilustración referencial de una guitarra acústica folk"
+        imagen: "./assets/img/productos/yamaha-f310-GA001.jpg",
+        textoAlternativo: "Guitarra acústica Yamaha F310"
     },
     {
         codigo: "GE001",
-        imagen: "./assets/img/productos/GE001.png",
-        textoAlternativo: "Ilustración referencial de una guitarra eléctrica tipo Stratocaster"
+        imagen: "./assets/img/productos/squier-affinity-strat-GE001.jpg",
+        textoAlternativo: "Guitarra eléctrica Squier Affinity Strat"
     },
     {
         codigo: "MI001",
-        imagen: "./assets/img/productos/MI001.png",
-        textoAlternativo: "Ilustración referencial de un micrófono dinámico para voz"
+        imagen: "./assets/img/productos/shure-sm58-MI001.jpg",
+        textoAlternativo: "Micrófono dinámico Shure SM58"
     },
     {
         codigo: "ES001",
-        imagen: "./assets/img/productos/ES001.png",
-        textoAlternativo: "Ilustración referencial de una interfaz de audio USB"
+        imagen: "./assets/img/productos/focusrite-scarlett-solo-ES001.jpg",
+        textoAlternativo: "Interfaz de audio Focusrite Scarlett Solo"
     }
 ];
 

@@ -1048,3 +1048,175 @@ tbody tr:hover {
         transition-duration: 0.01ms !important;
     }
 }
+.admin-opciones {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.admin-opcion {
+    display: flex;
+    flex-direction: column;
+
+    padding: 2rem;
+
+    border: 1px solid var(--color-borde);
+    border-radius: 1rem;
+
+    background: var(--color-superficie);
+
+    box-shadow: var(--sombra-suave);
+}
+
+.admin-opcion h2 {
+    margin-bottom: 0.8rem;
+
+    color: var(--color-tinta);
+
+    font-size: 1.6rem;
+}
+
+.admin-opcion p {
+    margin-bottom: 1.5rem;
+
+    color: var(--color-tinta-suave);
+
+    line-height: 1.6;
+}
+
+.admin-opcion .boton {
+    margin-top: auto;
+    align-self: flex-start;
+}
+
+@media (max-width: 900px) {
+
+    .admin-opciones {
+        grid-template-columns: 1fr;
+    }
+
+}
+.admin-panel {
+    padding: 3.5rem 0 5rem;
+}
+
+.admin-panel__titulo {
+    max-width: 750px;
+    margin-bottom: 2.5rem;
+}
+
+.admin-panel__titulo .etiqueta-seccion {
+    margin-bottom: 1rem;
+    color: var(--color-acento);
+    font-size: 0.85rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.admin-panel__titulo h1 {
+    margin: 0 0 1rem;
+    font-size: clamp(2.8rem, 6vw, 4.3rem);
+    line-height: 1;
+    color: var(--color-tinta);
+}
+
+.admin-panel__titulo > p:last-child {
+    color: var(--color-tinta-suave);
+    font-size: 1.05rem;
+}
+
+main.admin-panel > .admin-opciones {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
+
+    margin: 0;
+    padding: 0;
+
+    border: none;
+    border-radius: 0;
+
+    background: transparent;
+    box-shadow: none;
+}
+
+main.admin-panel .admin-opcion {
+    display: flex;
+    flex-direction: column;
+
+    min-height: 280px;
+    margin: 0;
+    padding: 2rem;
+
+    border: 1px solid var(--color-borde);
+    border-radius: 1.2rem;
+
+    background: var(--color-superficie);
+
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
+}
+
+main.admin-panel .admin-opcion__icono {
+    width: 48px;
+    height: 48px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-bottom: 1.4rem;
+
+    border-radius: 50%;
+
+    background: var(--color-acento);
+    color: white;
+
+    font-size: 1.1rem;
+    font-weight: 800;
+}
+
+main.admin-panel .admin-opcion h2 {
+    margin: 0 0 0.8rem;
+
+    color: var(--color-tinta);
+    font-size: 1.55rem;
+    line-height: 1.2;
+}
+
+main.admin-panel .admin-opcion p {
+    margin: 0 0 1.5rem;
+
+    color: var(--color-tinta-suave);
+    line-height: 1.6;
+}
+
+main.admin-panel .admin-opcion .boton {
+    align-self: flex-start;
+    margin-top: auto;
+}
+
+.admin-cerrar-sesion {
+    padding: 0;
+
+    border: 0;
+
+    background: transparent;
+    color: inherit;
+
+    font: inherit;
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+.admin-cerrar-sesion:hover {
+    color: var(--color-acento);
+}
+
+@media (max-width: 900px) {
+    main.admin-panel > .admin-opciones {
+        grid-template-columns: 1fr;
+    }
+}
