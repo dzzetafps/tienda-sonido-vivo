@@ -12,6 +12,11 @@ dist
 dist-ssr
 *.local
 
+# Bundles y resultados de pruebas
+.karma/
+coverage/
+test-results/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
