@@ -1,15 +1,20 @@
 import { productos as productosIniciales } from './productos.js'
-import type { Producto } from '../tipos/Producto'
+
+/** @typedef {import('../tipos/Producto').Producto} Producto */
 
 const CLAVE_PRODUCTOS = 'sonido-vivo-ep2-productos'
 
-function validarProducto(producto: unknown): asserts producto is Producto {
+/**
+ * @param {unknown} producto
+ * @returns {asserts producto is Producto}
+ */
+function validarProducto(producto) {
   if (!producto || typeof producto !== 'object') {
     throw new Error('El producto debe ser un objeto.')
   }
 
   const campos = ['codigo', 'categoria', 'nombre', 'marca', 'modelo', 'descripcion', 'imagen']
-  const datos = producto as Record<string, unknown>
+  const datos = /** @type {Record<string, unknown>} */ (producto)
   for (const campo of campos) {
     if (typeof datos[campo] !== 'string' || !datos[campo].trim()) {
       throw new Error(`El campo ${campo} es obligatorio y debe ser texto.`)
@@ -22,13 +27,15 @@ function validarProducto(producto: unknown): asserts producto is Producto {
   if (typeof datos.precio !== 'number' || !Number.isFinite(datos.precio) || datos.precio < 0) {
     throw new Error('El precio debe ser un número finito mayor o igual a cero.')
   }
-  if (datos.codigo !== (datos.codigo as string).trim()) {
+  if (datos.codigo !== /** @type {string} */ (datos.codigo).trim()) {
     throw new Error('El código no debe tener espacios al inicio ni al final.')
   }
 }
 
-export function obtenerProductos(): Producto[] {
-  let guardados: string | null
+/** @returns {Producto[]} */
+export function obtenerProductos() {
+  /** @type {string | null} */
+  let guardados
   try {
     guardados = localStorage.getItem(CLAVE_PRODUCTOS)
   } catch {
@@ -39,7 +46,8 @@ export function obtenerProductos(): Producto[] {
   if (guardados === null) return productosIniciales.map((producto) => ({ ...producto }))
 
   try {
-    const productos: unknown = JSON.parse(guardados)
+    /** @type {unknown} */
+    const productos = JSON.parse(guardados)
     if (!Array.isArray(productos)) throw new Error('El catálogo debe ser una lista.')
     productos.forEach(validarProducto)
     if (new Set(productos.map((producto) => producto.codigo)).size !== productos.length) {
@@ -52,7 +60,11 @@ export function obtenerProductos(): Producto[] {
   }
 }
 
-function guardarProductos(productos: Producto[]): void {
+/**
+ * @param {Producto[]} productos
+ * @returns {void}
+ */
+function guardarProductos(productos) {
   try {
     localStorage.setItem(CLAVE_PRODUCTOS, JSON.stringify(productos))
   } catch {
@@ -60,11 +72,19 @@ function guardarProductos(productos: Producto[]): void {
   }
 }
 
-export function buscarProductoPorCodigo(codigo: string): Producto | undefined {
+/**
+ * @param {string} codigo
+ * @returns {Producto | undefined}
+ */
+export function buscarProductoPorCodigo(codigo) {
   return obtenerProductos().find((producto) => producto.codigo === codigo)
 }
 
-export function crearProducto(producto: Producto): Producto {
+/**
+ * @param {Producto} producto
+ * @returns {Producto}
+ */
+export function crearProducto(producto) {
   validarProducto(producto)
   const productos = obtenerProductos()
   if (productos.some((actual) => actual.codigo === producto.codigo)) {
@@ -74,7 +94,12 @@ export function crearProducto(producto: Producto): Producto {
   return { ...producto }
 }
 
-export function actualizarProducto(codigo: string, producto: Producto): Producto {
+/**
+ * @param {string} codigo
+ * @param {Producto} producto
+ * @returns {Producto}
+ */
+export function actualizarProducto(codigo, producto) {
   validarProducto(producto)
   if (producto.codigo !== codigo) throw new Error('No se puede cambiar el código de un producto.')
 
@@ -87,7 +112,11 @@ export function actualizarProducto(codigo: string, producto: Producto): Producto
   return { ...producto }
 }
 
-export function eliminarProducto(codigo: string): void {
+/**
+ * @param {string} codigo
+ * @returns {void}
+ */
+export function eliminarProducto(codigo) {
   const productos = obtenerProductos()
   if (!productos.some((producto) => producto.codigo === codigo)) {
     throw new Error('El producto no existe.')

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { obtenerProductos } from '../datos/productosService'
+import { obtenerProductos } from '../datos/productosService.js'
 
 function Productos() {
   const [catalogo] = useState(() => {

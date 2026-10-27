@@ -18,7 +18,7 @@ npm run lint
 - `src/componentes/organismos/Navbar.tsx`: navegación Bootstrap responsiva con `Link` y estado React para abrir/cerrar el menú móvil.
 - `src/paginas/Inicio.tsx`, `Productos.tsx`, `Contacto.tsx`: páginas iniciales.
 - `src/datos/productos.js`: 51 productos originales, exportación nombrada `productos`.
-- `src/datos/productosService.ts`: consultas y CRUD compartidos con persistencia.
+- `src/datos/productosService.js`: consultas y CRUD compartidos en JavaScript con persistencia y tipos mediante JSDoc.
 - `src/tipos/Producto.ts`: contrato común de productos.
 - `src/App.tsx`: rutas `/`, `/productos` y `/contacto`.
 - `src/main.tsx`: único `BrowserRouter`, Bootstrap y estilos generales.
@@ -41,11 +41,11 @@ Todos los campos son obligatorios. El stock debe ser entero y no negativo; el pr
 
 `productos.js` conserva todos los valores del catálogo de `../assets/js/data/productos.js`, incluida la inconsistencia ya documentada de AM004. Solo se adaptó `imagen` a `/img/productos/...`. Las 51 imágenes se copiaron a `public/img/productos/`. Los archivos de la Evaluación 1 permanecen intactos.
 
-`allowJs` permite importar el catálogo desde TypeScript y `checkJs`, junto con la anotación JSDoc, comprueba que los datos respeten `Producto`.
+`allowJs` permite importar el catálogo y el servicio JavaScript desde TypeScript. `checkJs`, junto con las anotaciones JSDoc, comprueba los datos y las funciones del servicio usando la interfaz `Producto`, que permanece en `src/tipos/Producto.ts` para los componentes React. El servicio importa ese tipo solo en un comentario JSDoc; se ejecuta como JavaScript sin depender de TypeScript en tiempo de ejecución.
 
 ## Servicio compartido
 
-Importar las funciones desde `../datos/productosService` (ajustar la ruta relativa según el componente). Usar siempre este servicio para consultar los cambios persistidos, en lugar de importar directamente el catálogo inicial.
+Importar las funciones desde `../datos/productosService.js` (ajustar la ruta relativa según el componente). Usar siempre este servicio para consultar los cambios persistidos, en lugar de importar directamente el catálogo inicial.
 
 | Función | Resultado |
 | --- | --- |
@@ -59,7 +59,7 @@ Ejemplo para un futuro formulario de edición:
 
 ```ts
 import type { Producto } from '../tipos/Producto'
-import { buscarProductoPorCodigo, actualizarProducto } from '../datos/productosService'
+import { buscarProductoPorCodigo, actualizarProducto } from '../datos/productosService.js'
 
 try {
   const actual = buscarProductoPorCodigo('GA001')
@@ -111,4 +111,4 @@ Agregar el enlace correspondiente en `Navbar.tsx` cuando el módulo esté listo.
 
 Esta entrega prepara navegación, estado del menú, datos y persistencia. Los componentes con props se incorporarán cuando haya componentes reutilizables que los necesiten. Las pruebas unitarias deben implementarse posteriormente con Jasmine y Karma; no se agregó Vitest ni otra dependencia. También quedan pendientes ERS V2 y el documento de cobertura.
 
-La tarea pide expresamente `productosService.ts`, por lo que el CRUD se implementó en TypeScript y el catálogo en JavaScript. Antes de la entrega académica, confirmar con el profesor si la exigencia de «archivo JavaScript con operaciones CRUD» requiere que el archivo fuente del servicio sea `.js`.
+La fuente de datos simulada (`productos.js`) y las operaciones CRUD (`productosService.js`) son módulos JavaScript, conforme a la pauta. El servicio conserva la comprobación de tipos mediante JSDoc y la interfaz compartida `Producto.ts`.
