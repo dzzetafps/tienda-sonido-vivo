@@ -3,6 +3,7 @@ import Navbar from './componentes/organismos/Navbar'
 import Inicio from './paginas/Inicio'
 import Productos from './paginas/Productos'
 import Contacto from './paginas/Contacto'
+import DetalleProducto from './paginas/DetalleProducto'
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Inicio />} />
           <Route path="/productos" element={<Productos />} />
+          <Route path="/producto/:codigo" element={<DetalleProducto />} />
           <Route path="/contacto" element={<Contacto />} />
         </Routes>
       </main>
