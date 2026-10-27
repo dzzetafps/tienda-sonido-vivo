@@ -1,5 +1,7 @@
+import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { buscarProductoPorCodigo } from '../datos/productosService.js'
+import { agregarProductoAlCarrito } from '../datos/carritoService.js'
 import type { Producto } from '../tipos/Producto'
 
 const formatoPrecio = new Intl.NumberFormat('es-CL', {
@@ -10,6 +12,7 @@ const formatoPrecio = new Intl.NumberFormat('es-CL', {
 
 function DetalleProducto() {
   const { codigo } = useParams<{ codigo: string }>()
+  const [resultadoCarrito, setResultadoCarrito] = useState({ codigo: '', mensaje: '', error: false })
   let producto: Producto | undefined
   let error = ''
 
@@ -21,6 +24,25 @@ function DetalleProducto() {
       if (!producto) error = 'No se encontró el producto solicitado.'
     } catch (problema) {
       error = problema instanceof Error ? problema.message : 'No se pudo cargar el producto.'
+    }
+  }
+
+  function agregarAlCarrito() {
+    if (!producto) return
+
+    try {
+      agregarProductoAlCarrito(producto.codigo, 1)
+      setResultadoCarrito({
+        codigo: producto.codigo,
+        mensaje: 'Producto agregado al carrito.',
+        error: false,
+      })
+    } catch (problema) {
+      setResultadoCarrito({
+        codigo: producto.codigo,
+        mensaje: problema instanceof Error ? problema.message : 'No se pudo agregar el producto al carrito.',
+        error: true,
+      })
     }
   }
 
@@ -53,6 +75,25 @@ function DetalleProducto() {
             <p className={producto.stock > 0 ? 'text-success' : 'text-secondary'}>
               {producto.stock > 0 ? 'Disponible' : 'Sin stock'}
             </p>
+            <button
+              type="button"
+              className="btn btn-primary"
+              disabled={producto.stock <= 0}
+              onClick={agregarAlCarrito}
+            >
+              Agregar al carrito
+            </button>
+            {resultadoCarrito.codigo === producto.codigo && resultadoCarrito.mensaje && (
+              <div
+                className={`alert mt-3 ${resultadoCarrito.error ? 'alert-danger' : 'alert-success'}`}
+                role={resultadoCarrito.error ? 'alert' : 'status'}
+              >
+                <p className="mb-0">{resultadoCarrito.mensaje}</p>
+                {!resultadoCarrito.error && (
+                  <Link className="alert-link d-inline-block mt-2" to="/carrito">Ver carrito</Link>
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}

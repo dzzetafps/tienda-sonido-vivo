@@ -8,6 +8,7 @@ function Navbar() {
     { ruta: '/', texto: 'Inicio' },
     { ruta: '/productos', texto: 'Productos' },
     { ruta: '/contacto', texto: 'Contacto' },
+    { ruta: '/carrito', texto: 'Carrito' },
   ]
 
   return (

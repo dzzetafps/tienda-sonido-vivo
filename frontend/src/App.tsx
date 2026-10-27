@@ -4,6 +4,7 @@ import Inicio from './paginas/Inicio'
 import Productos from './paginas/Productos'
 import Contacto from './paginas/Contacto'
 import DetalleProducto from './paginas/DetalleProducto'
+import Carrito from './paginas/Carrito'
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
           <Route path="/productos" element={<Productos />} />
           <Route path="/producto/:codigo" element={<DetalleProducto />} />
           <Route path="/contacto" element={<Contacto />} />
+          <Route path="/carrito" element={<Carrito />} />
         </Routes>
       </main>
     </>
