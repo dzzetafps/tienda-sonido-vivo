@@ -1,8 +1,8 @@
 interface InputProps {
   id: string
   tipo: string
-  valor: string // Valor actual guardado en el estado del formulario
-  alCambiar: (valor: string) => void // Función que actualiza ese estado
+  valor: string
+  alCambiar: (valor: string) => void 
   invalido?: boolean
   soloLectura?: boolean
 }

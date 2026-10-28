@@ -18,7 +18,6 @@ function TablaProductosAdmin({ productos, onEliminar }: TablaProductosAdminProps
   }
 
   return (
-    // table-responsive permite desplazar la tabla en pantallas pequeñas.
     <div className="table-responsive">
       <table className="table table-striped table-hover align-middle bg-white">
         <caption className="visually-hidden">Productos del catálogo</caption>
@@ -26,7 +25,6 @@ function TablaProductosAdmin({ productos, onEliminar }: TablaProductosAdminProps
           <tr>
             <th scope="col">Código</th>
             <th scope="col">Nombre</th>
-            {/* Categoría y marca se ocultan en celulares para que la tabla sea legible */}
             <th scope="col" className="d-none d-md-table-cell">Categoría</th>
             <th scope="col" className="d-none d-lg-table-cell">Marca</th>
             <th scope="col" className="text-end">Precio</th>

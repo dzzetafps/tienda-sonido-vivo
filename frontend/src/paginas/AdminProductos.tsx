@@ -10,7 +10,6 @@ interface Aviso {
   texto: string
 }
 
-// Lee el catálogo desde el servicio; si falla, devuelve el mensaje para mostrarlo.
 function leerCatalogo(): { productos: Producto[]; error: string } {
   try {
     return { productos: obtenerProductos(), error: '' }
@@ -19,7 +18,6 @@ function leerCatalogo(): { productos: Producto[]; error: string } {
   }
 }
 
-// El formulario envía su mensaje de éxito al volver a esta página.
 function leerAvisoRecibido(estado: unknown): Aviso | null {
   if (estado && typeof estado === 'object' && 'mensaje' in estado && typeof estado.mensaje === 'string') {
     return { tipo: 'success', texto: estado.mensaje }

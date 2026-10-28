@@ -3,7 +3,6 @@ import type { SubmitEvent } from 'react'
 import CampoFormulario from '../moleculas/CampoFormulario'
 import type { Producto } from '../../tipos/Producto'
 
-// Un mensaje de error posible por cada campo del producto.
 type ErroresProducto = Partial<Record<keyof Producto, string>>
 
 interface FormularioProductoProps {
@@ -15,7 +14,7 @@ interface FormularioProductoProps {
 }
 
 function FormularioProducto({ modo, categorias, productoInicial, onGuardar, onCancelar }: FormularioProductoProps) {
-  // Un estado por campo: React controla lo que muestra cada input.
+
   const [codigo, setCodigo] = useState(productoInicial?.codigo ?? '')
   const [categoria, setCategoria] = useState(productoInicial?.categoria ?? '')
   const [nombre, setNombre] = useState(productoInicial?.nombre ?? '')
@@ -27,7 +26,6 @@ function FormularioProducto({ modo, categorias, productoInicial, onGuardar, onCa
   const [imagen, setImagen] = useState(productoInicial?.imagen ?? '')
   const [errores, setErrores] = useState<ErroresProducto>({})
 
-  // Si el producto editado tiene una categoría que no está en la lista, se conserva como opción.
   const categoriaInicial = productoInicial?.categoria ?? ''
   const opcionesCategoria = categoriaInicial !== '' && !categorias.includes(categoriaInicial)
     ? [...categorias, categoriaInicial]
@@ -67,7 +65,6 @@ function FormularioProducto({ modo, categorias, productoInicial, onGuardar, onCa
     setErrores(nuevosErrores)
     if (Object.keys(nuevosErrores).length > 0) return
 
-    // Los textos se limpian y los números se convierten antes de entregar el producto.
     onGuardar({
       codigo: codigo.trim(),
       categoria,

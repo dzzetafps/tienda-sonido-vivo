@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { obtenerProductos } from '../datos/productosService.js'
 
-// Resumen del catálogo para las tarjetas del panel.
 function leerResumen() {
   try {
     const productos = obtenerProductos()

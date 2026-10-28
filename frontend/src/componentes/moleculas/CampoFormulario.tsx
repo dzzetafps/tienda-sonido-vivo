@@ -11,7 +11,6 @@ interface CampoFormularioProps {
   ayuda?: string
 }
 
-// Molécula: une una etiqueta, el átomo Input y el mensaje de error del campo.
 function CampoFormulario({
   etiqueta,
   id,

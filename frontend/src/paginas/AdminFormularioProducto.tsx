@@ -13,7 +13,6 @@ interface AdminFormularioProductoProps {
   modo: 'nuevo' | 'editar'
 }
 
-// Prepara las categorías y, al editar, el producto indicado en la URL.
 function leerDatos(modo: 'nuevo' | 'editar', codigo: string) {
   try {
     const categorias = [...new Set(obtenerProductos().map((producto) => producto.categoria))]
@@ -48,7 +47,6 @@ function AdminFormularioProducto({ modo }: AdminFormularioProductoProps) {
         actualizarProducto(codigo, producto)
       }
       const accion = modo === 'nuevo' ? 'creado' : 'actualizado'
-      // El listado recibe este mensaje y lo muestra como confirmación.
       navigate('/admin/productos', { state: { mensaje: `Producto ${producto.codigo} ${accion} correctamente.` } })
     } catch (error) {
       setErrorGuardar(error instanceof Error ? error.message : 'No se pudo guardar el producto.')
