@@ -1,15 +1,20 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { iniciarSesion } from '../datos/usuariosService.js'
 
 function Login() {
+  const navegar = useNavigate()
   const [correo, setCorreo] = useState('')
   const [contrasena, setContrasena] = useState('')
   const [errores, setErrores] = useState({ correo: '', contrasena: '' })
-  const [datosValidos, setDatosValidos] = useState(false)
+  const [errorSesion, setErrorSesion] = useState('')
+  const [ingresando, setIngresando] = useState(false)
 
-  function validarFormulario(evento: FormEvent<HTMLFormElement>) {
+  async function validarFormulario(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault()
+    if (ingresando) return
+    setErrorSesion('')
     const nuevosErrores = { correo: '', contrasena: '' }
     const correoIngresado = correo.trim()
 
@@ -28,7 +33,17 @@ function Login() {
     }
 
     setErrores(nuevosErrores)
-    setDatosValidos(!nuevosErrores.correo && !nuevosErrores.contrasena)
+    if (nuevosErrores.correo || nuevosErrores.contrasena) return
+
+    setIngresando(true)
+    try {
+      const sesion = await iniciarSesion(correoIngresado, contrasena)
+      navegar(sesion.rol === 'administrador' ? '/admin' : '/', { replace: true })
+    } catch (error) {
+      setErrorSesion(error instanceof Error ? error.message : 'No se pudo iniciar sesión. Inténtalo nuevamente.')
+    } finally {
+      setIngresando(false)
+    }
   }
 
   return (
@@ -49,12 +64,13 @@ function Login() {
                   autoComplete="email"
                   maxLength={100}
                   required
+                  disabled={ingresando}
                   className={`form-control${errores.correo ? ' is-invalid' : ''}`}
                   value={correo}
                   onChange={(evento) => {
                     setCorreo(evento.target.value)
                     setErrores({ ...errores, correo: '' })
-                    setDatosValidos(false)
+                    setErrorSesion('')
                   }}
                   aria-invalid={Boolean(errores.correo)}
                   aria-describedby={errores.correo ? 'error-correo' : undefined}
@@ -74,12 +90,13 @@ function Login() {
                   minLength={4}
                   maxLength={10}
                   required
+                  disabled={ingresando}
                   className={`form-control${errores.contrasena ? ' is-invalid' : ''}`}
                   value={contrasena}
                   onChange={(evento) => {
                     setContrasena(evento.target.value)
                     setErrores({ ...errores, contrasena: '' })
-                    setDatosValidos(false)
+                    setErrorSesion('')
                   }}
                   aria-invalid={Boolean(errores.contrasena)}
                   aria-describedby={errores.contrasena ? 'error-contrasena' : undefined}
@@ -89,12 +106,12 @@ function Login() {
                 )}
               </div>
 
-              {datosValidos && (
-                <p className="alert alert-info" role="status">
-                  Datos del formulario válidos. La autenticación estará disponible próximamente
-                </p>
+              {errorSesion && (
+                <p className="alert alert-danger" role="alert">{errorSesion}</p>
               )}
-              <button type="submit" className="btn btn-primary w-100">Ingresar</button>
+              <button type="submit" className="btn btn-primary w-100" disabled={ingresando}>
+                {ingresando ? 'Ingresando...' : 'Ingresar'}
+              </button>
             </form>
 
             <p className="mt-4 mb-0">¿Aún no te registras? <Link to="/registro">Regístrate aquí</Link></p>
