@@ -3,6 +3,9 @@ import Navbar from './componentes/organismos/Navbar'
 import Inicio from './paginas/Inicio'
 import Productos from './paginas/Productos'
 import Contacto from './paginas/Contacto'
+import Nosotros from './paginas/Nosotros'
+import Blogs from './paginas/Blogs'
+import DetalleBlog from './paginas/DetalleBlog'
 import DetalleProducto from './paginas/DetalleProducto'
 import Carrito from './paginas/Carrito'
 import Checkout from './paginas/Checkout'
@@ -31,6 +34,9 @@ function App() {
           <Route path="/productos" element={<Productos />} />
           <Route path="/producto/:codigo" element={<DetalleProducto />} />
           <Route path="/contacto" element={<Contacto />} />
+          <Route path="/nosotros" element={<Nosotros />} />
+          <Route path="/blogs" element={<Blogs />} />
+          <Route path="/blogs/:id" element={<DetalleBlog />} />
           <Route path="/carrito" element={<Carrito />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/compra-error" element={<CompraError />} />
