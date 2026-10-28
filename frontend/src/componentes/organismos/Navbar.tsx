@@ -7,6 +7,8 @@ function Navbar() {
   const enlaces = [
     { ruta: '/', texto: 'Inicio' },
     { ruta: '/productos', texto: 'Productos' },
+    { ruta: '/nosotros', texto: 'Nosotros' },
+    { ruta: '/blogs', texto: 'Blogs' },
     { ruta: '/contacto', texto: 'Contacto' },
     { ruta: '/carrito', texto: 'Carrito' },
     { ruta: '/admin', texto: 'Administración' },
