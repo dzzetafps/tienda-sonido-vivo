@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom'
+
 interface ResumenCompraProps {
   cantidadUnidades: number
   total: number | null
@@ -35,11 +37,17 @@ function ResumenCompra({ cantidadUnidades, total, error }: ResumenCompraProps) {
             <p className="mb-0">Resuelve este problema antes de continuar con la compra.</p>
           </div>
         )}
-        <button type="button" className="btn btn-primary w-100" disabled aria-describedby="aviso-checkout">
-          Continuar al checkout
-        </button>
+        {cantidadUnidades > 0 && total !== null && !error ? (
+          <Link to="/checkout" className="btn btn-primary w-100" aria-describedby="aviso-checkout">
+            Continuar al checkout
+          </Link>
+        ) : (
+          <button type="button" className="btn btn-primary w-100" disabled aria-describedby="aviso-checkout">
+            Continuar al checkout
+          </button>
+        )}
         <p className="small text-secondary mt-2 mb-0" id="aviso-checkout">
-          El checkout estará disponible próximamente. Por ahora puedes revisar y ajustar tu carrito.
+          El checkout permite validar tus datos, pero todavía no confirma ni registra pedidos.
         </p>
       </div>
     </aside>
