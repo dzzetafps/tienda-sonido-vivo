@@ -9,12 +9,13 @@ function Navbar() {
     { ruta: '/productos', texto: 'Productos' },
     { ruta: '/contacto', texto: 'Contacto' },
     { ruta: '/carrito', texto: 'Carrito' },
+    { ruta: '/admin', texto: 'Administración' },
     { ruta: '/login', texto: 'Iniciar sesión' },
     { ruta: '/registro', texto: 'Registrarse' },
   ]
 
   return (
-    <nav className="navbar navbar-expand-md bg-dark" data-bs-theme="dark" aria-label="Navegación principal">
+    <nav className="navbar navbar-expand-lg bg-dark" data-bs-theme="dark" aria-label="Navegación principal">
       <div className="container">
         <Link className="navbar-brand fw-bold" to="/" onClick={() => setMenuAbierto(false)}>
           Sonido Vivo
