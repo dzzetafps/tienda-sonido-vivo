@@ -1,5 +1,8 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import type { FormEvent } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { crearPedido } from '../datos/pedidosService.js'
+import { obtenerSesion } from '../datos/usuariosService.js'
 import {
   obtenerCarrito,
   calcularSubtotal,
@@ -62,6 +65,8 @@ function cargarResumen() {
 }
 
 function Checkout() {
+  const navegar = useNavigate()
+  const envioEnCurso = useRef(false)
   const [datos, setDatos] = useState<DatosCliente>({
     nombre: '',
     apellido: '',
@@ -76,16 +81,19 @@ function Checkout() {
   })
   const [errores, setErrores] = useState<Errores>({})
   const [resumen, setResumen] = useState(cargarResumen)
-  const [datosValidados, setDatosValidados] = useState(false)
+  const [confirmando, setConfirmando] = useState(false)
+  const [errorCompra, setErrorCompra] = useState('')
 
   function actualizarCampo(campo: keyof DatosCliente, valor: string) {
     setDatos({ ...datos, [campo]: valor })
     setErrores({ ...errores, [campo]: undefined })
-    setDatosValidados(false)
+    setErrorCompra('')
   }
 
   function validarDatos(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault()
+    if (envioEnCurso.current) return
+    setErrorCompra('')
     const nuevosErrores: Errores = {}
 
     if (!datos.nombre.trim()) nuevosErrores.nombre = 'Ingresa tu nombre.'
@@ -106,7 +114,32 @@ function Checkout() {
     const resumenActual = cargarResumen()
     setResumen(resumenActual)
     setErrores(nuevosErrores)
-    setDatosValidados(Object.keys(nuevosErrores).length === 0 && !resumenActual.error)
+    if (Object.keys(nuevosErrores).length > 0 || resumenActual.error) return
+
+    envioEnCurso.current = true
+    setConfirmando(true)
+    try {
+      const despacho = datos.entrega === 'despacho'
+      const pedido = crearPedido({
+        usuarioId: obtenerSesion()?.usuarioId ?? null,
+        comprador: { nombre: datos.nombre, apellido: datos.apellido, correo: datos.correo },
+        entrega: {
+          tipo: datos.entrega,
+          calle: despacho ? datos.calle : '',
+          numero: despacho ? datos.numero : '',
+          complemento: despacho ? datos.complemento : '',
+          region: despacho ? datos.region : '',
+          comuna: despacho ? datos.comuna : '',
+          indicaciones: despacho ? datos.indicaciones : '',
+        },
+      })
+      navegar(`/compra-exitosa?pedido=${encodeURIComponent(pedido.id)}`, { replace: true })
+    } catch (error) {
+      setErrorCompra(error instanceof Error ? error.message : 'No se pudo confirmar la compra. Inténtalo nuevamente.')
+      setResumen(cargarResumen())
+      envioEnCurso.current = false
+      setConfirmando(false)
+    }
   }
 
   return (
@@ -118,7 +151,7 @@ function Checkout() {
         <div className="col-12 col-lg-7">
           <form className="card shadow-sm" onSubmit={validarDatos} noValidate>
             <div className="card-body">
-              <fieldset className="mb-4">
+              <fieldset className="mb-4" disabled={confirmando}>
                 <legend className="h4 mb-3">Datos del cliente</legend>
                 <p className="small text-secondary">Los campos marcados con * son obligatorios.</p>
                 <div className="row g-3">
@@ -155,7 +188,7 @@ function Checkout() {
                 </div>
               </fieldset>
 
-              <fieldset className="mb-4">
+              <fieldset className="mb-4" disabled={confirmando}>
                 <legend className="h4 mb-3">Información de entrega</legend>
                 <div className="mb-3">
                   <label className="form-label" htmlFor="entrega">Opción de entrega *</label>
@@ -236,13 +269,11 @@ function Checkout() {
               {Object.values(errores).some(Boolean) && (
                 <p className="alert alert-danger" role="alert">Revisa los campos indicados antes de continuar.</p>
               )}
-              {datosValidados && (
-                <p className="alert alert-success" role="status">
-                  Los datos están validados. La confirmación de compra se implementará posteriormente.
-                  No se ha registrado una compra ni realizado un pago.
-                </p>
-              )}
-              <button type="submit" className="btn btn-primary">Validar datos</button>
+              {errorCompra && <p className="alert alert-danger" role="alert">{errorCompra}</p>}
+              <p className="small text-secondary">Compra simulada para fines académicos; no se realizará un pago bancario.</p>
+              <button type="submit" className="btn btn-primary" disabled={confirmando}>
+                {confirmando ? 'Confirmando...' : 'Confirmar compra'}
+              </button>
             </div>
           </form>
         </div>

@@ -1,34 +1,6 @@
-import { Link } from 'react-router-dom'
-
-interface CompraVisualizacion {
-  confirmada: boolean
-  identificador: string
-  cliente: {
-    nombre: string
-    apellido: string
-    correo: string
-  }
-  entrega: {
-    tipo: 'despacho' | 'retiro'
-    calle?: string
-    numero?: string
-    complemento?: string
-    region?: string
-    comuna?: string
-    indicaciones?: string
-  }
-  productos: {
-    codigo: string
-    nombre: string
-    cantidad: number
-    precioUnitario: number
-  }[]
-  total: number
-}
-
-interface CompraExitosaProps {
-  compra?: CompraVisualizacion
-}
+import { Link, useSearchParams } from 'react-router-dom'
+import { buscarPedidoPorId } from '../datos/pedidosService.js'
+import type { Pedido } from '../tipos/Pedido'
 
 const formatoPrecio = new Intl.NumberFormat('es-CL', {
   style: 'currency',
@@ -40,36 +12,17 @@ function textoValido(valor: unknown): valor is string {
   return typeof valor === 'string' && valor.trim().length > 0
 }
 
-function CompraExitosa({ compra }: CompraExitosaProps) {
-  const clienteValido = textoValido(compra?.cliente?.nombre) &&
-    textoValido(compra?.cliente?.apellido) &&
-    textoValido(compra?.cliente?.correo) &&
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(compra.cliente.correo.trim())
+function CompraExitosa() {
+  const [parametros] = useSearchParams()
+  const id = parametros.get('pedido')
+  let pedido: Pedido | undefined
+  try {
+    if (id?.trim()) pedido = buscarPedidoPorId(id)
+  } catch {
+    pedido = undefined
+  }
 
-  const entregaValida = compra?.entrega?.tipo === 'retiro' || (
-    compra?.entrega?.tipo === 'despacho' &&
-    textoValido(compra.entrega.calle) &&
-    textoValido(compra.entrega.numero) &&
-    textoValido(compra.entrega.region) &&
-    textoValido(compra.entrega.comuna)
-  )
-
-  const productosValidos = Array.isArray(compra?.productos) &&
-    compra.productos.length > 0 &&
-    compra.productos.every((producto) =>
-      textoValido(producto?.codigo) &&
-      textoValido(producto?.nombre) &&
-      Number.isSafeInteger(producto?.cantidad) && producto.cantidad > 0 &&
-      Number.isFinite(producto?.precioUnitario) && producto.precioUnitario >= 0
-    ) &&
-    new Set(compra.productos.map((producto) => producto.codigo)).size === compra.productos.length
-
-  const totalValido = productosValidos && Number.isFinite(compra?.total) &&
-    compra.total >= 0 &&
-    compra.total === compra.productos.reduce((total, producto) => total + producto.precioUnitario * producto.cantidad, 0)
-
-  if (!compra || compra.confirmada !== true || !textoValido(compra.identificador) ||
-    !clienteValido || !entregaValida || !productosValidos || !totalValido) {
+  if (!pedido || pedido.estado === 'cancelado') {
     return (
       <section className="row justify-content-center" aria-labelledby="titulo-sin-compra">
         <div className="col-12 col-md-10 col-lg-8">
@@ -85,9 +38,18 @@ function CompraExitosa({ compra }: CompraExitosaProps) {
     )
   }
 
+  const compra = {
+    identificador: pedido.id,
+    cliente: pedido.comprador,
+    entrega: pedido.entrega,
+    productos: pedido.items,
+    total: pedido.total,
+  }
+
   return (
     <section aria-labelledby="titulo-compra-exitosa">
       <h1 id="titulo-compra-exitosa">Compra realizada con éxito</h1>
+      <p className="text-secondary">Compra confirmada en la simulación académica; no se realizó un pago bancario.</p>
       <p className="text-secondary text-break mb-4">Identificador de compra: <strong>{compra.identificador}</strong></p>
 
       <div className="row g-4 mb-4">
