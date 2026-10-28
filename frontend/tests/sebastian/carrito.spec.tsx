@@ -2,6 +2,7 @@
 import { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import type { Root } from 'react-dom/client'
+import { MemoryRouter } from 'react-router-dom'
 import ItemCarritoCard from '../../src/componentes/moleculas/ItemCarritoCard'
 import ResumenCompra from '../../src/componentes/organismos/ResumenCompra'
 import type { Producto } from '../../src/tipos/Producto'
@@ -39,7 +40,7 @@ describe('Sebastián — componentes del carrito', () => {
 
   it('ResumenCompra muestra unidades, subtotal y total en pesos chilenos', async () => {
     await act(async () => {
-      root.render(<ResumenCompra cantidadUnidades={3} total={389970} error="" />)
+      root.render(<MemoryRouter><ResumenCompra cantidadUnidades={3} total={389970} error="" /></MemoryRouter>)
     })
 
     const totalCLP = new Intl.NumberFormat('es-CL', {
