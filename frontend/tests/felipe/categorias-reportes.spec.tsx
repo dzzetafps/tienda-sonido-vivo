@@ -64,11 +64,17 @@ describe('Felipe — categorías y reportes de productos', () => {
       }
     })
 
+    function filasStockBajo() {
+      const tabla = Array.from(contenedor.querySelectorAll('table'))
+        .find((actual) => actual.caption?.textContent === 'Productos con stock bajo')
+      return tabla ? tabla.querySelectorAll('tbody tr').length : 0
+    }
+
     it('al cambiar el límite se actualiza la tabla de stock bajo', async () => {
       await act(async () => {
         root.render(<MemoryRouter><AdminReportes /></MemoryRouter>)
       })
-      expect(contenedor.querySelectorAll('tbody tr').length).toBe(16)
+      expect(filasStockBajo()).toBe(16)
 
       await act(async () => {
         const selector = contenedor.querySelector<HTMLSelectElement>('#limite-stock')!
@@ -76,7 +82,7 @@ describe('Felipe — categorías y reportes de productos', () => {
         selector.dispatchEvent(new Event('change', { bubbles: true }))
       })
 
-      expect(contenedor.querySelectorAll('tbody tr').length).toBe(11)
+      expect(filasStockBajo()).toBe(11)
       expect(contenedor.textContent).toContain('11 productos con stock igual o menor a 2 unidades')
     })
   })

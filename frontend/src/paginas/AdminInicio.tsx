@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import TarjetaIndicador from '../componentes/moleculas/TarjetaIndicador'
 import { leerCatalogo, resumirCategorias } from '../datos/catalogoAdmin'
+import { leerPedidos } from '../datos/pedidosAdmin'
 import { buscarUsuarioPorId, cerrarSesion, obtenerSesion } from '../datos/usuariosService.js'
 
 function leerNombreSesion() {
@@ -29,7 +30,7 @@ const secciones = [
   },
   {
     titulo: 'Reportes',
-    descripcion: 'Consulta el valor del inventario y los productos con stock bajo.',
+    descripcion: 'Consulta las ventas, el valor del inventario y los productos con stock bajo.',
     ruta: '/admin/reportes',
     boton: 'Ver reportes',
   },
@@ -39,17 +40,25 @@ const secciones = [
     ruta: '/admin/usuarios',
     boton: 'Gestionar usuarios',
   },
+  {
+    titulo: 'Pedidos',
+    descripcion: 'Revisa las compras de la tienda y actualiza su estado.',
+    ruta: '/admin/pedidos',
+    boton: 'Ver pedidos',
+  },
 ]
 
 function AdminInicio() {
   const navigate = useNavigate()
   const [catalogo] = useState(leerCatalogo)
+  const [ventas] = useState(leerPedidos)
   const [nombreSesion] = useState(leerNombreSesion)
   const [errorSalir, setErrorSalir] = useState('')
   const indicadores = [
     { titulo: 'Productos', valor: catalogo.productos.length },
     { titulo: 'Sin stock', valor: catalogo.productos.filter((producto) => producto.stock === 0).length },
     { titulo: 'Categorías', valor: resumirCategorias(catalogo.productos).length },
+    { titulo: 'Pedidos por enviar', valor: ventas.pedidos.filter((pedido) => pedido.estado === 'pagado').length },
   ]
 
   function salir() {
@@ -71,14 +80,14 @@ function AdminInicio() {
         <button type="button" className="btn btn-outline-secondary" onClick={salir}>Cerrar sesión</button>
       </div>
       {errorSalir && <p className="alert alert-danger mt-3" role="alert">{errorSalir}</p>}
-      <p className="lead mt-3">Administra el catálogo de instrumentos y equipos de Sonido Vivo.</p>
+      <p className="lead mt-3">Administra el catálogo, los usuarios y los pedidos de Sonido Vivo.</p>
 
       {catalogo.error ? (
         <p className="alert alert-danger" role="alert">{catalogo.error}</p>
       ) : (
         <div className="row g-3 mb-4">
           {indicadores.map((indicador) => (
-            <div className="col-12 col-sm-4" key={indicador.titulo}>
+            <div className="col-6 col-lg-3" key={indicador.titulo}>
               <TarjetaIndicador titulo={indicador.titulo} valor={indicador.valor} />
             </div>
           ))}
@@ -99,15 +108,6 @@ function AdminInicio() {
             </article>
           </div>
         ))}
-        <div className="col-12 col-md-6">
-          <article className="card h-100 shadow-sm">
-            <div className="card-body d-flex flex-column">
-              <h2 className="h4">Pedidos</h2>
-              <p>Revisa las compras de la tienda y actualiza su estado.</p>
-              <span className="badge text-bg-secondary mt-auto align-self-start">Próximamente</span>
-            </div>
-          </article>
-        </div>
       </div>
 
       <Link className="d-inline-block mt-4" to="/">Volver a la tienda</Link>
