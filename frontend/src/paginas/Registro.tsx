@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { regiones } from '../datos/regiones.js'
+import { registrarCliente } from '../datos/usuariosService.js'
 
 interface DatosRegistro {
   rut: string
@@ -13,6 +14,8 @@ interface DatosRegistro {
   region: string
   comuna: string
   direccion: string
+  contrasena: string
+  confirmarContrasena: string
 }
 
 type ErroresRegistro = Partial<Record<keyof DatosRegistro, string>>
@@ -50,9 +53,13 @@ function Registro() {
     region: '',
     comuna: '',
     direccion: '',
+    contrasena: '',
+    confirmarContrasena: '',
   })
   const [errores, setErrores] = useState<ErroresRegistro>({})
-  const [datosValidos, setDatosValidos] = useState(false)
+  const [registrando, setRegistrando] = useState(false)
+  const [cuentaCreada, setCuentaCreada] = useState(false)
+  const [errorRegistro, setErrorRegistro] = useState('')
   const regionSeleccionada = regiones.find((region) => region.nombre === datos.region)
   const comunas = regionSeleccionada?.comunas ?? []
 
@@ -60,15 +67,21 @@ function Registro() {
     if (campo === 'region') {
       setDatos({ ...datos, region: valor, comuna: '' })
       setErrores({ ...errores, region: undefined, comuna: undefined })
+    } else if (campo === 'contrasena') {
+      setDatos({ ...datos, contrasena: valor })
+      setErrores({ ...errores, contrasena: undefined, confirmarContrasena: undefined })
     } else {
       setDatos({ ...datos, [campo]: valor })
       setErrores({ ...errores, [campo]: undefined })
     }
-    setDatosValidos(false)
+    setCuentaCreada(false)
+    setErrorRegistro('')
   }
 
-  function validarFormulario(evento: FormEvent<HTMLFormElement>) {
+  async function validarFormulario(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault()
+    if (registrando || cuentaCreada) return
+    setErrorRegistro('')
     const nuevosErrores: ErroresRegistro = {}
 
     if (!datos.rut.trim()) {
@@ -112,8 +125,39 @@ function Registro() {
       nuevosErrores.direccion = 'La dirección no puede superar los 300 caracteres.'
     }
 
+    if (!datos.contrasena.trim()) {
+      nuevosErrores.contrasena = 'La contraseña es obligatoria.'
+    } else if (datos.contrasena.length < 4 || datos.contrasena.length > 10) {
+      nuevosErrores.contrasena = 'La contraseña debe tener entre 4 y 10 caracteres.'
+    }
+    if (!datos.confirmarContrasena.trim()) {
+      nuevosErrores.confirmarContrasena = 'Confirma tu contraseña.'
+    } else if (datos.confirmarContrasena !== datos.contrasena) {
+      nuevosErrores.confirmarContrasena = 'Las contraseñas no coinciden.'
+    }
+
     setErrores(nuevosErrores)
-    setDatosValidos(Object.keys(nuevosErrores).length === 0)
+    if (Object.keys(nuevosErrores).length > 0) return
+
+    setRegistrando(true)
+    try {
+      await registrarCliente({
+        rut: datos.rut,
+        nombre: datos.nombre,
+        apellidos: datos.apellidos,
+        correo: datos.correo,
+        fechaNacimiento: datos.fechaNacimiento,
+        region: datos.region,
+        comuna: datos.comuna,
+        direccion: datos.direccion,
+      }, datos.contrasena)
+      setCuentaCreada(true)
+      setDatos({ ...datos, contrasena: '', confirmarContrasena: '' })
+    } catch (error) {
+      setErrorRegistro(error instanceof Error ? error.message : 'No se pudo crear la cuenta. Inténtalo nuevamente.')
+    } finally {
+      setRegistrando(false)
+    }
   }
 
   return (
@@ -125,7 +169,7 @@ function Registro() {
             <p className="text-secondary mb-4">Completa tus datos para registrarte en Sonido Vivo. La fecha de nacimiento es opcional.</p>
 
             <form onSubmit={validarFormulario} noValidate>
-              <div className="row g-3 mb-4">
+              <fieldset className="row g-3 mb-4" disabled={registrando}>
                 <div className="col-12 col-sm-6">
                   <label className="form-label" htmlFor="rut">RUT</label>
                   <input
@@ -165,6 +209,28 @@ function Registro() {
                     aria-invalid={Boolean(errores.correo)} aria-describedby={errores.correo ? 'error-correo' : undefined}
                   />
                   {errores.correo && <div id="error-correo" className="invalid-feedback" role="alert">{errores.correo}</div>}
+                </div>
+                <div className="col-12 col-sm-6">
+                  <label className="form-label" htmlFor="contrasena">Contraseña</label>
+                  <input
+                    id="contrasena" name="contrasena" type="password" autoComplete="new-password"
+                    minLength={4} maxLength={10} required
+                    className={`form-control${errores.contrasena ? ' is-invalid' : ''}`}
+                    value={datos.contrasena} onChange={(evento) => actualizarCampo('contrasena', evento.target.value)}
+                    aria-invalid={Boolean(errores.contrasena)} aria-describedby={errores.contrasena ? 'error-contrasena' : undefined}
+                  />
+                  {errores.contrasena && <div id="error-contrasena" className="invalid-feedback" role="alert">{errores.contrasena}</div>}
+                </div>
+                <div className="col-12 col-sm-6">
+                  <label className="form-label" htmlFor="confirmar-contrasena">Confirmar contraseña</label>
+                  <input
+                    id="confirmar-contrasena" name="confirmarContrasena" type="password" autoComplete="new-password"
+                    minLength={4} maxLength={10} required
+                    className={`form-control${errores.confirmarContrasena ? ' is-invalid' : ''}`}
+                    value={datos.confirmarContrasena} onChange={(evento) => actualizarCampo('confirmarContrasena', evento.target.value)}
+                    aria-invalid={Boolean(errores.confirmarContrasena)} aria-describedby={errores.confirmarContrasena ? 'error-confirmar-contrasena' : undefined}
+                  />
+                  {errores.confirmarContrasena && <div id="error-confirmar-contrasena" className="invalid-feedback" role="alert">{errores.confirmarContrasena}</div>}
                 </div>
                 <div className="col-12 col-sm-6">
                   <label className="form-label" htmlFor="fecha-nacimiento">Fecha de nacimiento (opcional)</label>
@@ -221,14 +287,18 @@ function Registro() {
                   />
                   {errores.direccion && <div id="error-direccion" className="invalid-feedback" role="alert">{errores.direccion}</div>}
                 </div>
-              </div>
+              </fieldset>
 
-              {datosValidos && (
-                <p className="alert alert-info" role="status">
-                  Datos de registro válidos. La creación de cuentas estará disponible próximamente
+              {errorRegistro && <p className="alert alert-danger" role="alert">{errorRegistro}</p>}
+              {cuentaCreada && (
+                <p className="alert alert-success" role="status">
+                  Cuenta creada correctamente. Ya puedes iniciar sesión.{' '}
+                  <Link to="/login">Ir a iniciar sesión</Link>
                 </p>
               )}
-              <button type="submit" className="btn btn-primary w-100">Validar registro</button>
+              <button type="submit" className="btn btn-primary w-100" disabled={registrando || cuentaCreada}>
+                {registrando ? 'Registrando...' : 'Crear cuenta'}
+              </button>
             </form>
 
             <p className="mt-4 mb-0">¿Ya tienes una cuenta? <Link to="/login">Inicia sesión aquí</Link></p>
