@@ -9,6 +9,8 @@ function Navbar() {
     { ruta: '/productos', texto: 'Productos' },
     { ruta: '/contacto', texto: 'Contacto' },
     { ruta: '/carrito', texto: 'Carrito' },
+    { ruta: '/login', texto: 'Iniciar sesión' },
+    { ruta: '/registro', texto: 'Registrarse' },
   ]
 
   return (

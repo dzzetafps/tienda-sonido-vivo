@@ -8,6 +8,8 @@ import Carrito from './paginas/Carrito'
 import Checkout from './paginas/Checkout'
 import CompraError from './paginas/CompraError'
 import CompraExitosa from './paginas/CompraExitosa'
+import Login from './paginas/Login'
+import Registro from './paginas/Registro'
 
 function App() {
   return (
@@ -23,6 +25,8 @@ function App() {
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/compra-error" element={<CompraError />} />
           <Route path="/compra-exitosa" element={<CompraExitosa />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/registro" element={<Registro />} />
         </Routes>
       </main>
     </>
