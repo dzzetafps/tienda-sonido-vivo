@@ -2,20 +2,10 @@ import { useState } from 'react'
 import { Link, useLocation, useSearchParams } from 'react-router-dom'
 import FiltrosProductos from '../componentes/moleculas/FiltrosProductos'
 import TablaProductosAdmin from '../componentes/organismos/TablaProductosAdmin'
+import { leerAvisoRecibido } from '../datos/avisos'
+import type { Aviso } from '../datos/avisos'
 import { leerCatalogo } from '../datos/catalogoAdmin'
 import { eliminarProducto } from '../datos/productosService.js'
-
-interface Aviso {
-  tipo: 'success' | 'danger'
-  texto: string
-}
-
-function leerAvisoRecibido(estado: unknown): Aviso | null {
-  if (estado && typeof estado === 'object' && 'mensaje' in estado && typeof estado.mensaje === 'string') {
-    return { tipo: 'success', texto: estado.mensaje }
-  }
-  return null
-}
 
 function AdminProductos() {
   const location = useLocation()
