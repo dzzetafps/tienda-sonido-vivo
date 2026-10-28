@@ -18,6 +18,8 @@ import AdminCategorias from './paginas/AdminCategorias'
 import AdminReportes from './paginas/AdminReportes'
 import AdminUsuarios from './paginas/AdminUsuarios'
 import AdminFormularioUsuario from './paginas/AdminFormularioUsuario'
+import AdminPedidos from './paginas/AdminPedidos'
+import AdminDetallePedido from './paginas/AdminDetallePedido'
 
 function App() {
   return (
@@ -45,6 +47,8 @@ function App() {
             <Route path="/admin/usuarios" element={<AdminUsuarios />} />
             <Route path="/admin/usuarios/nuevo" element={<AdminFormularioUsuario modo="nuevo" />} />
             <Route path="/admin/usuarios/editar/:id" element={<AdminFormularioUsuario modo="editar" />} />
+            <Route path="/admin/pedidos" element={<AdminPedidos />} />
+            <Route path="/admin/pedidos/:id" element={<AdminDetallePedido />} />
           </Route>
         </Routes>
       </main>
