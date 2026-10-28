@@ -59,7 +59,7 @@ function FormularioProducto({ modo, categorias, productoInicial, onGuardar, onCa
   }
 
   function manejarEnvio(evento: SubmitEvent<HTMLFormElement>) {
-    evento.preventDefault() // Evita que la página se recargue
+    evento.preventDefault()   
 
     const nuevosErrores = validar()
     setErrores(nuevosErrores)

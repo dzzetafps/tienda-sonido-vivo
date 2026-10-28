@@ -49,7 +49,7 @@ function AdminProductos() {
 
     try {
       eliminarProducto(codigo)
-      setCatalogo(leerCatalogo()) // Vuelve a leer el servicio para mostrar la lista actualizada
+      setCatalogo(leerCatalogo()) 
       setAviso({ tipo: 'success', texto: `Producto ${codigo} eliminado correctamente.` })
     } catch (error) {
       setAviso({ tipo: 'danger', texto: error instanceof Error ? error.message : 'No se pudo eliminar el producto.' })

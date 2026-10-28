@@ -32,7 +32,6 @@ function CampoFormulario({
         invalido={error !== ''}
         soloLectura={soloLectura}
       />
-      {/* El mensaje solo existe cuando el campo tiene un error */}
       {error !== '' && <div className="invalid-feedback">{error}</div>}
       {ayuda !== '' && <div className="form-text">{ayuda}</div>}
     </div>
