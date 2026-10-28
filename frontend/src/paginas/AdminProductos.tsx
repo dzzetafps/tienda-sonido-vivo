@@ -1,21 +1,13 @@
 import { useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useSearchParams } from 'react-router-dom'
 import FiltrosProductos from '../componentes/moleculas/FiltrosProductos'
 import TablaProductosAdmin from '../componentes/organismos/TablaProductosAdmin'
-import { eliminarProducto, obtenerProductos } from '../datos/productosService.js'
-import type { Producto } from '../tipos/Producto'
+import { leerCatalogo } from '../datos/catalogoAdmin'
+import { eliminarProducto } from '../datos/productosService.js'
 
 interface Aviso {
   tipo: 'success' | 'danger'
   texto: string
-}
-
-function leerCatalogo(): { productos: Producto[]; error: string } {
-  try {
-    return { productos: obtenerProductos(), error: '' }
-  } catch (error) {
-    return { productos: [], error: error instanceof Error ? error.message : 'No se pudo cargar el catálogo.' }
-  }
 }
 
 function leerAvisoRecibido(estado: unknown): Aviso | null {
@@ -27,9 +19,10 @@ function leerAvisoRecibido(estado: unknown): Aviso | null {
 
 function AdminProductos() {
   const location = useLocation()
+  const [parametros] = useSearchParams()
   const [catalogo, setCatalogo] = useState(leerCatalogo)
   const [busqueda, setBusqueda] = useState('')
-  const [categoria, setCategoria] = useState('')
+  const [categoria, setCategoria] = useState(parametros.get('categoria') ?? '')
   const [aviso, setAviso] = useState<Aviso | null>(() => leerAvisoRecibido(location.state))
 
   const categorias = [...new Set(catalogo.productos.map((producto) => producto.categoria))]
