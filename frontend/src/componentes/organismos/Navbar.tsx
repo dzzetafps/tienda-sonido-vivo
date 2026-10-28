@@ -14,6 +14,10 @@ function Navbar() {
     { ruta: '/registro', texto: 'Registrarse' },
   ]
 
+  function estaActivo(ruta: string) {
+    return pathname === ruta || (ruta !== '/' && pathname.startsWith(`${ruta}/`))
+  }
+
   return (
     <nav className="navbar navbar-expand-lg bg-dark" data-bs-theme="dark" aria-label="Navegación principal">
       <div className="container">
@@ -35,9 +39,9 @@ function Navbar() {
             {enlaces.map(({ ruta, texto }) => (
               <li className="nav-item" key={ruta}>
                 <Link
-                  className={`nav-link${pathname === ruta ? ' active' : ''}`}
+                  className={`nav-link${estaActivo(ruta) ? ' active' : ''}`}
                   to={ruta}
-                  aria-current={pathname === ruta ? 'page' : undefined}
+                  aria-current={estaActivo(ruta) ? 'page' : undefined}
                   onClick={() => setMenuAbierto(false)}
                 >
                   {texto}
