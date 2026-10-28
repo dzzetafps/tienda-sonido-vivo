@@ -9,12 +9,17 @@ function Navbar() {
     { ruta: '/productos', texto: 'Productos' },
     { ruta: '/contacto', texto: 'Contacto' },
     { ruta: '/carrito', texto: 'Carrito' },
+    { ruta: '/admin', texto: 'Administración' },
     { ruta: '/login', texto: 'Iniciar sesión' },
     { ruta: '/registro', texto: 'Registrarse' },
   ]
 
+  function estaActivo(ruta: string) {
+    return pathname === ruta || (ruta !== '/' && pathname.startsWith(`${ruta}/`))
+  }
+
   return (
-    <nav className="navbar navbar-expand-md bg-dark" data-bs-theme="dark" aria-label="Navegación principal">
+    <nav className="navbar navbar-expand-lg bg-dark" data-bs-theme="dark" aria-label="Navegación principal">
       <div className="container">
         <Link className="navbar-brand fw-bold" to="/" onClick={() => setMenuAbierto(false)}>
           Sonido Vivo
@@ -34,9 +39,9 @@ function Navbar() {
             {enlaces.map(({ ruta, texto }) => (
               <li className="nav-item" key={ruta}>
                 <Link
-                  className={`nav-link${pathname === ruta ? ' active' : ''}`}
+                  className={`nav-link${estaActivo(ruta) ? ' active' : ''}`}
                   to={ruta}
-                  aria-current={pathname === ruta ? 'page' : undefined}
+                  aria-current={estaActivo(ruta) ? 'page' : undefined}
                   onClick={() => setMenuAbierto(false)}
                 >
                   {texto}
