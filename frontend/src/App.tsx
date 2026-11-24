@@ -27,6 +27,7 @@ import AdminFormularioUsuario from './paginas/AdminFormularioUsuario'
 import AdminPedidos from './paginas/AdminPedidos'
 import AdminDetallePedido from './paginas/AdminDetallePedido'
 import AdminMensajes from './paginas/AdminMensajes'
+import MisPedidos from './paginas/MisPedidos'
 
 function App() {
   return (
@@ -100,6 +101,11 @@ function App() {
             <Route
               path="/compra-exitosa"
               element={<CompraExitosa />}
+            />
+
+            <Route
+              path="/mis-pedidos"
+              element={<MisPedidos />}
             />
           </Route>
 
