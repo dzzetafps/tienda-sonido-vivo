@@ -1,51 +1,59 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import Input from '../componentes/atomos/Input'
 import TablaUsuariosAdmin from '../componentes/organismos/TablaUsuariosAdmin'
 import { leerAvisoRecibido } from '../datos/avisos'
 import type { Aviso } from '../datos/avisos'
-import { cambiarEstadoUsuario, obtenerSesion, obtenerUsuarios } from '../datos/usuariosService.js'
+import { mensajeError } from '../datos/api'
+import { cambiarEstadoUsuario, listarUsuarios } from '../datos/usuariosApi'
 import type { Usuario } from '../tipos/Usuario'
-
-function leerUsuarios(): { usuarios: Usuario[]; error: string } {
-  try {
-    return { usuarios: obtenerUsuarios(), error: '' }
-  } catch (error) {
-    return { usuarios: [], error: error instanceof Error ? error.message : 'No se pudieron cargar los usuarios.' }
-  }
-}
 
 function AdminUsuarios() {
   const location = useLocation()
-  const [datos, setDatos] = useState(leerUsuarios)
+  const [usuarios, setUsuarios] = useState<Usuario[]>([])
+  const [cargando, setCargando] = useState(true)
+  const [error, setError] = useState('')
   const [busqueda, setBusqueda] = useState('')
   const [rol, setRol] = useState('')
   const [aviso, setAviso] = useState<Aviso | null>(() => leerAvisoRecibido(location.state))
 
+  useEffect(() => {
+    let activo = true
+    listarUsuarios()
+      .then((lista) => {
+        if (activo) setUsuarios(lista)
+      })
+      .catch((e) => {
+        if (activo) setError(mensajeError(e, 'No se pudieron cargar los usuarios.'))
+      })
+      .finally(() => {
+        if (activo) setCargando(false)
+      })
+    return () => {
+      activo = false
+    }
+  }, [])
+
   const texto = busqueda.trim().toLocaleLowerCase('es-CL')
-  const usuariosFiltrados = datos.usuarios.filter((usuario) => {
+  const usuariosFiltrados = usuarios.filter((usuario) => {
     const coincideRol = rol === '' || usuario.rol === rol
     const coincideTexto = [usuario.nombre, usuario.apellidos, usuario.rut, usuario.correo]
       .some((valor) => valor.toLocaleLowerCase('es-CL').includes(texto))
     return coincideRol && coincideTexto
   })
 
-  function cambiarEstado(id: string, activo: boolean) {
-    const usuario = datos.usuarios.find((actual) => actual.id === id)
+  async function cambiarEstado(id: string, activo: boolean) {
+    const usuario = usuarios.find((actual) => actual.id === id)
     const nombre = usuario ? `${usuario.nombre} ${usuario.apellidos}` : id
 
-    if (!activo && obtenerSesion()?.usuarioId === id) {
-      setAviso({ tipo: 'danger', texto: 'No puedes desactivar tu propia cuenta mientras tienes la sesión iniciada.' })
-      return
-    }
     if (!activo && !window.confirm(`¿Desactivar a ${nombre}? No podrá iniciar sesión hasta que lo actives otra vez.`)) return
 
     try {
-      cambiarEstadoUsuario(id, activo)
-      setDatos(leerUsuarios())
+      const actualizado = await cambiarEstadoUsuario(id, activo)
+      setUsuarios((actuales) => actuales.map((actual) => (actual.id === id ? actualizado : actual)))
       setAviso({ tipo: 'success', texto: `Usuario ${nombre} ${activo ? 'activado' : 'desactivado'} correctamente.` })
-    } catch (error) {
-      setAviso({ tipo: 'danger', texto: error instanceof Error ? error.message : 'No se pudo cambiar el estado del usuario.' })
+    } catch (e) {
+      setAviso({ tipo: 'danger', texto: mensajeError(e, 'No se pudo cambiar el estado del usuario.') })
     }
   }
 
@@ -73,8 +81,10 @@ function AdminUsuarios() {
         </div>
       )}
 
-      {datos.error ? (
-        <p className="alert alert-danger" role="alert">{datos.error}</p>
+      {cargando ? (
+        <p className="text-secondary" role="status">Cargando usuarios...</p>
+      ) : error ? (
+        <p className="alert alert-danger" role="alert">{error}</p>
       ) : (
         <>
           <div className="row g-3 mb-4">
@@ -87,12 +97,13 @@ function AdminUsuarios() {
               <select id="rol-usuarios" className="form-select" value={rol} onChange={(evento) => setRol(evento.target.value)}>
                 <option value="">Todos los roles</option>
                 <option value="cliente">Clientes</option>
+                <option value="vendedor">Vendedores</option>
                 <option value="administrador">Administradores</option>
               </select>
             </div>
           </div>
           <p aria-live="polite">
-            Mostrando {usuariosFiltrados.length} de {datos.usuarios.length} usuarios
+            Mostrando {usuariosFiltrados.length} de {usuarios.length} usuarios
           </p>
           <TablaUsuariosAdmin usuarios={usuariosFiltrados} onCambiarEstado={cambiarEstado} />
         </>

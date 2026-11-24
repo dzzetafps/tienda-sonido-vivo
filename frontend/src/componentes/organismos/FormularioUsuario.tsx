@@ -145,9 +145,10 @@ function FormularioUsuario({ modo, usuarioInicial, ocupado = false, onGuardar, o
             id="usuario-rol"
             className="form-select"
             value={rol}
-            onChange={(evento) => setRol(evento.target.value === 'administrador' ? 'administrador' : 'cliente')}
+            onChange={(evento) => setRol(evento.target.value as RolUsuario)}
           >
             <option value="cliente">Cliente</option>
+            <option value="vendedor">Vendedor</option>
             <option value="administrador">Administrador</option>
           </select>
         </div>
