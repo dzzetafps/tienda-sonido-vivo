@@ -1,35 +1,76 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import FiltrosProductos from '../componentes/moleculas/FiltrosProductos'
 import GrillaProductos from '../componentes/organismos/GrillaProductos'
-import { obtenerProductos } from '../datos/productosService.js'
+import { obtenerProductos } from '../datos/productosApi'
+import { mensajeError } from '../datos/api'
+import type { Producto } from '../tipos/Producto'
 
 function Productos() {
   const [busqueda, setBusqueda] = useState('')
   const [categoria, setCategoria] = useState('')
-  const [catalogo] = useState(() => {
-    try {
-      return { productos: obtenerProductos(), error: '' }
-    } catch (error) {
-      return { productos: [], error: error instanceof Error ? error.message : 'No se pudo cargar el catálogo.' }
-    }
-  })
+  const [productos, setProductos] = useState<Producto[]>([])
+  const [cargando, setCargando] = useState(true)
+  const [error, setError] = useState('')
 
-  const categorias = [...new Set(catalogo.productos.map((producto) => producto.categoria))]
-    .sort((primera, segunda) => primera.localeCompare(segunda, 'es'))
+  useEffect(() => {
+    let activo = true
+
+    obtenerProductos()
+      .then((datos) => {
+        if (activo) setProductos(datos)
+      })
+      .catch((problema) => {
+        if (activo) {
+          setError(
+            mensajeError(problema, 'No se pudo cargar el catálogo.'),
+          )
+        }
+      })
+      .finally(() => {
+        if (activo) setCargando(false)
+      })
+
+    return () => {
+      activo = false
+    }
+  }, [])
+
+  const categorias = [
+    ...new Set(productos.map((producto) => producto.categoria)),
+  ].sort((primera, segunda) =>
+    primera.localeCompare(segunda, 'es'),
+  )
+
   const textoBusqueda = busqueda.trim().toLocaleLowerCase('es-CL')
-  const productosFiltrados = catalogo.productos.filter((producto) => {
-    const coincideCategoria = categoria === '' || producto.categoria === categoria
-    const coincideBusqueda = [producto.nombre, producto.marca, producto.modelo, producto.codigo]
-      .some((valor) => valor.toLocaleLowerCase('es-CL').includes(textoBusqueda))
+
+  const productosFiltrados = productos.filter((producto) => {
+    const coincideCategoria =
+      categoria === '' || producto.categoria === categoria
+
+    const coincideBusqueda = [
+      producto.nombre,
+      producto.marca,
+      producto.modelo,
+      producto.codigo,
+    ].some((valor) =>
+      valor.toLocaleLowerCase('es-CL').includes(textoBusqueda),
+    )
+
     return coincideCategoria && coincideBusqueda
   })
 
   return (
     <section>
       <h1>Productos</h1>
+
       <p>Instrumentos y equipos para acompañar tu música.</p>
-      {catalogo.error ? (
-        <p className="alert alert-danger" role="alert">{catalogo.error}</p>
+
+      {cargando ? (
+        <p role="status">Cargando productos...</p>
+      ) : error ? (
+        <p className="alert alert-danger" role="alert">
+          {error}
+        </p>
       ) : (
         <>
           <FiltrosProductos
@@ -39,9 +80,11 @@ function Productos() {
             onBusquedaChange={setBusqueda}
             onCategoriaChange={setCategoria}
           />
+
           <p role="status" aria-live="polite">
-            {productosFiltrados.length} de {catalogo.productos.length} productos
+            {productosFiltrados.length} de {productos.length} productos
           </p>
+
           {productosFiltrados.length === 0 ? (
             <p className="alert alert-light border">
               No se encontraron productos. Prueba otra búsqueda o categoría.
