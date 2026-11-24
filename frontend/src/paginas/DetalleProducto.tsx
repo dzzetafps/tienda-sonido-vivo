@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { buscarProductoPorCodigo } from '../datos/productosApi'
-import { agregarProductoAlCarrito } from '../datos/carritoService.js'
+import { agregarProductoAlCarrito } from '../datos/carritoApi'
 import { mensajeError } from '../datos/api'
 import type { Producto } from '../tipos/Producto'
 
