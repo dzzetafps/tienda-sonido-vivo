@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { regiones } from '../datos/regiones.js'
-import { registrarCliente } from '../datos/usuariosService.js'
+import { registrar } from '../datos/authService'
 
 interface DatosRegistro {
   rut: string
@@ -141,7 +141,7 @@ function Registro() {
 
     setRegistrando(true)
     try {
-      await registrarCliente({
+      await registrar({
         rut: datos.rut,
         nombre: datos.nombre,
         apellidos: datos.apellidos,
@@ -150,7 +150,8 @@ function Registro() {
         region: datos.region,
         comuna: datos.comuna,
         direccion: datos.direccion,
-      }, datos.contrasena)
+        contrasena: datos.contrasena,
+      })
       setCuentaCreada(true)
       setDatos({ ...datos, contrasena: '', confirmarContrasena: '' })
     } catch (error) {

@@ -1,27 +1,65 @@
-import { Link, Navigate, Outlet, useLocation } from 'react-router-dom'
-import { obtenerSesion } from '../../datos/usuariosService.js'
+import {
+  Navigate,
+  Outlet,
+  useLocation,
+  Link,
+} from 'react-router-dom'
 
-function RutaAdmin() {
+import { useAuth } from '../../context/useAuth'
+import type { RolUsuario } from '../../tipos/Usuario'
+
+interface RutaAdminProps {
+  roles?: RolUsuario[]
+}
+
+export default function RutaAdmin({
+  roles = ['administrador'],
+}: RutaAdminProps) {
+  const { sesion, cargando } = useAuth()
+
   const location = useLocation()
-  const sesion = obtenerSesion()
 
-  if (!sesion) {
-    return <Navigate to="/login" replace state={{ desde: location.pathname }} />
+  if (cargando) {
+    return (
+      <div className="text-center py-5">
+        <div className="spinner-border" role="status">
+          <span className="visually-hidden">
+            Cargando sesión...
+          </span>
+        </div>
+
+        <p className="mt-3">
+          Verificando permisos...
+        </p>
+      </div>
+    )
   }
 
-  if (sesion.rol !== 'administrador') {
+  if (!sesion) {
     return (
-      <section>
+      <Navigate
+        to="/login"
+        state={{ desde: location.pathname }}
+        replace
+      />
+    )
+  }
+
+  if (!roles.includes(sesion.rol)) {
+    return (
+      <section className="text-center py-5">
         <h1>Acceso restringido</h1>
-        <p className="alert alert-warning" role="alert">
-          Tu cuenta no tiene permisos para entrar al panel de administración.
+
+        <p className="text-secondary">
+          No tienes permisos para acceder a esta sección.
         </p>
-        <Link className="btn btn-outline-primary" to="/">Volver a la tienda</Link>
+
+        <Link to="/" className="btn btn-primary">
+          Volver al inicio
+        </Link>
       </section>
     )
   }
 
   return <Outlet />
 }
-
-export default RutaAdmin
