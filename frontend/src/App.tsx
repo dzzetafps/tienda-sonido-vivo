@@ -23,6 +23,7 @@ import AdminUsuarios from './paginas/AdminUsuarios'
 import AdminFormularioUsuario from './paginas/AdminFormularioUsuario'
 import AdminPedidos from './paginas/AdminPedidos'
 import AdminDetallePedido from './paginas/AdminDetallePedido'
+import AdminMensajes from './paginas/AdminMensajes'
 
 function App() {
   return (
@@ -55,6 +56,7 @@ function App() {
             <Route path="/admin/usuarios/editar/:id" element={<AdminFormularioUsuario modo="editar" />} />
             <Route path="/admin/pedidos" element={<AdminPedidos />} />
             <Route path="/admin/pedidos/:id" element={<AdminDetallePedido />} />
+            <Route path="/admin/mensajes" element={<AdminMensajes />} />
           </Route>
         </Routes>
       </main>
