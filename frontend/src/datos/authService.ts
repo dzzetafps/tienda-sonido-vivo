@@ -1,5 +1,14 @@
-import { apiFetch, establecerToken } from './api'
-import type { RolUsuario, Usuario } from '../tipos/Usuario'
+import {
+  apiFetch,
+  establecerToken,
+  obtenerVersionSesion,
+  ErrorApi,
+} from './api'
+
+import type {
+  RolUsuario,
+  Usuario,
+} from '../tipos/Usuario'
 
 export interface LoginRequest {
   correo: string
@@ -40,52 +49,80 @@ const headersCsrf = {
 
 let renovacionPendiente: Promise<LoginResponse> | null = null
 
-// Registrar un nuevo usuario
+// Registrar un nuevo cliente
 export async function registrar(
   datos: RegistroRequest,
 ): Promise<RegistroResponse> {
   return apiFetch<RegistroResponse>('/auth/registro', {
     method: 'POST',
-    body: JSON.stringify(datos),
+    body: JSON.stringify({
+      ...datos,
+      fechaNacimiento: datos.fechaNacimiento || null,
+    }),
   })
 }
 
-// Iniciar sesion y guardar el JWT en memoria
+// Iniciar sesion
 export async function iniciarSesion(
   datos: LoginRequest,
 ): Promise<LoginResponse> {
   establecerToken(null)
 
-  const respuesta = await apiFetch<LoginResponse>('/auth/login', {
-    method: 'POST',
-    headers: headersCsrf,
-    body: JSON.stringify(datos),
-  })
+  const version = obtenerVersionSesion()
+
+  // Esperar una renovacion anterior antes de iniciar otra sesion
+  if (renovacionPendiente) {
+    await renovacionPendiente.catch(() => undefined)
+  }
+
+  if (obtenerVersionSesion() !== version) {
+    throw new ErrorApi('La sesión ha cambiado.', 401)
+  }
+
+  const respuesta = await apiFetch<LoginResponse>(
+    '/auth/login',
+    {
+      method: 'POST',
+      headers: headersCsrf,
+      body: JSON.stringify(datos),
+    },
+  )
+
+  if (obtenerVersionSesion() !== version) {
+    throw new ErrorApi('La sesión ha cambiado.', 401)
+  }
 
   establecerToken(respuesta.accessToken)
 
   return respuesta
 }
 
-// Renovar la sesion utilizando la cookie HttpOnly
+// Renovar mediante la cookie HttpOnly
 export function renovarSesion(): Promise<LoginResponse> {
   if (renovacionPendiente) {
     return renovacionPendiente
   }
 
-  establecerToken(null)
+  const version = obtenerVersionSesion()
 
-  renovacionPendiente = apiFetch<LoginResponse>('/auth/refresh', {
-    method: 'POST',
-    headers: headersCsrf,
-  })
+  renovacionPendiente = apiFetch<LoginResponse>(
+    '/auth/refresh',
+    {
+      method: 'POST',
+      headers: headersCsrf,
+    },
+  )
     .then((respuesta) => {
+      if (obtenerVersionSesion() !== version) {
+        throw new ErrorApi(
+          'La sesión fue cerrada o modificada.',
+          401,
+        )
+      }
+
       establecerToken(respuesta.accessToken)
+
       return respuesta
-    })
-    .catch((error) => {
-      establecerToken(null)
-      throw error
     })
     .finally(() => {
       renovacionPendiente = null
@@ -94,25 +131,29 @@ export function renovarSesion(): Promise<LoginResponse> {
   return renovacionPendiente
 }
 
-// Obtener los datos del usuario autenticado
+// Consultar los datos del usuario autenticado
 export async function obtenerUsuarioActual(): Promise<Usuario> {
   return apiFetch<Usuario>('/auth/me')
 }
 
-// Cerrar sesion y eliminar el JWT de memoria
+// Cerrar la sesion
 export async function cerrarSesion(): Promise<void> {
+  // Invalidar inmediatamente las peticiones anteriores
+  establecerToken(null)
+
+  const version = obtenerVersionSesion()
+
+  // Esperar una posible rotacion de la cookie
   if (renovacionPendiente) {
     await renovacionPendiente.catch(() => undefined)
   }
 
-  establecerToken(null)
-
-  try {
-    await apiFetch<void>('/auth/logout', {
-      method: 'POST',
-      headers: headersCsrf,
-    })
-  } finally {
-    establecerToken(null)
+  if (obtenerVersionSesion() !== version) {
+    throw new ErrorApi('La sesión ha cambiado.', 401)
   }
+
+  await apiFetch<void>('/auth/logout', {
+    method: 'POST',
+    headers: headersCsrf,
+  })
 }

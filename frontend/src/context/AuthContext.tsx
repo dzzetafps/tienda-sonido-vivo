@@ -5,7 +5,10 @@ import {
 
 import type { ReactNode } from 'react'
 
-import type { Sesion, Usuario } from '../tipos/Usuario'
+import type {
+  Sesion,
+  Usuario,
+} from '../tipos/Usuario'
 
 import {
   iniciarSesion,
@@ -16,7 +19,12 @@ import {
 
 import type { LoginRequest } from '../datos/authService'
 
-import { establecerToken } from '../datos/api'
+import {
+  establecerToken,
+  configurarRenovacion,
+  obtenerVersionSesion,
+  ErrorApi,
+} from '../datos/api'
 
 import { AuthContext } from './authContextBase'
 
@@ -25,21 +33,34 @@ export function AuthProvider({
 }: {
   children: ReactNode
 }) {
-  const [sesion, setSesion] = useState<Sesion | null>(null)
+  const [sesion, setSesion] =
+    useState<Sesion | null>(null)
 
-  const [usuario, setUsuario] = useState<Usuario | null>(null)
+  const [usuario, setUsuario] =
+    useState<Usuario | null>(null)
 
-  const [cargando, setCargando] = useState(true)
+  const [cargando, setCargando] =
+    useState(true)
 
-  // Recuperar la sesion al iniciar o recargar la aplicacion
   useEffect(() => {
     let activo = true
 
-    async function recuperarSesion() {
-      try {
+    // Renovacion automatica solicitada por apiFetch
+    const desconfigurar = configurarRenovacion(
+      async () => {
+        const version = obtenerVersionSesion()
+
         const respuesta = await renovarSesion()
 
-        const usuarioActual = await obtenerUsuarioActual()
+        const usuarioActual =
+          await obtenerUsuarioActual()
+
+        if (obtenerVersionSesion() !== version) {
+          throw new ErrorApi(
+            'La sesión ha cambiado.',
+            401,
+          )
+        }
 
         if (activo) {
           setSesion({
@@ -49,9 +70,46 @@ export function AuthProvider({
 
           setUsuario(usuarioActual)
         }
-      } catch {
+      },
+
+      // Ejecutado cuando la sesion deja de ser valida
+      () => {
         if (activo) {
+          setSesion(null)
+          setUsuario(null)
+          setCargando(false)
+        }
+      },
+    )
+
+    // Recuperar la sesion cuando se recarga React
+    async function recuperarSesion() {
+      const version = obtenerVersionSesion()
+
+      try {
+        const respuesta = await renovarSesion()
+
+        const usuarioActual =
+          await obtenerUsuarioActual()
+
+        if (
+          activo &&
+          obtenerVersionSesion() === version
+        ) {
+          setSesion({
+            usuarioId: respuesta.usuarioId,
+            rol: respuesta.rol,
+          })
+
+          setUsuario(usuarioActual)
+        }
+      } catch {
+        if (
+          activo &&
+          obtenerVersionSesion() === version
+        ) {
           establecerToken(null)
+
           setSesion(null)
           setUsuario(null)
         }
@@ -66,19 +124,32 @@ export function AuthProvider({
 
     return () => {
       activo = false
+      desconfigurar()
     }
   }, [])
 
-  // Iniciar sesion mediante el backend
+  // Login
   async function login(
     datos: LoginRequest,
   ): Promise<Sesion> {
     setCargando(true)
 
     try {
-      const respuesta = await iniciarSesion(datos)
+      const respuesta =
+        await iniciarSesion(datos)
 
-      const usuarioActual = await obtenerUsuarioActual()
+      const version =
+        obtenerVersionSesion()
+
+      const usuarioActual =
+        await obtenerUsuarioActual()
+
+      if (obtenerVersionSesion() !== version) {
+        throw new ErrorApi(
+          'La sesión ha cambiado.',
+          401,
+        )
+      }
 
       const nuevaSesion: Sesion = {
         usuarioId: respuesta.usuarioId,
@@ -91,6 +162,7 @@ export function AuthProvider({
       return nuevaSesion
     } catch (error) {
       establecerToken(null)
+
       setSesion(null)
       setUsuario(null)
 
@@ -100,7 +172,7 @@ export function AuthProvider({
     }
   }
 
-  // Cerrar sesion mediante el backend
+  // Logout
   async function logout(): Promise<void> {
     setCargando(true)
 
@@ -108,6 +180,7 @@ export function AuthProvider({
       await cerrarSesion()
     } finally {
       establecerToken(null)
+
       setSesion(null)
       setUsuario(null)
       setCargando(false)

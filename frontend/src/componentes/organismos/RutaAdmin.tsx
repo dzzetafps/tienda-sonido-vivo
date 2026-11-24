@@ -2,6 +2,7 @@ import {
   Navigate,
   Outlet,
   useLocation,
+  Link,
 } from 'react-router-dom'
 
 import { useAuth } from '../../context/useAuth'
@@ -38,7 +39,20 @@ export default function RutaAdmin() {
   }
 
   if (sesion.rol !== 'administrador') {
-    return <Navigate to="/" replace />
+    return (
+      <section className="text-center py-5">
+        <h1>Acceso restringido</h1>
+
+        <p className="text-secondary">
+          No tienes permisos para acceder al panel
+          de administración.
+        </p>
+
+        <Link to="/" className="btn btn-primary">
+          Volver al inicio
+        </Link>
+      </section>
+    )
   }
 
   return <Outlet />
