@@ -87,25 +87,37 @@ describe('Felipe — formulario y administración de productos', () => {
   })
 
   it('Eliminar desde la página: al confirmar, la fila desaparece y se muestra el mensaje', async () => {
-    const almacen: Record<string, string> = {}
-    spyOn(Storage.prototype, 'getItem').and.callFake((clave: string) => almacen[clave] ?? null)
-    spyOn(Storage.prototype, 'setItem').and.callFake((clave: string, valor: string) => {
-      almacen[clave] = valor
+    const producto = { codigo: 'GA001', categoria: 'Guitarras', nombre: 'Guitarra de prueba',
+      marca: 'Prueba', modelo: 'QA', stock: 5, precio: 129990, descripcion: '', imagen: '' }
+    const peticiones = spyOn(window, 'fetch').and.callFake(async (_url, opciones) => {
+      if (opciones?.method === 'DELETE') return new Response(null, { status: 204 })
+      return new Response(JSON.stringify([producto]), { status: 200 })
     })
+    async function esperar(condicion: () => boolean) {
+      const limite = Date.now() + 2000
+      while (Date.now() < limite) {
+        await act(async () => { await new Promise<void>((resolver) => setTimeout(resolver, 10)) })
+        if (condicion()) return
+      }
+      throw new Error('No terminó la operación REST de productos: ' + contenedor.textContent)
+    }
     const confirmar = spyOn(window, 'confirm').and.returnValue(true)
     await act(async () => {
       root.render(<MemoryRouter><AdminProductos /></MemoryRouter>)
     })
-    expect(contenedor.querySelectorAll('tbody tr').length).toBe(51)
+    await esperar(() => Boolean(contenedor.querySelector('button[aria-label="Eliminar producto GA001"]')))
+    expect(contenedor.querySelectorAll('tbody tr').length).toBe(1)
 
     await act(async () => {
       contenedor.querySelector<HTMLButtonElement>('button[aria-label="Eliminar producto GA001"]')!.click()
     })
 
+    await esperar(() => contenedor.textContent!.includes('Producto GA001 eliminado correctamente.'))
     expect(confirmar).toHaveBeenCalledTimes(1)
-    expect(contenedor.querySelectorAll('tbody tr').length).toBe(50)
+    expect(peticiones.calls.mostRecent().args[0]).toBe('http://localhost:8080/api/productos/GA001')
+    expect(peticiones.calls.mostRecent().args[1]?.method).toBe('DELETE')
     expect(contenedor.querySelector('button[aria-label="Eliminar producto GA001"]')).toBeNull()
-    expect(contenedor.textContent).toContain('Mostrando 50 de 50 productos')
+    expect(contenedor.textContent).toContain('Mostrando 0 de 0 productos')
     expect(contenedor.textContent).toContain('Producto GA001 eliminado correctamente.')
   })
 })

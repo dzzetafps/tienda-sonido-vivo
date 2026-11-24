@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { buscarProductoPorCodigo } from '../datos/productosApi'
 import { agregarProductoAlCarrito } from '../datos/carritoApi'
 import { mensajeError } from '../datos/api'
 import type { Producto } from '../tipos/Producto'
+import { useAuth } from '../context/useAuth'
 
 const formatoPrecio = new Intl.NumberFormat('es-CL', {
   style: 'currency',
@@ -13,6 +14,9 @@ const formatoPrecio = new Intl.NumberFormat('es-CL', {
 
 function DetalleProducto() {
   const { codigo } = useParams<{ codigo: string }>()
+  const { sesion, cargando: cargandoSesion } = useAuth()
+  const agregandoRef = useRef(false)
+  const [agregando, setAgregando] = useState(false)
 
   const [producto, setProducto] = useState<Producto>()
   const [cargando, setCargando] = useState(true)
@@ -58,7 +62,11 @@ function DetalleProducto() {
   }, [codigo])
 
   async function agregarAlCarrito() {
-    if (!producto) return
+    if (!producto || producto.stock <= 0 || sesion?.rol !== 'cliente' ||
+      cargandoSesion || agregandoRef.current) return
+
+    agregandoRef.current = true
+    setAgregando(true)
 
     try {
       await agregarProductoAlCarrito(producto.codigo, 1)
@@ -77,6 +85,9 @@ function DetalleProducto() {
         ),
         error: true,
       })
+    } finally {
+      agregandoRef.current = false
+      setAgregando(false)
     }
   }
 
@@ -143,11 +154,19 @@ function DetalleProducto() {
             <button
               type="button"
               className="btn btn-primary"
-              disabled={producto.stock <= 0}
+              disabled={producto.stock <= 0 || agregando || cargandoSesion || sesion?.rol !== 'cliente'}
               onClick={agregarAlCarrito}
             >
-              Agregar al carrito
+              {agregando ? 'Agregando...' : 'Agregar al carrito'}
             </button>
+
+            {!cargandoSesion && sesion?.rol !== 'cliente' && (
+              <p className="mt-2 text-secondary">
+                {sesion ? 'Las compras requieren una cuenta de cliente.' : (
+                  <Link to="/login">Inicia sesión como cliente para comprar.</Link>
+                )}
+              </p>
+            )}
 
             {resultadoCarrito.codigo === producto.codigo &&
               resultadoCarrito.mensaje && (

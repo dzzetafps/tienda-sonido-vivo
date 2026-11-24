@@ -1,17 +1,19 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { crearPedido } from '../datos/pedidosService.js'
-import { obtenerSesion } from '../datos/usuariosService.js'
+import { Link, useNavigate } from 'react-router-dom'
+
+import { obtenerCarrito } from '../datos/carritoApi'
+import type { CarritoApi } from '../datos/carritoApi'
+
 import {
-  obtenerCarrito,
-  calcularSubtotal,
-  calcularTotal,
-  validarDisponibilidadCarrito,
-} from '../datos/carritoService.js'
-import { buscarProductoPorCodigo } from '../datos/productosService.js'
-import type { ItemCarrito } from '../tipos/ItemCarrito'
-import type { Producto } from '../tipos/Producto'
+  crearPedido,
+  obtenerMisPedidos,
+} from '../datos/pedidosClienteApi'
+
+import type {
+  PedidoCliente,
+  DatosPedido,
+} from '../datos/pedidosClienteApi'
 
 interface DatosCliente {
   nombre: string
@@ -28,281 +30,512 @@ interface DatosCliente {
 
 type Errores = Partial<Record<keyof DatosCliente, string>>
 
+const datosIniciales: DatosCliente = {
+  nombre: '',
+  apellido: '',
+  correo: '',
+  entrega: 'despacho',
+  calle: '',
+  numero: '',
+  complemento: '',
+  region: '',
+  comuna: '',
+  indicaciones: '',
+}
+
 const formatoPrecio = new Intl.NumberFormat('es-CL', {
   style: 'currency',
   currency: 'CLP',
   maximumFractionDigits: 0,
 })
 
-function cargarResumen() {
-  let productos: { item: ItemCarrito; producto: Producto | undefined; subtotal: number | null }[] = []
-  let total: number | null = null
-  let error = ''
-
-  try {
-    const items = obtenerCarrito()
-    productos = items.map((item) => {
-      let producto: Producto | undefined
-      let subtotal: number | null = null
-
-      try {
-        producto = buscarProductoPorCodigo(item.codigo)
-        subtotal = calcularSubtotal(item)
-      } catch (problema) {
-        error = problema instanceof Error ? problema.message : 'No se pudo consultar un producto del carrito.'
-      }
-
-      return { item, producto, subtotal }
-    })
-    total = calcularTotal()
-    validarDisponibilidadCarrito()
-    if (items.length === 0) error = 'Tu carrito está vacío. Agrega productos antes de continuar.'
-  } catch (problema) {
-    error = problema instanceof Error ? problema.message : 'No se pudo comprobar el carrito.'
+function datosDesdePedido(pedido: PedidoCliente): DatosCliente {
+  return {
+    nombre: pedido.comprador.nombre,
+    apellido: pedido.comprador.apellido,
+    correo: pedido.comprador.correo,
+    entrega: pedido.entrega.tipo,
+    calle: pedido.entrega.calle ?? '',
+    numero: pedido.entrega.numero ?? '',
+    complemento: pedido.entrega.complemento ?? '',
+    region: pedido.entrega.region ?? '',
+    comuna: pedido.entrega.comuna ?? '',
+    indicaciones: pedido.entrega.indicaciones ?? '',
   }
-
-  return { productos, total, error }
 }
 
 function Checkout() {
   const navegar = useNavigate()
   const envioEnCurso = useRef(false)
-  const [datos, setDatos] = useState<DatosCliente>({
-    nombre: '',
-    apellido: '',
-    correo: '',
-    entrega: 'despacho',
-    calle: '',
-    numero: '',
-    complemento: '',
-    region: '',
-    comuna: '',
-    indicaciones: '',
-  })
+  const pedidosConocidos = useRef(new Set<string>())
+
+  const [datos, setDatos] = useState<DatosCliente>(datosIniciales)
   const [errores, setErrores] = useState<Errores>({})
-  const [resumen, setResumen] = useState(cargarResumen)
+  const [carrito, setCarrito] = useState<CarritoApi | null>(null)
+  const [pendiente, setPendiente] = useState<PedidoCliente | null>(null)
+  const [cargando, setCargando] = useState(true)
   const [confirmando, setConfirmando] = useState(false)
+  const [errorCarga, setErrorCarga] = useState('')
   const [errorCompra, setErrorCompra] = useState('')
 
+  useEffect(() => {
+    let activo = true
+
+    async function cargar() {
+      try {
+        const pedidos = await obtenerMisPedidos()
+
+        if (!activo) return
+
+        pedidosConocidos.current = new Set(pedidos.map((pedido) => pedido.id))
+
+        const pedidoPendiente = pedidos.find(
+          (pedido) => pedido.estado === 'pendiente',
+        )
+
+        if (pedidoPendiente) {
+          setPendiente(pedidoPendiente)
+          setDatos(datosDesdePedido(pedidoPendiente))
+          return
+        }
+
+        const carritoActual = await obtenerCarrito()
+
+        if (activo) setCarrito(carritoActual)
+      } catch (error) {
+        if (activo) {
+          setErrorCarga(
+            error instanceof Error
+              ? error.message
+              : 'No se pudo cargar la compra.',
+          )
+        }
+      } finally {
+        if (activo) setCargando(false)
+      }
+    }
+
+    void cargar()
+
+    return () => {
+      activo = false
+    }
+  }, [])
+
   function actualizarCampo(campo: keyof DatosCliente, valor: string) {
-    setDatos({ ...datos, [campo]: valor })
-    setErrores({ ...errores, [campo]: undefined })
+    setDatos((anterior) => ({
+      ...anterior,
+      [campo]: valor,
+    }))
+
+    setErrores((anterior) => ({
+      ...anterior,
+      [campo]: undefined,
+    }))
+
     setErrorCompra('')
   }
 
-  function validarDatos(evento: FormEvent<HTMLFormElement>) {
-    evento.preventDefault()
-    if (envioEnCurso.current) return
-    setErrorCompra('')
+  function validarFormulario(): Errores {
     const nuevosErrores: Errores = {}
 
-    if (!datos.nombre.trim()) nuevosErrores.nombre = 'Ingresa tu nombre.'
-    if (!datos.apellido.trim()) nuevosErrores.apellido = 'Ingresa tu apellido.'
-    if (!datos.correo.trim()) {
-      nuevosErrores.correo = 'Ingresa tu correo electrónico.'
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(datos.correo.trim())) {
-      nuevosErrores.correo = 'Ingresa un correo electrónico válido.'
+    if (!datos.nombre.trim()) {
+      nuevosErrores.nombre = 'Ingresa tu nombre.'
+    }
+
+    if (!datos.apellido.trim()) {
+      nuevosErrores.apellido = 'Ingresa tu apellido.'
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(datos.correo.trim())) {
+      nuevosErrores.correo = 'Ingresa un correo válido.'
     }
 
     if (datos.entrega === 'despacho') {
-      if (!datos.calle.trim()) nuevosErrores.calle = 'Ingresa la calle de entrega.'
-      if (!datos.numero.trim()) nuevosErrores.numero = 'Ingresa el número de la dirección.'
-      if (!datos.region.trim()) nuevosErrores.region = 'Ingresa la región de entrega.'
-      if (!datos.comuna.trim()) nuevosErrores.comuna = 'Ingresa la comuna de entrega.'
+      if (!datos.calle.trim()) {
+        nuevosErrores.calle = 'Ingresa la calle.'
+      }
+
+      if (!datos.numero.trim()) {
+        nuevosErrores.numero = 'Ingresa el número.'
+      }
+
+      if (!datos.region.trim()) {
+        nuevosErrores.region = 'Ingresa la región.'
+      }
+
+      if (!datos.comuna.trim()) {
+        nuevosErrores.comuna = 'Ingresa la comuna.'
+      }
     }
 
-    const resumenActual = cargarResumen()
-    setResumen(resumenActual)
-    setErrores(nuevosErrores)
-    if (Object.keys(nuevosErrores).length > 0 || resumenActual.error) return
+    return nuevosErrores
+  }
+
+  async function confirmarCompra(evento: FormEvent<HTMLFormElement>) {
+    evento.preventDefault()
+
+    if (envioEnCurso.current || cargando || errorCarga) return
+
+    setErrorCompra('')
+
+    if (!pendiente) {
+      const nuevosErrores = validarFormulario()
+      setErrores(nuevosErrores)
+
+      if (Object.keys(nuevosErrores).length > 0) return
+
+      if (!carrito || carrito.items.length === 0) {
+        setErrorCompra('Tu carrito está vacío.')
+        return
+      }
+
+      if (carrito.items.some((item) => !item.disponible)) {
+        setErrorCompra('Hay productos sin stock suficiente.')
+        return
+      }
+    }
 
     envioEnCurso.current = true
     setConfirmando(true)
+
     try {
       const despacho = datos.entrega === 'despacho'
-      const pedido = crearPedido({
-        usuarioId: obtenerSesion()?.usuarioId ?? null,
-        comprador: { nombre: datos.nombre, apellido: datos.apellido, correo: datos.correo },
-        entrega: {
-          tipo: datos.entrega,
-          calle: despacho ? datos.calle : '',
-          numero: despacho ? datos.numero : '',
-          complemento: despacho ? datos.complemento : '',
-          region: despacho ? datos.region : '',
-          comuna: despacho ? datos.comuna : '',
-          indicaciones: despacho ? datos.indicaciones : '',
-        },
-      })
-      navegar(`/compra-exitosa?pedido=${encodeURIComponent(pedido.id)}`, { replace: true })
+
+      const solicitud: DatosPedido = pendiente
+        ? {
+            comprador: pendiente.comprador,
+            entrega: pendiente.entrega,
+          }
+        : {
+            comprador: {
+              nombre: datos.nombre.trim(),
+              apellido: datos.apellido.trim(),
+              correo: datos.correo.trim().toLowerCase(),
+            },
+            entrega: {
+              tipo: datos.entrega,
+              calle: despacho ? datos.calle.trim() : '',
+              numero: despacho ? datos.numero.trim() : '',
+              complemento: despacho ? datos.complemento.trim() : '',
+              region: despacho ? datos.region.trim() : '',
+              comuna: despacho ? datos.comuna.trim() : '',
+              indicaciones: despacho ? datos.indicaciones.trim() : '',
+            },
+          }
+
+      const pedido = await crearPedido(solicitud)
+
+      if (pedido.estado === 'pendiente') {
+        setPendiente(pedido)
+        setDatos(datosDesdePedido(pedido))
+
+        setErrorCompra(
+          'El pedido quedó pendiente de confirmación. ' +
+          'Puedes reintentar sin generar otro pedido.',
+        )
+
+        return
+      }
+
+      if (
+        pedido.estado === 'pagado' ||
+        pedido.estado === 'enviado' ||
+        pedido.estado === 'entregado'
+      ) {
+        navegar(
+          `/compra-exitosa?pedido=${encodeURIComponent(pedido.id)}`,
+          { replace: true },
+        )
+
+        return
+      }
+
+      setErrorCompra('No fue posible confirmar el pedido.')
     } catch (error) {
-      setErrorCompra(error instanceof Error ? error.message : 'No se pudo confirmar la compra. Inténtalo nuevamente.')
-      setResumen(cargarResumen())
+      setErrorCompra(
+        error instanceof Error
+          ? error.message
+          : 'No se pudo confirmar la compra.',
+      )
+
+      // Consultar el estado persistido antes de permitir otro intento.
+      try {
+        const pedidos = await obtenerMisPedidos()
+
+        const recuperado = pedidos.find(
+          (pedido) => pedido.estado === 'pendiente',
+        )
+
+        if (recuperado) {
+          setPendiente(recuperado)
+          setDatos(datosDesdePedido(recuperado))
+        } else {
+          // La respuesta del POST puede perderse después de confirmar en MySQL.
+          // Si apareció una compra desde que cargamos la pantalla, detenemos
+          // el reenvío y mostramos el historial para verificarla.
+          const confirmado = pedidos.find((pedido) =>
+            !pedidosConocidos.current.has(pedido.id) &&
+            ['pagado', 'enviado', 'entregado'].includes(pedido.estado),
+          )
+          if (confirmado) {
+            navegar('/mis-pedidos', { replace: true })
+            return
+          }
+          setPendiente(null)
+          setCarrito(await obtenerCarrito())
+        }
+      } catch {
+        setErrorCarga(
+          'No se pudo comprobar el estado del pedido. ' +
+          'Recarga la página antes de volver a confirmar.',
+        )
+      }
+    } finally {
       envioEnCurso.current = false
       setConfirmando(false)
     }
   }
 
+  const campos = (
+    campo: keyof DatosCliente,
+    titulo: string,
+    obligatorio = true,
+    tipo = 'text',
+    maxLength = 100,
+  ) => (
+    <div className="mb-3">
+      <label className="form-label" htmlFor={campo}>
+        {titulo}{obligatorio ? ' *' : ''}
+      </label>
+
+      <input
+        id={campo}
+        name={campo}
+        type={tipo}
+        required={obligatorio}
+        maxLength={maxLength}
+        className={`form-control${errores[campo] ? ' is-invalid' : ''}`}
+        value={datos[campo]}
+        onChange={(evento) =>
+          actualizarCampo(campo, evento.target.value)
+        }
+        aria-invalid={Boolean(errores[campo])}
+      />
+
+      {errores[campo] && (
+        <div className="invalid-feedback">
+          {errores[campo]}
+        </div>
+      )}
+    </div>
+  )
+
+  const productos = pendiente
+    ? pendiente.items.map((item) => ({
+        codigo: item.codigo,
+        nombre: item.nombre,
+        cantidad: item.cantidad,
+        precioUnitario: item.precioUnitario,
+        subtotal: item.precioUnitario * item.cantidad,
+      }))
+    : carrito?.items ?? []
+
+  const total = pendiente?.total ?? carrito?.total ?? 0
+
+  const compraDisponible = Boolean(
+    pendiente ||
+    (
+      carrito &&
+      carrito.items.length > 0 &&
+      carrito.items.every((item) => item.disponible)
+    ),
+  )
+
+  if (cargando) {
+    return <p role="status">Cargando datos de compra...</p>
+  }
+
   return (
     <section aria-labelledby="titulo-checkout">
       <h1 id="titulo-checkout">Datos para la compra</h1>
-      <p className="text-secondary mb-4">Completa tus datos y elige cómo recibir tus productos.</p>
+
+      <p className="text-secondary mb-4">
+        Completa tus datos y elige cómo recibir tus productos.
+      </p>
+
+      {errorCarga && (
+        <div className="alert alert-danger" role="alert">
+          {errorCarga}
+        </div>
+      )}
+
+      {pendiente && (
+        <div className="alert alert-warning" role="status">
+          <strong>Pedido pendiente de confirmación</strong>
+          <p className="text-break mb-1">{pendiente.id}</p>
+          <p className="mb-0">
+            Reintenta con los datos originales del pedido.
+            No se descontará dos veces el mismo inventario
+            cuando el servicio de stock confirme la operación.
+          </p>
+        </div>
+      )}
 
       <div className="row g-4">
         <div className="col-12 col-lg-7">
-          <form className="card shadow-sm" onSubmit={validarDatos} noValidate>
+          <form
+            className="card shadow-sm"
+            onSubmit={confirmarCompra}
+            noValidate
+          >
             <div className="card-body">
-              <fieldset className="mb-4" disabled={confirmando}>
+              <fieldset disabled={confirmando || Boolean(pendiente)}>
                 <legend className="h4 mb-3">Datos del cliente</legend>
-                <p className="small text-secondary">Los campos marcados con * son obligatorios.</p>
-                <div className="row g-3">
-                  <div className="col-12 col-sm-6">
-                    <label className="form-label" htmlFor="nombre">Nombre *</label>
-                    <input
-                      id="nombre" name="nombre" autoComplete="given-name" required
-                      className={`form-control${errores.nombre ? ' is-invalid' : ''}`}
-                      value={datos.nombre} onChange={(evento) => actualizarCampo('nombre', evento.target.value)}
-                      aria-invalid={Boolean(errores.nombre)} aria-describedby={errores.nombre ? 'error-nombre' : undefined}
-                    />
-                    {errores.nombre && <div id="error-nombre" className="invalid-feedback">{errores.nombre}</div>}
-                  </div>
-                  <div className="col-12 col-sm-6">
-                    <label className="form-label" htmlFor="apellido">Apellido *</label>
-                    <input
-                      id="apellido" name="apellido" autoComplete="family-name" required
-                      className={`form-control${errores.apellido ? ' is-invalid' : ''}`}
-                      value={datos.apellido} onChange={(evento) => actualizarCampo('apellido', evento.target.value)}
-                      aria-invalid={Boolean(errores.apellido)} aria-describedby={errores.apellido ? 'error-apellido' : undefined}
-                    />
-                    {errores.apellido && <div id="error-apellido" className="invalid-feedback">{errores.apellido}</div>}
-                  </div>
-                  <div className="col-12">
-                    <label className="form-label" htmlFor="correo">Correo electrónico *</label>
-                    <input
-                      id="correo" name="correo" type="email" autoComplete="email" required
-                      className={`form-control${errores.correo ? ' is-invalid' : ''}`}
-                      value={datos.correo} onChange={(evento) => actualizarCampo('correo', evento.target.value)}
-                      aria-invalid={Boolean(errores.correo)} aria-describedby={errores.correo ? 'error-correo' : undefined}
-                    />
-                    {errores.correo && <div id="error-correo" className="invalid-feedback">{errores.correo}</div>}
-                  </div>
-                </div>
+
+                {campos('nombre', 'Nombre', true, 'text', 50)}
+                {campos('apellido', 'Apellido', true, 'text', 100)}
+                {campos('correo', 'Correo electrónico', true, 'email', 100)}
               </fieldset>
 
-              <fieldset className="mb-4" disabled={confirmando}>
-                <legend className="h4 mb-3">Información de entrega</legend>
+              <fieldset disabled={confirmando || Boolean(pendiente)}>
+                <legend className="h4 mb-3">
+                  Información de entrega
+                </legend>
+
                 <div className="mb-3">
-                  <label className="form-label" htmlFor="entrega">Opción de entrega *</label>
+                  <label className="form-label" htmlFor="entrega">
+                    Opción de entrega *
+                  </label>
+
                   <select
-                    id="entrega" name="entrega" className="form-select" value={datos.entrega}
-                    onChange={(evento) => {
+                    id="entrega"
+                    className="form-select"
+                    value={datos.entrega}
+                    onChange={(evento) =>
                       actualizarCampo('entrega', evento.target.value)
-                      setErrores({ nombre: errores.nombre, apellido: errores.apellido, correo: errores.correo })
-                    }}
+                    }
                   >
-                    <option value="despacho">Despacho a domicilio</option>
-                    <option value="retiro">Retiro en tienda</option>
+                    <option value="despacho">
+                      Despacho a domicilio
+                    </option>
+
+                    <option value="retiro">
+                      Retiro en tienda
+                    </option>
                   </select>
                 </div>
 
                 {datos.entrega === 'despacho' ? (
-                  <div className="row g-3">
-                    <div className="col-12 col-sm-8">
-                      <label className="form-label" htmlFor="calle">Calle *</label>
-                      <input
-                        id="calle" name="calle" required
-                        className={`form-control${errores.calle ? ' is-invalid' : ''}`}
-                        value={datos.calle} onChange={(evento) => actualizarCampo('calle', evento.target.value)}
-                        aria-invalid={Boolean(errores.calle)} aria-describedby={errores.calle ? 'error-calle' : undefined}
-                      />
-                      {errores.calle && <div id="error-calle" className="invalid-feedback">{errores.calle}</div>}
-                    </div>
-                    <div className="col-12 col-sm-4">
-                      <label className="form-label" htmlFor="numero">Número *</label>
-                      <input
-                        id="numero" name="numero" required
-                        className={`form-control${errores.numero ? ' is-invalid' : ''}`}
-                        value={datos.numero} onChange={(evento) => actualizarCampo('numero', evento.target.value)}
-                        aria-invalid={Boolean(errores.numero)} aria-describedby={errores.numero ? 'error-numero' : undefined}
-                      />
-                      {errores.numero && <div id="error-numero" className="invalid-feedback">{errores.numero}</div>}
-                    </div>
-                    <div className="col-12">
-                      <label className="form-label" htmlFor="complemento">Departamento o complemento (opcional)</label>
-                      <input
-                        id="complemento" name="complemento" className="form-control" autoComplete="address-line2"
-                        value={datos.complemento} onChange={(evento) => actualizarCampo('complemento', evento.target.value)}
-                      />
-                    </div>
-                    <div className="col-12 col-sm-6">
-                      <label className="form-label" htmlFor="region">Región *</label>
-                      <input
-                        id="region" name="region" autoComplete="address-level1" required
-                        className={`form-control${errores.region ? ' is-invalid' : ''}`}
-                        value={datos.region} onChange={(evento) => actualizarCampo('region', evento.target.value)}
-                        aria-invalid={Boolean(errores.region)} aria-describedby={errores.region ? 'error-region' : undefined}
-                      />
-                      {errores.region && <div id="error-region" className="invalid-feedback">{errores.region}</div>}
-                    </div>
-                    <div className="col-12 col-sm-6">
-                      <label className="form-label" htmlFor="comuna">Comuna *</label>
-                      <input
-                        id="comuna" name="comuna" autoComplete="address-level2" required
-                        className={`form-control${errores.comuna ? ' is-invalid' : ''}`}
-                        value={datos.comuna} onChange={(evento) => actualizarCampo('comuna', evento.target.value)}
-                        aria-invalid={Boolean(errores.comuna)} aria-describedby={errores.comuna ? 'error-comuna' : undefined}
-                      />
-                      {errores.comuna && <div id="error-comuna" className="invalid-feedback">{errores.comuna}</div>}
-                    </div>
-                    <div className="col-12">
-                      <label className="form-label" htmlFor="indicaciones">Indicaciones de entrega (opcional)</label>
+                  <>
+                    {campos('calle', 'Calle', true, 'text', 200)}
+                    {campos('numero', 'Número', true, 'text', 20)}
+                    {campos('complemento', 'Departamento o complemento', false)}
+                    {campos('region', 'Región')}
+                    {campos('comuna', 'Comuna')}
+
+                    <div className="mb-3">
+                      <label className="form-label" htmlFor="indicaciones">
+                        Indicaciones de entrega
+                      </label>
+
                       <textarea
-                        id="indicaciones" name="indicaciones" className="form-control" rows={3}
-                        value={datos.indicaciones} onChange={(evento) => actualizarCampo('indicaciones', evento.target.value)}
+                        id="indicaciones"
+                        className="form-control"
+                        rows={3}
+                        maxLength={300}
+                        value={datos.indicaciones}
+                        onChange={(evento) =>
+                          actualizarCampo('indicaciones', evento.target.value)
+                        }
                       />
                     </div>
-                  </div>
+                  </>
                 ) : (
-                  <p className="text-secondary">Retirarás tus productos en la tienda Sonido Vivo.</p>
+                  <p className="text-secondary">
+                    Retirarás tus productos en la tienda Sonido Vivo.
+                  </p>
                 )}
               </fieldset>
 
-              {Object.values(errores).some(Boolean) && (
-                <p className="alert alert-danger" role="alert">Revisa los campos indicados antes de continuar.</p>
+              {errorCompra && (
+                <p
+                  className={`alert ${pendiente ? 'alert-warning' : 'alert-danger'}`}
+                  role="alert"
+                >
+                  {errorCompra}
+                </p>
               )}
-              {errorCompra && <p className="alert alert-danger" role="alert">{errorCompra}</p>}
-              <p className="small text-secondary">Compra simulada para fines académicos; no se realizará un pago bancario.</p>
-              <button type="submit" className="btn btn-primary" disabled={confirmando}>
-                {confirmando ? 'Confirmando...' : 'Confirmar compra'}
-              </button>
+
+              <p className="small text-secondary">
+                Compra simulada para fines académicos.
+                No se realizará un pago bancario.
+              </p>
+
+              <div className="d-flex flex-wrap gap-2">
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={
+                    confirmando ||
+                    !compraDisponible ||
+                    Boolean(errorCarga)
+                  }
+                >
+                  {confirmando
+                    ? 'Confirmando...'
+                    : pendiente
+                      ? 'Reintentar confirmación'
+                      : 'Confirmar compra'}
+                </button>
+
+                <Link className="btn btn-outline-secondary" to="/carrito">
+                  Volver al carrito
+                </Link>
+              </div>
             </div>
           </form>
         </div>
 
         <div className="col-12 col-lg-5">
-          <aside className="card shadow-sm" aria-labelledby="titulo-resumen-checkout">
+          <aside className="card shadow-sm">
             <div className="card-body">
-              <h2 className="h4 mb-3" id="titulo-resumen-checkout">Resumen de compra</h2>
-              {resumen.error && (
-                <div className="alert alert-warning" role="alert">
-                  <p className="mb-1">{resumen.error}</p>
-                  <p className="mb-0">Resuelve el problema en el carrito y vuelve a validar los datos.</p>
-                </div>
+              <h2 className="h4 mb-3">Resumen de compra</h2>
+
+              {!compraDisponible && (
+                <p className="alert alert-warning">
+                  Tu carrito está vacío o contiene productos no disponibles.
+                </p>
               )}
+
               <ul className="list-group list-group-flush">
-                {resumen.productos.map(({ item, producto, subtotal }) => (
+                {productos.map((item) => (
                   <li className="list-group-item px-0" key={item.codigo}>
-                    <h3 className="h6">{producto?.nombre ?? item.codigo}</h3>
-                    <p className="mb-1">Precio unitario: {producto ? formatoPrecio.format(producto.precio) : 'No disponible'}</p>
-                    <p className="mb-1">Cantidad: {item.cantidad}</p>
-                    <p className="mb-0 fw-bold">Subtotal: {subtotal === null ? 'No disponible' : formatoPrecio.format(subtotal)}</p>
+                    <h3 className="h6">{item.nombre}</h3>
+
+                    <p className="mb-1">
+                      Precio unitario: {formatoPrecio.format(item.precioUnitario)}
+                    </p>
+
+                    <p className="mb-1">
+                      Cantidad: {item.cantidad}
+                    </p>
+
+                    <p className="mb-0 fw-bold">
+                      Subtotal: {formatoPrecio.format(item.subtotal)}
+                    </p>
                   </li>
                 ))}
               </ul>
-              <p className="d-flex justify-content-between gap-3 border-top pt-3 mt-3 fw-bold">
+
+              <p className="d-flex justify-content-between border-top pt-3 mt-3 fw-bold">
                 <span>Total (CLP)</span>
-                <span>{resumen.total === null ? 'No disponible' : formatoPrecio.format(resumen.total)}</span>
+                <span>{formatoPrecio.format(total)}</span>
               </p>
-              <p className="small text-secondary mb-0">El total corresponde a los productos, sin costos de envío.</p>
+
+              <p className="small text-secondary">
+                Total de productos, sin costos de envío.
+              </p>
             </div>
           </aside>
         </div>

@@ -4,291 +4,256 @@ import type { Root } from 'react-dom/client'
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
 import Checkout from '../../src/paginas/Checkout'
 import CompraExitosa from '../../src/paginas/CompraExitosa'
-import { agregarProductoAlCarrito, obtenerCarrito } from '../../src/datos/carritoService.js'
-import { buscarProductoPorCodigo, obtenerProductos } from '../../src/datos/productosService.js'
-import { buscarPedidoPorId, cambiarEstadoPedido, crearPedido, obtenerPedidos } from '../../src/datos/pedidosService.js'
-import { obtenerSesion, obtenerUsuarios } from '../../src/datos/usuariosService.js'
-import type { Pedido } from '../../src/tipos/Pedido'
-import type { Producto } from '../../src/tipos/Producto'
+import { establecerToken } from '../../src/datos/api'
+import type { CarritoApi } from '../../src/datos/carritoApi'
+import type { DatosPedido, PedidoCliente } from '../../src/datos/pedidosClienteApi'
 
-const CLAVE_PEDIDOS = 'sonido-vivo-ep2-pedidos'
-const CLAVE_PRODUCTOS = 'sonido-vivo-ep2-productos'
-const CLAVE_CARRITO = 'sonido-vivo-ep2-carrito'
-const cantidad = 2
 const comprador = { nombre: 'Cliente', apellido: 'Demostración', correo: 'compra@sonidovivo.example' }
-const entrega: Pedido['entrega'] = {
+const entrega: DatosPedido['entrega'] = {
   tipo: 'despacho', calle: 'Calle ficticia', numero: '100', complemento: '',
   region: 'Región de Valparaíso', comuna: 'Valparaíso', indicaciones: '',
 }
-const formatoPrecio = new Intl.NumberFormat('es-CL', {
-  style: 'currency', currency: 'CLP', maximumFractionDigits: 0,
-})
+const item = { codigo: 'QA001', nombre: 'Producto de prueba', cantidad: 2, precioUnitario: 129990 }
+const formatoPrecio = new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 })
 
 function RutaActual() {
   const ubicacion = useLocation()
   return <output id="ruta-prueba">{ubicacion.pathname + ubicacion.search}</output>
 }
 
-describe('Sebastián — Checkout y CompraExitosa', () => {
-  let almacen: Record<string, string>
+function respuesta(estado: number, datos: unknown) {
+  return new Response(JSON.stringify(datos), { status: estado, headers: { 'Content-Type': 'application/json' } })
+}
+
+describe('Sebastián — Checkout y CompraExitosa REST', () => {
   let contenedor: HTMLDivElement
   let root: Root
-  let producto: Producto
+  let carrito: CarritoApi
+  let pedidos: PedidoCliente[]
+  let solicitudes: DatosPedido[]
+  let fetchMock: jasmine.Spy
+  let confirmar: (datos: DatosPedido) => Promise<Response>
+
+  function nuevoPedido(datos: DatosPedido, estado: PedidoCliente['estado'] = 'pagado'): PedidoCliente {
+    return { id: '550e8400-e29b-41d4-a716-446655440000', usuarioId: 'cliente-prueba',
+      fecha: '2026-11-24T12:00:00Z', ...structuredClone(datos), items: [{ ...item }], total: 259980, estado }
+  }
 
   beforeEach(() => {
-    almacen = {}
-    spyOn(Storage.prototype, 'getItem').and.callFake((clave: string) => almacen[clave] ?? null)
-    spyOn(Storage.prototype, 'setItem').and.callFake((clave: string, valor: string) => {
-      almacen[clave] = valor
-    })
-    spyOn(Storage.prototype, 'removeItem').and.callFake((clave: string) => {
-      delete almacen[clave]
+    establecerToken('jwt-unitario-sin-validez-real')
+    carrito = { id: 'carrito-prueba', usuarioId: 'cliente-prueba', cantidadTotal: 2, total: 259980,
+      items: [{ ...item, imagen: null, stock: 5, subtotal: 259980, disponible: true }] }
+    pedidos = []
+    solicitudes = []
+    confirmar = async (datos) => {
+      const pedido = nuevoPedido(datos)
+      pedidos = [pedido]
+      carrito = { ...carrito, items: [], cantidadTotal: 0, total: 0 }
+      return respuesta(201, pedido)
+    }
+    fetchMock = spyOn(window, 'fetch').and.callFake(async (entrada: RequestInfo | URL, opciones?: RequestInit) => {
+      const ruta = new URL(String(entrada)).pathname
+      const metodo = opciones?.method ?? 'GET'
+      if (metodo === 'GET' && ruta === '/api/carrito') return respuesta(200, carrito)
+      if (metodo === 'GET' && ruta === '/api/pedidos/mis-pedidos') return respuesta(200, pedidos)
+      if (metodo === 'GET' && ruta.startsWith('/api/pedidos/')) {
+        const pedido = pedidos.find((p) => p.id === ruta.split('/').at(-1))
+        return pedido ? respuesta(200, pedido) : respuesta(404, { mensaje: 'Pedido inexistente.' })
+      }
+      if (metodo === 'POST' && ruta === '/api/pedidos') {
+        const datos = JSON.parse(String(opciones?.body)) as DatosPedido
+        solicitudes.push(datos)
+        return confirmar(datos)
+      }
+      throw new Error(`Solicitud no prevista: ${metodo} ${ruta}`)
     })
     contenedor = document.createElement('div')
     document.body.appendChild(contenedor)
     root = createRoot(contenedor)
-    const disponible = obtenerProductos().find((actual) => actual.stock >= cantidad)
-    if (!disponible) throw new Error('Se necesita un producto del catálogo con stock suficiente.')
-    producto = disponible
-    agregarProductoAlCarrito(producto.codigo, cantidad)
   })
 
   afterEach(async () => {
-    try {
-      await act(async () => root.unmount())
-    } finally {
+    try { await act(async () => root.unmount()) } finally {
       contenedor.remove()
+      establecerToken(null)
     }
+    // Jasmine restaura el spy de fetch al finalizar cada caso.
   })
+
+  async function esperar(condicion: () => boolean, descripcion: string) {
+    const limite = Date.now() + 2000
+    while (Date.now() < limite) {
+      await act(async () => { await new Promise<void>((resolver) => setTimeout(resolver, 10)) })
+      if (condicion()) return
+    }
+    throw new Error(`No se cumplió: ${descripcion}. DOM: ${contenedor.textContent}`)
+  }
 
   async function montar(ruta = '/checkout') {
     await act(async () => {
-      root.render(
-        <MemoryRouter initialEntries={[ruta]}>
-          <RutaActual />
-          <Routes>
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/compra-exitosa" element={<CompraExitosa />} />
-          </Routes>
-        </MemoryRouter>,
-      )
+      root.render(<MemoryRouter initialEntries={[ruta]}><RutaActual /><Routes>
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/compra-exitosa" element={<CompraExitosa />} />
+        <Route path="/mis-pedidos" element={<section>Historial verificado</section>} />
+      </Routes></MemoryRouter>)
     })
+    await esperar(() => Boolean(contenedor.querySelector('section')), 'pantalla cargada')
   }
 
-  async function volverAMontar(ruta: string) {
+  async function remontar(ruta: string) {
     await act(async () => root.unmount())
     root = createRoot(contenedor)
     await montar(ruta)
   }
 
   async function cambiarCampo(id: string, valor: string) {
+    const control = contenedor.querySelector<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>(`#${id}`)
+    if (!control) throw new Error(`No existe el campo ${id}`)
     await act(async () => {
-      const control = contenedor.querySelector<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>(`#${id}`)!
       const prototipo = control instanceof HTMLSelectElement ? HTMLSelectElement.prototype
         : control instanceof HTMLTextAreaElement ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype
-      // El setter nativo permite que React detecte el cambio del campo controlado.
       Object.getOwnPropertyDescriptor(prototipo, 'value')!.set!.call(control, valor)
       control.dispatchEvent(new Event(control instanceof HTMLSelectElement ? 'change' : 'input', { bubbles: true }))
     })
   }
 
-  async function completarFormulario(tipo: 'despacho' | 'retiro' = 'despacho') {
+  async function completar(tipo: 'despacho' | 'retiro' = 'despacho') {
     for (const [campo, valor] of Object.entries(comprador)) await cambiarCampo(campo, valor)
     await cambiarCampo('entrega', tipo)
     if (tipo === 'despacho') {
-      for (const campo of ['calle', 'numero', 'region', 'comuna'] as const) {
-        await cambiarCampo(campo, entrega[campo])
-      }
+      for (const campo of ['calle', 'numero', 'region', 'comuna'] as const) await cambiarCampo(campo, entrega[campo])
     }
   }
 
-  async function enviar() {
-    await act(async () => {
-      contenedor.querySelector('form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
-    })
+  function submit() {
+    contenedor.querySelector('form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
   }
-
-  function rutaActual() {
-    return contenedor.querySelector('#ruta-prueba')!.textContent
-  }
-
-  function comprobarPedidoVisible(pedido: Pedido) {
-    expect(contenedor.querySelector('#titulo-compra-exitosa')).not.toBeNull()
+  async function enviar() { await act(async () => submit()) }
+  async function esperarExito() {
+    await esperar(() => Boolean(contenedor.querySelector('#titulo-compra-exitosa')), 'compra confirmada')
+    const pedido = pedidos[0]
     expect(contenedor.textContent).toContain(pedido.id)
-    expect(contenedor.textContent).toContain(`${pedido.comprador.nombre} ${pedido.comprador.apellido}`)
     expect(contenedor.textContent).toContain(pedido.comprador.correo)
-    expect(contenedor.textContent).toContain(pedido.entrega.tipo === 'retiro' ? 'Retiro en tienda' : 'Despacho a domicilio')
-    if (pedido.entrega.tipo === 'despacho') {
-      expect(contenedor.textContent).toContain(`${pedido.entrega.calle} ${pedido.entrega.numero}`)
-      expect(contenedor.textContent).toContain(`${pedido.entrega.comuna}, ${pedido.entrega.region}`)
-    }
-    const filas = Array.from(contenedor.querySelectorAll('tbody tr'), (fila) =>
-      Array.from(fila.querySelectorAll('th, td'), (celda) => celda.textContent),
-    )
-    expect(filas).toEqual(pedido.items.map((item) => [
-      item.nombre, String(item.cantidad), formatoPrecio.format(item.precioUnitario),
-      formatoPrecio.format(item.precioUnitario * item.cantidad),
-    ]))
     expect(contenedor.querySelector('tfoot td')?.textContent).toBe(formatoPrecio.format(pedido.total))
+    expect(contenedor.querySelector('#ruta-prueba')?.textContent).toBe(`/compra-exitosa?pedido=${pedido.id}`)
   }
 
-  it('Muestra el resumen y valida campos obligatorios sin modificar pedido, stock ni carrito', async () => {
+  it('muestra resumen y valida campos obligatorios sin enviar pedidos', async () => {
     await montar()
-    expect(contenedor.querySelector('aside')?.textContent).toContain(producto.nombre)
-    expect(contenedor.querySelector('aside')?.textContent).toContain(formatoPrecio.format(producto.precio * cantidad))
-    await cambiarCampo('entrega', 'retiro')
-    expect(contenedor.querySelector('#calle')).toBeNull()
-    await cambiarCampo('entrega', 'despacho')
-    expect(contenedor.querySelector('#calle')).not.toBeNull()
-    const anteriores = { ...almacen }
-
+    expect(contenedor.querySelector('aside')?.textContent).toContain(item.nombre)
+    expect(contenedor.querySelector('aside')?.textContent).toContain(formatoPrecio.format(carrito.total))
     await enviar()
-
     for (const campo of ['nombre', 'apellido', 'correo', 'calle', 'numero', 'region', 'comuna']) {
-      expect(contenedor.querySelector(`#error-${campo}`)?.textContent).toBeTruthy()
       expect(contenedor.querySelector(`#${campo}`)?.getAttribute('aria-invalid')).toBe('true')
     }
-    expect(contenedor.querySelector('[role="alert"]')?.textContent).toContain('Revisa los campos')
-    expect(rutaActual()).toBe('/checkout')
-    expect(obtenerPedidos()).toEqual([])
-    expect(buscarProductoPorCodigo(producto.codigo)?.stock).toBe(producto.stock)
-    expect(obtenerCarrito()).toEqual([{ codigo: producto.codigo, cantidad }])
-    expect(almacen).toEqual(anteriores)
+    expect(solicitudes.length).toBe(0)
+    expect(pedidos.length).toBe(0)
+    expect(carrito.items[0].cantidad).toBe(2)
   })
 
-  it('Confirma un despacho con sesión válida y muestra el pedido real después de navegar', async () => {
-    const cliente = obtenerUsuarios().find((usuario) => usuario.rol === 'cliente' && usuario.activo)!
-    almacen['sonido-vivo-ep2-sesion'] = JSON.stringify({ usuarioId: cliente.id, rol: cliente.rol })
-    expect(obtenerSesion()?.usuarioId).toBe(cliente.id)
+  it('confirma despacho mediante REST y consulta el pedido después de navegar', async () => {
     await montar()
-    await completarFormulario()
-
+    await completar()
     await enviar()
-
-    const pedidos = obtenerPedidos()
-    expect(pedidos.length).toBe(1)
-    const pedido = pedidos[0]
-    expect(pedido.usuarioId).toBe(cliente.id)
-    expect(pedido.comprador).toEqual(comprador)
-    expect(pedido.entrega).toEqual(entrega)
-    expect(pedido.total).toBe(producto.precio * cantidad)
-    expect(JSON.parse(almacen[CLAVE_PEDIDOS])).toEqual([pedido])
-    expect(buscarProductoPorCodigo(producto.codigo)?.stock).toBe(producto.stock - cantidad)
-    expect(obtenerCarrito()).toEqual([])
-    expect(rutaActual()).toBe(`/compra-exitosa?pedido=${pedido.id}`)
-    comprobarPedidoVisible(pedido)
+    await esperarExito()
+    expect(solicitudes).toEqual([{ comprador, entrega }])
+    expect(contenedor.textContent).toContain('Calle ficticia 100')
+    const llamada = fetchMock.calls.allArgs().find(([, opciones]) => opciones?.method === 'POST')!
+    expect(new Headers(llamada[1].headers).get('Authorization')).toBe('Bearer jwt-unitario-sin-validez-real')
+    expect(llamada[1].credentials).toBe('include')
   })
 
-  it('Confirma retiro como invitado sin dirección y muestra su total', async () => {
-    expect(obtenerSesion()).toBeNull()
+  it('confirma retiro en tienda sin exigir dirección', async () => {
     await montar()
-    await completarFormulario('retiro')
+    await completar('retiro')
     expect(contenedor.querySelector('#calle')).toBeNull()
-
     await enviar()
-
-    const pedidos = obtenerPedidos()
-    expect(pedidos.length).toBe(1)
-    const pedido = pedidos[0]
-    expect(pedido.usuarioId).toBeNull()
-    expect(pedido.entrega).toEqual({ tipo: 'retiro', calle: '', numero: '', complemento: '', region: '', comuna: '', indicaciones: '' })
-    expect(pedido.total).toBe(producto.precio * cantidad)
-    expect(obtenerCarrito()).toEqual([])
-    expect(buscarProductoPorCodigo(producto.codigo)?.stock).toBe(producto.stock - cantidad)
-    expect(rutaActual()).toBe(`/compra-exitosa?pedido=${pedido.id}`)
-    comprobarPedidoVisible(pedido)
+    await esperarExito()
+    expect(solicitudes[0].entrega).toEqual({ tipo: 'retiro', calle: '', numero: '', complemento: '', region: '', comuna: '', indicaciones: '' })
+    expect(contenedor.textContent).toContain('Retiro en tienda')
   })
 
-  it('Bloquea dos envíos consecutivos antes del render y registra una sola compra', async () => {
+  it('impide dos envíos consecutivos antes del siguiente render', async () => {
+    let resolver!: (respuesta: Response) => void
+    confirmar = () => new Promise<Response>((resolve) => { resolver = resolve })
     await montar()
-    await completarFormulario()
-    const formulario = contenedor.querySelector('form')!
-    const lecturas = Storage.prototype.getItem as jasmine.Spy
-
-    await act(async () => {
-      formulario.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
-      const lecturasTrasConfirmar = lecturas.calls.count()
-      expect(contenedor.querySelector('#titulo-checkout')).not.toBeNull()
-      formulario.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
-      expect(lecturas.calls.count()).toBe(lecturasTrasConfirmar)
-    })
-
-    const pedidos = obtenerPedidos()
-    expect(pedidos.length).toBe(1)
-    expect(JSON.parse(almacen[CLAVE_PEDIDOS])).toEqual(pedidos)
-    expect(buscarProductoPorCodigo(producto.codigo)?.stock).toBe(producto.stock - cantidad)
-    expect(obtenerCarrito()).toEqual([])
-    expect(rutaActual()).toBe(`/compra-exitosa?pedido=${pedidos[0].id}`)
-    expect(contenedor.querySelectorAll('#titulo-compra-exitosa').length).toBe(1)
+    await completar()
+    await act(async () => { submit(); submit() })
+    expect(solicitudes.length).toBe(1)
+    expect(contenedor.querySelector<HTMLButtonElement>('button[type="submit"]')!.disabled).toBeTrue()
+    pedidos = [nuevoPedido(solicitudes[0])]
+    await act(async () => resolver(respuesta(201, pedidos[0])))
+    await esperarExito()
   })
 
-  it('Muestra un fallo recuperable, restaura los datos y permite confirmar al reintentar', async () => {
+  it('recupera el pendiente tras remontar y reintenta con UUID y datos originales', async () => {
+    confirmar = async (datos) => { pedidos = [nuevoPedido(datos, 'pendiente')]; return respuesta(202, pedidos[0]) }
     await montar()
-    await completarFormulario()
-    const anteriores = { ...almacen }
-    let provocarFallo = true
-    let guardadoParcial = false
-    const escritura = Storage.prototype.setItem as jasmine.Spy
-    escritura.and.callFake((clave: string, valor: string) => {
-      if (clave === CLAVE_CARRITO && provocarFallo) {
-        guardadoParcial = JSON.parse(almacen[CLAVE_PEDIDOS]).length === 1 &&
-          (JSON.parse(almacen[CLAVE_PRODUCTOS]) as Producto[])
-            .find((actual) => actual.codigo === producto.codigo)?.stock === producto.stock - cantidad
-        throw new Error('Fallo de escritura simulado.')
-      }
-      almacen[clave] = valor
-    })
-
+    await completar()
     await enviar()
-
-    expect(guardadoParcial).toBeTrue()
-    expect(contenedor.querySelector('.alert-danger')?.textContent).toContain('No se confirmó la compra')
-    expect(rutaActual()).toBe('/checkout')
+    await esperar(() => contenedor.textContent!.includes('Pedido pendiente de confirmación'), 'pedido pendiente')
+    const original = structuredClone(pedidos[0])
     expect(contenedor.querySelector('#titulo-compra-exitosa')).toBeNull()
-    expect(obtenerPedidos()).toEqual([])
-    expect(almacen).toEqual(anteriores)
-    expect(Storage.prototype.removeItem).toHaveBeenCalledWith(CLAVE_PEDIDOS)
-    expect(Storage.prototype.removeItem).toHaveBeenCalledWith(CLAVE_PRODUCTOS)
-    expect(contenedor.querySelector<HTMLButtonElement>('button[type="submit"]')!.disabled).toBeFalse()
-    expect(contenedor.querySelectorAll('fieldset:disabled').length).toBe(0)
-
-    provocarFallo = false
+    await remontar('/checkout')
+    expect(contenedor.querySelector<HTMLInputElement>('#nombre')!.value).toBe(original.comprador.nombre)
+    expect(contenedor.querySelectorAll('fieldset:disabled').length).toBe(2)
+    confirmar = async () => { pedidos = [{ ...original, estado: 'pagado' }]; return respuesta(201, pedidos[0]) }
     await enviar()
-
-    const pedidos = obtenerPedidos()
-    expect(pedidos.length).toBe(1)
-    expect(buscarProductoPorCodigo(producto.codigo)?.stock).toBe(producto.stock - cantidad)
-    expect(obtenerCarrito()).toEqual([])
-    expect(rutaActual()).toBe(`/compra-exitosa?pedido=${pedidos[0].id}`)
-    comprobarPedidoVisible(pedidos[0])
+    await esperarExito()
+    expect(solicitudes[1]).toEqual({ comprador: original.comprador, entrega: original.entrega })
+    expect(pedidos[0].id).toBe(original.id)
   })
 
-  it('Recupera el pedido por ID al remontar y rechaza accesos sin pedido válido o cancelados', async () => {
-    const pedido = crearPedido({ usuarioId: null, comprador, entrega })
-    const ruta = `/compra-exitosa?pedido=${pedido.id}`
-    const anteriores = { ...almacen }
-
+  it('consulta por ID y rechaza ausentes, inexistentes, pendientes y cancelados como éxito', async () => {
+    pedidos = [nuevoPedido({ comprador, entrega })]
+    const ruta = `/compra-exitosa?pedido=${pedidos[0].id}`
     await montar(ruta)
-    comprobarPedidoVisible(pedido)
-    await volverAMontar(ruta)
-    comprobarPedidoVisible(pedido)
-    expect(buscarPedidoPorId(pedido.id)).toEqual(pedido)
-    expect(obtenerPedidos()).toEqual([pedido])
-    expect(almacen).toEqual(anteriores)
-
+    await esperarExito()
+    await remontar(ruta)
+    await esperarExito()
     for (const acceso of ['/compra-exitosa', '/compra-exitosa?pedido=inexistente']) {
-      await volverAMontar(acceso)
-      expect(contenedor.textContent).toContain('No hay una compra confirmada disponible.')
+      await remontar(acceso)
+      expect(contenedor.querySelector('[role="alert"]')).not.toBeNull()
       expect(contenedor.querySelector('#titulo-compra-exitosa')).toBeNull()
-      expect(almacen).toEqual(anteriores)
     }
+    for (const estado of ['pendiente', 'cancelado'] as const) {
+      pedidos[0].estado = estado
+      await remontar(ruta)
+      expect(contenedor.querySelector('h1')?.textContent).toContain(estado)
+      expect(contenedor.querySelector('#titulo-compra-exitosa')).toBeNull()
+    }
+  })
 
-    const cancelado = cambiarEstadoPedido(pedido.id, 'cancelado')
-    const despuesDeCancelar = { ...almacen }
-    await volverAMontar(ruta)
-    expect(contenedor.textContent).toContain('No hay una compra confirmada disponible.')
-    expect(contenedor.querySelector('#titulo-compra-exitosa')).toBeNull()
-    expect(obtenerPedidos()).toEqual([cancelado])
-    expect(almacen).toEqual(despuesDeCancelar)
+  it('consulta historial si se pierde la respuesta de una compra ya confirmada y no repite el POST', async () => {
+    confirmar = async (datos) => {
+      pedidos = [nuevoPedido(datos)]
+      carrito = { ...carrito, items: [], cantidadTotal: 0, total: 0 }
+      throw new TypeError('Respuesta perdida')
+    }
+    await montar()
+    await completar()
+    await enviar()
+    await esperar(() => contenedor.querySelector('#ruta-prueba')?.textContent === '/mis-pedidos', 'historial tras respuesta perdida')
+    expect(solicitudes.length).toBe(1)
+    expect(pedidos[0].estado).toBe('pagado')
+  })
+
+  it('permite reintentar después de HTTP 503 tras consultar el estado persistido', async () => {
+    const confirmarNormal = confirmar
+    confirmar = async () => respuesta(503, { mensaje: 'Servicio temporalmente no disponible.' })
+    await montar()
+    await completar()
+    await enviar()
+    await esperar(() => Boolean(contenedor.querySelector('[role="alert"]')) &&
+      !contenedor.querySelector<HTMLButtonElement>('button[type="submit"]')!.disabled, 'recuperación tras 503')
+    expect(contenedor.textContent).toContain('Servicio temporalmente no disponible.')
+    expect(pedidos.length).toBe(0)
+    expect(contenedor.querySelector<HTMLInputElement>('#nombre')!.value).toBe(comprador.nombre)
+    expect(fetchMock.calls.allArgs().filter(([url]) => String(url).endsWith('/pedidos/mis-pedidos')).length).toBe(2)
+    confirmar = confirmarNormal
+    await enviar()
+    await esperarExito()
+    expect(solicitudes.length).toBe(2)
+    expect(pedidos.length).toBe(1)
   })
 })

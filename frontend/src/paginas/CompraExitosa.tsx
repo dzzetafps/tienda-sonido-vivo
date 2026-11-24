@@ -1,6 +1,8 @@
+import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { buscarPedidoPorId } from '../datos/pedidosService.js'
-import type { Pedido } from '../tipos/Pedido'
+
+import { buscarPedidoPorId } from '../datos/pedidosClienteApi'
+import type { PedidoCliente } from '../datos/pedidosClienteApi'
 
 const formatoPrecio = new Intl.NumberFormat('es-CL', {
   style: 'currency',
@@ -8,78 +10,163 @@ const formatoPrecio = new Intl.NumberFormat('es-CL', {
   maximumFractionDigits: 0,
 })
 
-function textoValido(valor: unknown): valor is string {
-  return typeof valor === 'string' && valor.trim().length > 0
-}
-
 function CompraExitosa() {
   const [parametros] = useSearchParams()
   const id = parametros.get('pedido')
-  let pedido: Pedido | undefined
-  try {
-    if (id?.trim()) pedido = buscarPedidoPorId(id)
-  } catch {
-    pedido = undefined
+
+  const [pedido, setPedido] = useState<PedidoCliente | null>(null)
+  const [cargando, setCargando] = useState(true)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    let activo = true
+
+    async function cargarPedido() {
+      setCargando(true)
+      setError('')
+      setPedido(null)
+
+      if (!id?.trim()) {
+        setError('No se indicó un pedido válido.')
+        setCargando(false)
+        return
+      }
+
+      try {
+        const resultado = await buscarPedidoPorId(id)
+
+        if (activo) setPedido(resultado)
+      } catch (problema) {
+        if (activo) {
+          setError(
+            problema instanceof Error
+              ? problema.message
+              : 'No se pudo consultar el pedido.',
+          )
+        }
+      } finally {
+        if (activo) setCargando(false)
+      }
+    }
+
+    void cargarPedido()
+
+    return () => {
+      activo = false
+    }
+  }, [id])
+
+  if (cargando) {
+    return <p role="status">Consultando pedido...</p>
   }
 
-  if (!pedido || pedido.estado === 'cancelado') {
+  if (error || !pedido) {
     return (
-      <section className="row justify-content-center" aria-labelledby="titulo-sin-compra">
-        <div className="col-12 col-md-10 col-lg-8">
-          <div className="card shadow-sm">
-            <div className="card-body p-4 p-md-5">
-              <h1 className="h2 mb-4" id="titulo-sin-compra">Información de compra</h1>
-              <p className="alert alert-warning" role="status">No hay una compra confirmada disponible.</p>
-              <Link className="btn btn-primary" to="/productos">Volver al catálogo</Link>
-            </div>
-          </div>
-        </div>
+      <section>
+        <h1>Información de compra</h1>
+
+        <p className="alert alert-danger" role="alert">
+          {error || 'No hay una compra disponible.'}
+        </p>
+
+        <Link className="btn btn-primary" to="/mis-pedidos">
+          Mis pedidos
+        </Link>
       </section>
     )
   }
 
-  const compra = {
-    identificador: pedido.id,
-    cliente: pedido.comprador,
-    entrega: pedido.entrega,
-    productos: pedido.items,
-    total: pedido.total,
+  if (pedido.estado === 'pendiente') {
+    return (
+      <section>
+        <h1>Pedido pendiente</h1>
+
+        <p className="alert alert-warning">
+          La compra todavía no está confirmada.
+        </p>
+
+        <Link className="btn btn-warning" to="/checkout">
+          Reintentar confirmación
+        </Link>
+      </section>
+    )
+  }
+
+  if (pedido.estado === 'cancelado') {
+    return (
+      <section>
+        <h1>Pedido cancelado</h1>
+
+        <p className="alert alert-warning">
+          Este pedido fue cancelado.
+        </p>
+
+        <Link className="btn btn-primary" to="/mis-pedidos">
+          Mis pedidos
+        </Link>
+      </section>
+    )
   }
 
   return (
     <section aria-labelledby="titulo-compra-exitosa">
-      <h1 id="titulo-compra-exitosa">Compra realizada con éxito</h1>
-      <p className="text-secondary">Compra confirmada en la simulación académica; no se realizó un pago bancario.</p>
-      <p className="text-secondary text-break mb-4">Identificador de compra: <strong>{compra.identificador}</strong></p>
+      <h1 id="titulo-compra-exitosa">
+        Compra realizada con éxito
+      </h1>
+
+      <p className="text-secondary">
+        Compra confirmada en la simulación académica.
+        No se realizó un pago bancario.
+      </p>
+
+      <p className="text-break">
+        Identificador: <strong>{pedido.id}</strong>
+      </p>
+
+      <p>
+        Estado: <strong>{pedido.estado}</strong>
+      </p>
 
       <div className="row g-4 mb-4">
         <div className="col-12 col-md-6">
           <div className="card shadow-sm h-100">
             <div className="card-body text-break">
-              <h2 className="h4 mb-3">Datos del cliente</h2>
-              <dl className="mb-0">
-                <dt>Nombre</dt>
-                <dd>{compra.cliente.nombre} {compra.cliente.apellido}</dd>
-                <dt>Correo electrónico</dt>
-                <dd className="mb-0">{compra.cliente.correo}</dd>
-              </dl>
+              <h2 className="h4">Datos del cliente</h2>
+
+              <p>
+                {pedido.comprador.nombre} {pedido.comprador.apellido}
+              </p>
+
+              <p>{pedido.comprador.correo}</p>
             </div>
           </div>
         </div>
+
         <div className="col-12 col-md-6">
           <div className="card shadow-sm h-100">
             <div className="card-body text-break">
-              <h2 className="h4 mb-3">Información de entrega</h2>
-              {compra.entrega.tipo === 'retiro' ? (
-                <p className="mb-0">Retiro en tienda Sonido Vivo.</p>
+              <h2 className="h4">Información de entrega</h2>
+
+              {pedido.entrega.tipo === 'retiro' ? (
+                <p>Retiro en tienda Sonido Vivo.</p>
               ) : (
                 <>
                   <p>Despacho a domicilio</p>
-                  <p className="mb-1">{compra.entrega.calle} {compra.entrega.numero}</p>
-                  {textoValido(compra.entrega.complemento) && <p className="mb-1">{compra.entrega.complemento}</p>}
-                  <p className="mb-0">{compra.entrega.comuna}, {compra.entrega.region}</p>
-                  {textoValido(compra.entrega.indicaciones) && (
-                    <p className="mt-3 mb-0"><strong>Indicaciones:</strong> {compra.entrega.indicaciones}</p>
+
+                  <p>
+                    {pedido.entrega.calle} {pedido.entrega.numero}
+                  </p>
+
+                  {pedido.entrega.complemento && (
+                    <p>{pedido.entrega.complemento}</p>
+                  )}
+
+                  <p>
+                    {pedido.entrega.comuna}, {pedido.entrega.region}
+                  </p>
+
+                  {pedido.entrega.indicaciones && (
+                    <p>{pedido.entrega.indicaciones}</p>
                   )}
                 </>
               )}
@@ -90,32 +177,45 @@ function CompraExitosa() {
 
       <div className="card shadow-sm mb-4">
         <div className="card-body">
-          <h2 className="h4 mb-3">Resumen de productos</h2>
+          <h2 className="h4">Resumen de productos</h2>
+
           <div className="table-responsive">
             <table className="table align-middle">
-              <caption>Productos de la compra confirmada. Precios en pesos chilenos.</caption>
               <thead>
                 <tr>
-                  <th scope="col">Producto</th>
-                  <th scope="col">Cantidad</th>
-                  <th scope="col" className="text-end">Precio unitario</th>
-                  <th scope="col" className="text-end">Subtotal</th>
+                  <th>Producto</th>
+                  <th>Cantidad</th>
+                  <th className="text-end">Precio unitario</th>
+                  <th className="text-end">Subtotal</th>
                 </tr>
               </thead>
+
               <tbody>
-                {compra.productos.map((producto) => (
-                  <tr key={producto.codigo}>
-                    <th scope="row" className="fw-normal text-break">{producto.nombre}</th>
-                    <td>{producto.cantidad}</td>
-                    <td className="text-end text-nowrap">{formatoPrecio.format(producto.precioUnitario)}</td>
-                    <td className="text-end text-nowrap">{formatoPrecio.format(producto.precioUnitario * producto.cantidad)}</td>
+                {pedido.items.map((item) => (
+                  <tr key={item.codigo}>
+                    <td>{item.nombre}</td>
+                    <td>{item.cantidad}</td>
+
+                    <td className="text-end text-nowrap">
+                      {formatoPrecio.format(item.precioUnitario)}
+                    </td>
+
+                    <td className="text-end text-nowrap">
+                      {formatoPrecio.format(
+                        item.precioUnitario * item.cantidad,
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>
+
               <tfoot>
                 <tr>
-                  <th scope="row" colSpan={3}>Total (CLP)</th>
-                  <td className="text-end text-nowrap fw-bold">{formatoPrecio.format(compra.total)}</td>
+                  <th colSpan={3}>Total (CLP)</th>
+
+                  <td className="text-end fw-bold">
+                    {formatoPrecio.format(pedido.total)}
+                  </td>
                 </tr>
               </tfoot>
             </table>
@@ -123,7 +223,15 @@ function CompraExitosa() {
         </div>
       </div>
 
-      <Link className="btn btn-primary" to="/productos">Volver al catálogo</Link>
+      <div className="d-flex flex-wrap gap-2">
+        <Link className="btn btn-primary" to="/productos">
+          Volver al catálogo
+        </Link>
+
+        <Link className="btn btn-outline-secondary" to="/mis-pedidos">
+          Mis pedidos
+        </Link>
+      </div>
     </section>
   )
 }
