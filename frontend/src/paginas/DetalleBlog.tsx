@@ -1,15 +1,44 @@
+import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { buscarArticulo } from '../datos/articulos'
+import { ErrorApi, mensajeError } from '../datos/api'
+import { buscarArticulo } from '../datos/blogsApi'
+import type { Articulo } from '../tipos/Articulo'
 
 function DetalleBlog() {
   const { id = '' } = useParams<{ id: string }>()
-  const articulo = buscarArticulo(id)
+  const [articulo, setArticulo] = useState<Articulo | null>(null)
+  const [cargando, setCargando] = useState(true)
+  const [noExiste, setNoExiste] = useState(false)
+  const [error, setError] = useState('')
 
-  if (!articulo) {
+  useEffect(() => {
+    let activo = true
+    buscarArticulo(id)
+      .then((encontrado) => {
+        if (activo) setArticulo(encontrado)
+      })
+      .catch((e) => {
+        if (!activo) return
+        if (e instanceof ErrorApi && e.estado === 404) setNoExiste(true)
+        else setError(mensajeError(e, 'No se pudo cargar el artículo.'))
+      })
+      .finally(() => {
+        if (activo) setCargando(false)
+      })
+    return () => {
+      activo = false
+    }
+  }, [id])
+
+  if (cargando) return <p className="text-secondary" role="status">Cargando artículo...</p>
+
+  if (noExiste || error || !articulo) {
     return (
       <section>
-        <h1>Artículo no encontrado</h1>
-        <p className="alert alert-warning" role="alert">No existe una publicación con esa dirección.</p>
+        <h1>{noExiste ? 'Artículo no encontrado' : 'No se pudo cargar el artículo'}</h1>
+        <p className="alert alert-warning" role="alert">
+          {noExiste ? 'No existe una publicación con esa dirección.' : error}
+        </p>
         <Link className="btn btn-outline-primary" to="/blogs">Volver a Blogs</Link>
       </section>
     )

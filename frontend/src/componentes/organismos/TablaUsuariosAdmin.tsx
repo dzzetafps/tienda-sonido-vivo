@@ -1,6 +1,12 @@
 import { Link } from 'react-router-dom'
 import { formatearRut } from '../../datos/rut'
-import type { Usuario } from '../../tipos/Usuario'
+import type { RolUsuario, Usuario } from '../../tipos/Usuario'
+
+const nombresRol: Record<RolUsuario, string> = {
+  cliente: 'Cliente',
+  vendedor: 'Vendedor',
+  administrador: 'Administrador',
+}
 
 interface TablaUsuariosAdminProps {
   usuarios: Usuario[]
@@ -33,8 +39,8 @@ function TablaUsuariosAdmin({ usuarios, onCambiarEstado }: TablaUsuariosAdminPro
               <td>{usuario.nombre} {usuario.apellidos}</td>
               <td className="d-none d-md-table-cell">{usuario.correo}</td>
               <td className="d-none d-sm-table-cell">
-                <span className={usuario.rol === 'administrador' ? 'badge text-bg-dark' : 'badge text-bg-light border'}>
-                  {usuario.rol === 'administrador' ? 'Administrador' : 'Cliente'}
+                <span className={usuario.rol === 'cliente' ? 'badge text-bg-light border' : 'badge text-bg-dark'}>
+                  {nombresRol[usuario.rol]}
                 </span>
               </td>
               <td>

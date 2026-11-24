@@ -1,66 +1,55 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import FormularioUsuario from '../componentes/organismos/FormularioUsuario'
-import { actualizarUsuario, asignarContrasena, buscarUsuarioPorId, crearUsuario, obtenerSesion } from '../datos/usuariosService.js'
+import { mensajeError } from '../datos/api'
+import { actualizarUsuario, buscarUsuario, crearUsuario } from '../datos/usuariosApi'
 import type { Usuario } from '../tipos/Usuario'
 
 interface AdminFormularioUsuarioProps {
   modo: 'nuevo' | 'editar'
 }
 
-function leerUsuario(modo: 'nuevo' | 'editar', id: string): { usuario: Usuario | undefined; error: string } {
-  if (modo === 'nuevo') return { usuario: undefined, error: '' }
-  try {
-    const usuario = buscarUsuarioPorId(id)
-    return usuario ? { usuario, error: '' } : { usuario: undefined, error: 'No se encontró el usuario solicitado.' }
-  } catch (error) {
-    return { usuario: undefined, error: error instanceof Error ? error.message : 'No se pudieron cargar los usuarios.' }
-  }
-}
-
 function AdminFormularioUsuario({ modo }: AdminFormularioUsuarioProps) {
   const { id = '' } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const [usuario, setUsuario] = useState<Usuario | undefined>(undefined)
+  const [cargando, setCargando] = useState(modo === 'editar')
+  const [errorCarga, setErrorCarga] = useState('')
   const [errorGuardar, setErrorGuardar] = useState('')
   const [ocupado, setOcupado] = useState(false)
-  const datos = leerUsuario(modo, id)
   const titulo = modo === 'nuevo' ? 'Nuevo usuario' : 'Editar usuario'
+
+  useEffect(() => {
+    if (modo !== 'editar') return
+    let activo = true
+    buscarUsuario(id)
+      .then((encontrado) => {
+        if (activo) setUsuario(encontrado)
+      })
+      .catch((e) => {
+        if (activo) setErrorCarga(mensajeError(e, 'No se pudo cargar el usuario.'))
+      })
+      .finally(() => {
+        if (activo) setCargando(false)
+      })
+    return () => {
+      activo = false
+    }
+  }, [modo, id])
 
   async function guardar(campos: Omit<Usuario, 'id' | 'activo' | 'fechaRegistro'>, contrasena: string) {
     setErrorGuardar('')
     setOcupado(true)
-    let usuarioGuardado: Usuario
-
     try {
-      if (modo === 'nuevo') {
-        usuarioGuardado = crearUsuario({ ...campos, id: crypto.randomUUID(), activo: true, fechaRegistro: new Date().toISOString() })
-      } else {
-        if (!datos.usuario) throw new Error('No se encontró el usuario solicitado.')
-        if (obtenerSesion()?.usuarioId === id && campos.rol !== 'administrador') {
-          throw new Error('No puedes quitarte el rol de administrador mientras tienes la sesión iniciada.')
-        }
-        usuarioGuardado = actualizarUsuario(id, { ...datos.usuario, ...campos })
-      }
-    } catch (error) {
-      setErrorGuardar(error instanceof Error ? error.message : 'No se pudo guardar el usuario.')
+      const guardado = modo === 'nuevo'
+        ? await crearUsuario({ ...campos, contrasena })
+        : await actualizarUsuario(id, { ...campos, contrasena })
+      navigate('/admin/usuarios', {
+        state: { mensaje: `Usuario ${guardado.nombre} ${guardado.apellidos} ${modo === 'nuevo' ? 'creado' : 'actualizado'} correctamente.` },
+      })
+    } catch (e) {
+      setErrorGuardar(mensajeError(e, 'No se pudo guardar el usuario.'))
       setOcupado(false)
-      return
-    }
-
-    const nombre = `${usuarioGuardado.nombre} ${usuarioGuardado.apellidos}`
-    try {
-      if (contrasena !== '') await asignarContrasena(usuarioGuardado.id, contrasena)
-      navigate('/admin/usuarios', {
-        state: { mensaje: `Usuario ${nombre} ${modo === 'nuevo' ? 'creado' : 'actualizado'} correctamente.` },
-      })
-    } catch (error) {
-      const motivo = error instanceof Error ? error.message : 'error desconocido'
-      navigate('/admin/usuarios', {
-        state: {
-          tipo: 'danger',
-          mensaje: `Se guardaron los datos de ${nombre}, pero no la contraseña (${motivo}). Asígnala desde Editar.`,
-        },
-      })
     }
   }
 
@@ -81,9 +70,11 @@ function AdminFormularioUsuario({ modo }: AdminFormularioUsuarioProps) {
 
             {errorGuardar && <p className="alert alert-danger" role="alert">{errorGuardar}</p>}
 
-            {datos.error ? (
+            {cargando ? (
+              <p className="text-secondary" role="status">Cargando usuario...</p>
+            ) : errorCarga ? (
               <>
-                <p className="alert alert-danger" role="alert">{datos.error}</p>
+                <p className="alert alert-danger" role="alert">{errorCarga}</p>
                 <Link className="btn btn-outline-secondary align-self-start" to="/admin/usuarios">
                   Volver al listado
                 </Link>
@@ -92,7 +83,7 @@ function AdminFormularioUsuario({ modo }: AdminFormularioUsuarioProps) {
               <FormularioUsuario
                 key={`${modo}-${id}`}
                 modo={modo}
-                usuarioInicial={datos.usuario}
+                usuarioInicial={usuario}
                 ocupado={ocupado}
                 onGuardar={guardar}
                 onCancelar={() => navigate('/admin/usuarios')}

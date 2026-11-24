@@ -36,9 +36,15 @@ const secciones = [
   },
   {
     titulo: 'Usuarios',
-    descripcion: 'Crea, edita, activa o desactiva las cuentas de clientes y administradores.',
+    descripcion: 'Crea, edita, activa o desactiva las cuentas y asigna roles de cliente, vendedor o administrador.',
     ruta: '/admin/usuarios',
     boton: 'Gestionar usuarios',
+  },
+  {
+    titulo: 'Mensajes',
+    descripcion: 'Lee las consultas que llegan desde el formulario de contacto.',
+    ruta: '/admin/mensajes',
+    boton: 'Ver mensajes',
   },
   {
     titulo: 'Pedidos',

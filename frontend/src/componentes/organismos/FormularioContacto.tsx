@@ -4,7 +4,7 @@ import CampoFormulario from '../moleculas/CampoFormulario'
 import type { MensajeContacto } from '../../tipos/MensajeContacto'
 
 interface FormularioContactoProps {
-  onEnviar: (mensaje: MensajeContacto) => void
+  onEnviar: (mensaje: MensajeContacto) => Promise<boolean>
 }
 
 type ErroresContacto = Partial<Record<keyof MensajeContacto, string>>
@@ -16,6 +16,7 @@ function FormularioContacto({ onEnviar }: FormularioContactoProps) {
   const [correo, setCorreo] = useState('')
   const [comentario, setComentario] = useState('')
   const [errores, setErrores] = useState<ErroresContacto>({})
+  const [enviando, setEnviando] = useState(false)
 
   function validar(): ErroresContacto {
     const nuevosErrores: ErroresContacto = {}
@@ -38,17 +39,22 @@ function FormularioContacto({ onEnviar }: FormularioContactoProps) {
     return nuevosErrores
   }
 
-  function manejarEnvio(evento: SubmitEvent<HTMLFormElement>) {
+  async function manejarEnvio(evento: SubmitEvent<HTMLFormElement>) {
     evento.preventDefault()
 
     const nuevosErrores = validar()
     setErrores(nuevosErrores)
     if (Object.keys(nuevosErrores).length > 0) return
 
-    onEnviar({ nombre: nombre.trim(), correo: correo.trim().toLowerCase(), comentario: comentario.trim() })
-    setNombre('')
-    setCorreo('')
-    setComentario('')
+    setEnviando(true)
+    const enviado = await onEnviar({ nombre: nombre.trim(), correo: correo.trim().toLowerCase(), comentario: comentario.trim() })
+    setEnviando(false)
+    // solo se limpia si el backend guardó el mensaje
+    if (enviado) {
+      setNombre('')
+      setCorreo('')
+      setComentario('')
+    }
   }
 
   return (
@@ -80,7 +86,9 @@ function FormularioContacto({ onEnviar }: FormularioContactoProps) {
         {errores.comentario && <div className="invalid-feedback">{errores.comentario}</div>}
         <div className="form-text">{comentario.trim().length} de {MAXIMO_COMENTARIO} caracteres</div>
       </div>
-      <button type="submit" className="btn btn-primary">Enviar mensaje</button>
+      <button type="submit" className="btn btn-primary" disabled={enviando}>
+        {enviando ? 'Enviando…' : 'Enviar mensaje'}
+      </button>
     </form>
   )
 }
