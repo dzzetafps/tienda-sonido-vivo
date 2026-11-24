@@ -1,27 +1,45 @@
-import { Link, Navigate, Outlet, useLocation } from 'react-router-dom'
-import { obtenerSesion } from '../../datos/usuariosService.js'
+import {
+  Navigate,
+  Outlet,
+  useLocation,
+} from 'react-router-dom'
 
-function RutaAdmin() {
+import { useAuth } from '../../context/useAuth'
+
+export default function RutaAdmin() {
+  const { sesion, cargando } = useAuth()
+
   const location = useLocation()
-  const sesion = obtenerSesion()
+
+  if (cargando) {
+    return (
+      <div className="text-center py-5">
+        <div className="spinner-border" role="status">
+          <span className="visually-hidden">
+            Cargando sesión...
+          </span>
+        </div>
+
+        <p className="mt-3">
+          Verificando permisos...
+        </p>
+      </div>
+    )
+  }
 
   if (!sesion) {
-    return <Navigate to="/login" replace state={{ desde: location.pathname }} />
+    return (
+      <Navigate
+        to="/login"
+        state={{ desde: location.pathname }}
+        replace
+      />
+    )
   }
 
   if (sesion.rol !== 'administrador') {
-    return (
-      <section>
-        <h1>Acceso restringido</h1>
-        <p className="alert alert-warning" role="alert">
-          Tu cuenta no tiene permisos para entrar al panel de administración.
-        </p>
-        <Link className="btn btn-outline-primary" to="/">Volver a la tienda</Link>
-      </section>
-    )
+    return <Navigate to="/" replace />
   }
 
   return <Outlet />
 }
-
-export default RutaAdmin
