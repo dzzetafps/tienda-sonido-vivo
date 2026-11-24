@@ -1,13 +1,15 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
 import TarjetaIndicador from '../componentes/moleculas/TarjetaIndicador'
 
 import {
-  leerCatalogo,
+
   resumirCategorias,
 } from '../datos/catalogoAdmin'
 
+import { obtenerProductos } from '../datos/productosApi'
+import type { Producto } from '../tipos/Producto'
 import { leerPedidos } from '../datos/pedidosAdmin'
 import { useAuth } from '../context/useAuth'
 
@@ -65,7 +67,40 @@ function AdminInicio() {
     cargando,
   } = useAuth()
 
-  const [catalogo] = useState(leerCatalogo)
+  const [catalogo, setCatalogo] = useState<{
+    productos: Producto[]
+    error: string
+  }>({ productos: [], error: '' })
+
+  const [cargandoCatalogo, setCargandoCatalogo] = useState(true)
+
+  useEffect(() => {
+    if (cargando || !usuario) return
+
+    let activo = true
+
+    obtenerProductos()
+      .then((productos) => {
+        if (activo) setCatalogo({ productos, error: '' })
+      })
+      .catch((error) => {
+        if (activo) {
+          setCatalogo({
+            productos: [],
+            error: error instanceof Error
+              ? error.message
+              : 'No se pudo cargar el catálogo.',
+          })
+        }
+      })
+      .finally(() => {
+        if (activo) setCargandoCatalogo(false)
+      })
+
+    return () => {
+      activo = false
+    }
+  }, [usuario, cargando])
   const [ventas] = useState(leerPedidos)
   const [errorSalir, setErrorSalir] = useState('')
 
@@ -154,7 +189,7 @@ function AdminInicio() {
         pedidos de Sonido Vivo.
       </p>
 
-      {catalogo.error ? (
+      {cargandoCatalogo ? (<p role="status">Cargando inventario...</p>) : catalogo.error ? (
         <p className="alert alert-danger" role="alert">
           {catalogo.error}
         </p>
