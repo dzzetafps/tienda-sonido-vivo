@@ -37,29 +37,78 @@ function App() {
         <Routes>
           {/* Rutas publicas */}
           <Route path="/" element={<Inicio />} />
-          <Route path="/productos" element={<Productos />} />
+
+          <Route
+            path="/productos"
+            element={<Productos />}
+          />
+
           <Route
             path="/producto/:codigo"
             element={<DetalleProducto />}
           />
-          <Route path="/nosotros" element={<Nosotros />} />
+
+          <Route
+            path="/nosotros"
+            element={<Nosotros />}
+          />
+
           <Route path="/login" element={<Login />} />
-          <Route path="/registro" element={<Registro />} />
+
+          <Route
+            path="/registro"
+            element={<Registro />}
+          />
 
           {/* Rutas que requieren autenticacion */}
           <Route element={<RutaProtegida />}>
-            <Route path="/contacto" element={<Contacto />} />
-            <Route path="/blogs" element={<Blogs />} />
-            <Route path="/blogs/:id" element={<DetalleBlog />} />
-            <Route path="/carrito" element={<Carrito />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/compra-error" element={<CompraError />} />
-            <Route path="/compra-exitosa" element={<CompraExitosa />} />
+            <Route
+              path="/contacto"
+              element={<Contacto />}
+            />
+
+            <Route
+              path="/blogs"
+              element={<Blogs />}
+            />
+
+            <Route
+              path="/blogs/:id"
+              element={<DetalleBlog />}
+            />
+          </Route>
+
+          {/* Rutas exclusivas del cliente */}
+          <Route
+            element={<RutaAdmin roles={['cliente']} />}
+          >
+            <Route
+              path="/carrito"
+              element={<Carrito />}
+            />
+
+            <Route
+              path="/checkout"
+              element={<Checkout />}
+            />
+
+            <Route
+              path="/compra-error"
+              element={<CompraError />}
+            />
+
+            <Route
+              path="/compra-exitosa"
+              element={<CompraExitosa />}
+            />
           </Route>
 
           {/* Rutas exclusivas de administrador */}
           <Route element={<RutaAdmin />}>
-            <Route path="/admin" element={<AdminInicio />} />
+            <Route
+              path="/admin"
+              element={<AdminInicio />}
+            />
 
             <Route
               path="/admin/productos"
@@ -68,12 +117,16 @@ function App() {
 
             <Route
               path="/admin/productos/nuevo"
-              element={<AdminFormularioProducto modo="nuevo" />}
+              element={
+                <AdminFormularioProducto modo="nuevo" />
+              }
             />
 
             <Route
               path="/admin/productos/editar/:codigo"
-              element={<AdminFormularioProducto modo="editar" />}
+              element={
+                <AdminFormularioProducto modo="editar" />
+              }
             />
 
             <Route
@@ -93,14 +146,32 @@ function App() {
 
             <Route
               path="/admin/usuarios/nuevo"
-              element={<AdminFormularioUsuario modo="nuevo" />}
+              element={
+                <AdminFormularioUsuario modo="nuevo" />
+              }
             />
 
             <Route
               path="/admin/usuarios/editar/:id"
-              element={<AdminFormularioUsuario modo="editar" />}
+              element={
+                <AdminFormularioUsuario modo="editar" />
+              }
             />
 
+            <Route
+              path="/admin/mensajes"
+              element={<AdminMensajes />}
+            />
+          </Route>
+
+          {/* Gestion de pedidos: administrador y vendedor */}
+          <Route
+            element={
+              <RutaAdmin
+                roles={['administrador', 'vendedor']}
+              />
+            }
+          >
             <Route
               path="/admin/pedidos"
               element={<AdminPedidos />}
@@ -109,11 +180,6 @@ function App() {
             <Route
               path="/admin/pedidos/:id"
               element={<AdminDetallePedido />}
-            />
-
-            <Route
-              path="/admin/mensajes"
-              element={<AdminMensajes />}
             />
           </Route>
         </Routes>

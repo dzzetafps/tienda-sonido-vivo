@@ -6,8 +6,15 @@ import {
 } from 'react-router-dom'
 
 import { useAuth } from '../../context/useAuth'
+import type { RolUsuario } from '../../tipos/Usuario'
 
-export default function RutaAdmin() {
+interface RutaAdminProps {
+  roles?: RolUsuario[]
+}
+
+export default function RutaAdmin({
+  roles = ['administrador'],
+}: RutaAdminProps) {
   const { sesion, cargando } = useAuth()
 
   const location = useLocation()
@@ -38,14 +45,13 @@ export default function RutaAdmin() {
     )
   }
 
-  if (sesion.rol !== 'administrador') {
+  if (!roles.includes(sesion.rol)) {
     return (
       <section className="text-center py-5">
         <h1>Acceso restringido</h1>
 
         <p className="text-secondary">
-          No tienes permisos para acceder al panel
-          de administración.
+          No tienes permisos para acceder a esta sección.
         </p>
 
         <Link to="/" className="btn btn-primary">

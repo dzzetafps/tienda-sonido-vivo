@@ -9,9 +9,11 @@ import { useAuth } from '../../context/useAuth'
 
 function Navbar() {
   const [menuAbierto, setMenuAbierto] = useState(false)
+
   const [errorSesion, setErrorSesion] = useState('')
 
   const { pathname } = useLocation()
+
   const navegar = useNavigate()
 
   const {
@@ -29,13 +31,24 @@ function Navbar() {
     { ruta: '/contacto', texto: 'Contacto' },
     { ruta: '/carrito', texto: 'Carrito' },
     { ruta: '/admin', texto: 'Administración' },
+    { ruta: '/admin/pedidos', texto: 'Gestionar pedidos' },
     { ruta: '/login', texto: 'Iniciar sesión' },
     { ruta: '/registro', texto: 'Registrarse' },
   ]
 
   const enlacesVisibles = enlaces.filter(({ ruta }) => {
     if (ruta === '/admin') {
-      return !cargando && sesion?.rol === 'administrador'
+      return (
+        !cargando &&
+        sesion?.rol === 'administrador'
+      )
+    }
+
+    if (ruta === '/admin/pedidos') {
+      return (
+        !cargando &&
+        sesion?.rol === 'vendedor'
+      )
     }
 
     if (ruta === '/login' || ruta === '/registro') {
@@ -43,7 +56,10 @@ function Navbar() {
     }
 
     if (ruta === '/carrito') {
-      return !sesion || sesion.rol === 'cliente'
+      return (
+        !cargando &&
+        (!sesion || sesion.rol === 'cliente')
+      )
     }
 
     return true
@@ -56,9 +72,13 @@ function Navbar() {
 
     try {
       await logout()
+
       setMenuAbierto(false)
+
       navegar('/login', { replace: true })
+
     } catch (error) {
+
       setErrorSesion(
         error instanceof Error
           ? error.message
@@ -70,7 +90,10 @@ function Navbar() {
   function estaActivo(ruta: string) {
     return (
       pathname === ruta ||
-      (ruta !== '/' && pathname.startsWith(`${ruta}/`))
+      (
+        ruta !== '/' &&
+        pathname.startsWith(`${ruta}/`)
+      )
     )
   }
 
@@ -81,6 +104,7 @@ function Navbar() {
       aria-label="Navegación principal"
     >
       <div className="container">
+
         <Link
           className="navbar-brand fw-bold"
           to="/"
@@ -95,25 +119,45 @@ function Navbar() {
           aria-controls="menu-principal"
           aria-expanded={menuAbierto}
           aria-label="Mostrar u ocultar navegación"
-          onClick={() => setMenuAbierto(!menuAbierto)}
+          onClick={() =>
+            setMenuAbierto(!menuAbierto)
+          }
         >
           <span className="navbar-toggler-icon" />
         </button>
 
         <div
-          className={`collapse navbar-collapse${menuAbierto ? ' show' : ''}`}
+          className={
+            `collapse navbar-collapse${
+              menuAbierto ? ' show' : ''
+            }`
+          }
           id="menu-principal"
         >
           <ul className="navbar-nav ms-auto">
+
             {enlacesVisibles.map(({ ruta, texto }) => (
-              <li className="nav-item" key={ruta}>
+              <li
+                className="nav-item"
+                key={ruta}
+              >
                 <Link
-                  className={`nav-link${estaActivo(ruta) ? ' active' : ''}`}
+                  className={
+                    `nav-link${
+                      estaActivo(ruta)
+                        ? ' active'
+                        : ''
+                    }`
+                  }
                   to={ruta}
                   aria-current={
-                    estaActivo(ruta) ? 'page' : undefined
+                    estaActivo(ruta)
+                      ? 'page'
+                      : undefined
                   }
-                  onClick={() => setMenuAbierto(false)}
+                  onClick={() =>
+                    setMenuAbierto(false)
+                  }
                 >
                   {texto}
                 </Link>
@@ -142,6 +186,7 @@ function Navbar() {
                 </button>
               </li>
             )}
+
           </ul>
         </div>
       </div>
