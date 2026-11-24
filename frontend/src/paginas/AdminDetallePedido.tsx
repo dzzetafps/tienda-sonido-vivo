@@ -1,45 +1,58 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { SubmitEvent } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import EstadoPedidoBadge from '../componentes/atomos/EstadoPedidoBadge'
+import { mensajeError } from '../datos/api'
 import type { Aviso } from '../datos/avisos'
 import { formatearFecha, formatearPrecio } from '../datos/formatos'
-import { codigoPedido, estadosPedido, nombresEstado } from '../datos/pedidosAdmin'
-import { buscarPedidoPorId, cambiarEstadoPedido } from '../datos/pedidosService.js'
-import type { EstadoPedido, Pedido } from '../tipos/Pedido'
-
-function leerPedido(id: string): { pedido: Pedido | undefined; error: string } {
-  try {
-    const pedido = buscarPedidoPorId(id)
-    return pedido ? { pedido, error: '' } : { pedido: undefined, error: 'No se encontró el pedido solicitado.' }
-  } catch (error) {
-    return { pedido: undefined, error: error instanceof Error ? error.message : 'No se pudieron cargar los pedidos.' }
-  }
-}
+import { codigoPedido, nombresEstado } from '../datos/pedidosAdmin'
+import { actualizarEstadoPedido, buscarPedido, estadosSiguientes } from '../datos/pedidosApi'
+import type { EstadoEditable } from '../datos/pedidosApi'
+import type { Pedido } from '../tipos/Pedido'
 
 function AdminDetallePedido() {
   const { id = '' } = useParams<{ id: string }>()
-  const [datos, setDatos] = useState(() => leerPedido(id))
-  const [nuevoEstado, setNuevoEstado] = useState<EstadoPedido>(datos.pedido?.estado ?? 'pagado')
+  const [pedido, setPedido] = useState<Pedido | null>(null)
+  const [cargando, setCargando] = useState(true)
+  const [error, setError] = useState('')
+  const [nuevoEstado, setNuevoEstado] = useState<EstadoEditable | ''>('')
+  const [guardando, setGuardando] = useState(false)
   const [aviso, setAviso] = useState<Aviso | null>(null)
-  const pedido = datos.pedido
 
-  function guardarEstado(evento: SubmitEvent<HTMLFormElement>) {
-    evento.preventDefault()
-    if (!pedido || nuevoEstado === pedido.estado) return
-    if (nuevoEstado === 'cancelado' && !window.confirm('¿Cancelar este pedido? El stock no se repone automáticamente.')) return
-
-    try {
-      const actualizado = cambiarEstadoPedido(pedido.id, nuevoEstado)
-      setDatos({ pedido: actualizado, error: '' })
-      setAviso({
-        tipo: 'success',
-        texto: actualizado.estado === 'cancelado'
-          ? 'Pedido cancelado. El stock no se repuso; si corresponde, ajústalo en Productos.'
-          : `Estado actualizado a ${nombresEstado[actualizado.estado]}.`,
+  useEffect(() => {
+    let activo = true
+    buscarPedido(id)
+      .then((encontrado) => {
+        if (activo) setPedido(encontrado)
       })
-    } catch (error) {
-      setAviso({ tipo: 'danger', texto: error instanceof Error ? error.message : 'No se pudo cambiar el estado del pedido.' })
+      .catch((e) => {
+        if (activo) setError(mensajeError(e, 'No se pudo cargar el pedido.'))
+      })
+      .finally(() => {
+        if (activo) setCargando(false)
+      })
+    return () => {
+      activo = false
+    }
+  }, [id])
+
+  const opciones = pedido ? estadosSiguientes(pedido.estado) : []
+
+  async function guardarEstado(evento: SubmitEvent<HTMLFormElement>) {
+    evento.preventDefault()
+    if (!pedido || nuevoEstado === '') return
+    if (nuevoEstado === 'cancelado' && !window.confirm('¿Cancelar este pedido? Esta acción no se puede deshacer.')) return
+
+    setGuardando(true)
+    try {
+      const actualizado = await actualizarEstadoPedido(pedido.id, nuevoEstado)
+      setPedido(actualizado)
+      setNuevoEstado('')
+      setAviso({ tipo: 'success', texto: `Estado actualizado a ${nombresEstado[actualizado.estado]}.` })
+    } catch (e) {
+      setAviso({ tipo: 'danger', texto: mensajeError(e, 'No se pudo cambiar el estado del pedido.') })
+    } finally {
+      setGuardando(false)
     }
   }
 
@@ -53,9 +66,11 @@ function AdminDetallePedido() {
         </ol>
       </nav>
 
-      {!pedido ? (
+      {cargando ? (
+        <p className="text-secondary" role="status">Cargando pedido...</p>
+      ) : !pedido ? (
         <>
-          <p className="alert alert-danger" role="alert">{datos.error}</p>
+          <p className="alert alert-danger" role="alert">{error}</p>
           <Link className="btn btn-outline-secondary" to="/admin/pedidos">Volver a pedidos</Link>
         </>
       ) : (
@@ -121,20 +136,29 @@ function AdminDetallePedido() {
               <div className="card shadow-sm">
                 <div className="card-body">
                   <h2 className="h5">Estado del pedido</h2>
-                  <form onSubmit={guardarEstado}>
-                    <label className="form-label" htmlFor="estado-pedido">Cambiar estado</label>
-                    <select
-                      id="estado-pedido"
-                      className="form-select mb-3"
-                      value={nuevoEstado}
-                      onChange={(evento) => setNuevoEstado(estadosPedido.find((opcion) => opcion === evento.target.value) ?? pedido.estado)}
-                    >
-                      {estadosPedido.map((opcion) => <option key={opcion} value={opcion}>{nombresEstado[opcion]}</option>)}
-                    </select>
-                    <button type="submit" className="btn btn-primary" disabled={nuevoEstado === pedido.estado}>
-                      Guardar estado
-                    </button>
-                  </form>
+                  {opciones.length === 0 ? (
+                    <p className="mb-0 text-secondary">
+                      {pedido.estado === 'pendiente'
+                        ? 'El pedido está pendiente de pago y no se puede modificar.'
+                        : 'Este pedido ya no admite cambios de estado.'}
+                    </p>
+                  ) : (
+                    <form onSubmit={guardarEstado}>
+                      <label className="form-label" htmlFor="estado-pedido">Cambiar estado</label>
+                      <select
+                        id="estado-pedido"
+                        className="form-select mb-3"
+                        value={nuevoEstado}
+                        onChange={(evento) => setNuevoEstado(opciones.find((opcion) => opcion === evento.target.value) ?? '')}
+                      >
+                        <option value="">Selecciona un estado</option>
+                        {opciones.map((opcion) => <option key={opcion} value={opcion}>{nombresEstado[opcion]}</option>)}
+                      </select>
+                      <button type="submit" className="btn btn-primary" disabled={nuevoEstado === '' || guardando}>
+                        {guardando ? 'Guardando...' : 'Guardar estado'}
+                      </button>
+                    </form>
+                  )}
                 </div>
               </div>
 

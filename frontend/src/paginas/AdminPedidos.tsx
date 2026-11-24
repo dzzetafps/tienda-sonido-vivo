@@ -1,20 +1,42 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Input from '../componentes/atomos/Input'
 import TablaPedidosAdmin from '../componentes/organismos/TablaPedidosAdmin'
-import { estadosPedido, leerPedidos, nombresEstado } from '../datos/pedidosAdmin'
+import { mensajeError } from '../datos/api'
+import { estadosPedido, nombresEstado } from '../datos/pedidosAdmin'
+import { listarPedidos } from '../datos/pedidosApi'
+import type { Pedido } from '../tipos/Pedido'
 
 function AdminPedidos() {
-  const [datos] = useState(leerPedidos)
+  const [pedidos, setPedidos] = useState<Pedido[]>([])
+  const [cargando, setCargando] = useState(true)
+  const [error, setError] = useState('')
   const [busqueda, setBusqueda] = useState('')
   const [estado, setEstado] = useState('')
 
+  useEffect(() => {
+    let activo = true
+    listarPedidos()
+      .then((lista) => {
+        if (activo) setPedidos(lista)
+      })
+      .catch((e) => {
+        if (activo) setError(mensajeError(e, 'No se pudieron cargar los pedidos.'))
+      })
+      .finally(() => {
+        if (activo) setCargando(false)
+      })
+    return () => {
+      activo = false
+    }
+  }, [])
+
   const texto = busqueda.trim().toLocaleLowerCase('es-CL')
-  const pedidosFiltrados = datos.pedidos
+  const pedidosFiltrados = pedidos
     .filter((pedido) => {
       const coincideEstado = estado === '' || pedido.estado === estado
       const coincideTexto = [pedido.id, pedido.comprador.nombre, pedido.comprador.apellido, pedido.comprador.correo]
-        .some((valor) => valor.toLocaleLowerCase('es-CL').includes(texto))
+        .some((valor) => (valor ?? '').toLocaleLowerCase('es-CL').includes(texto))
       return coincideEstado && coincideTexto
     })
     .sort((primero, segundo) => segundo.fecha.localeCompare(primero.fecha))
@@ -30,9 +52,11 @@ function AdminPedidos() {
 
       <h1 className="mb-4">Pedidos</h1>
 
-      {datos.error ? (
-        <p className="alert alert-danger" role="alert">{datos.error}</p>
-      ) : datos.pedidos.length === 0 ? (
+      {cargando ? (
+        <p className="text-secondary" role="status">Cargando pedidos...</p>
+      ) : error ? (
+        <p className="alert alert-danger" role="alert">{error}</p>
+      ) : pedidos.length === 0 ? (
         <p className="alert alert-light border">
           Todavía no hay pedidos registrados. Aparecerán aquí cuando un cliente confirme una compra.
         </p>
@@ -52,7 +76,7 @@ function AdminPedidos() {
             </div>
           </div>
           <p aria-live="polite">
-            Mostrando {pedidosFiltrados.length} de {datos.pedidos.length} pedidos
+            Mostrando {pedidosFiltrados.length} de {pedidos.length} pedidos
           </p>
           <TablaPedidosAdmin pedidos={pedidosFiltrados} />
         </>

@@ -14,9 +14,10 @@ export interface ProductoVendido {
   total: number
 }
 
-export const estadosPedido: EstadoPedido[] = ['pagado', 'enviado', 'entregado', 'cancelado']
+export const estadosPedido: EstadoPedido[] = ['pendiente', 'pagado', 'enviado', 'entregado', 'cancelado']
 
 export const nombresEstado: Record<EstadoPedido, string> = {
+  pendiente: 'Pendiente',
   pagado: 'Pagado',
   enviado: 'Enviado',
   entregado: 'Entregado',
