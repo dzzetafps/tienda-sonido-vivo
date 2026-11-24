@@ -62,6 +62,17 @@ function FormularioUsuario({ modo, usuarioInicial, ocupado = false, onGuardar, o
       nuevosErrores.correo = 'El correo admite hasta 100 caracteres'
     }
 
+    if (fechaNacimiento !== '') {
+      const fecha = new Date(`${fechaNacimiento}T00:00:00`)
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(fechaNacimiento) || Number.isNaN(fecha.getTime())) {
+        nuevosErrores.fechaNacimiento = 'Ingresa una fecha válida'
+      } else if (fecha > new Date()) {
+        nuevosErrores.fechaNacimiento = 'La fecha de nacimiento no puede ser futura'
+      } else if (fecha.getFullYear() < 1900) {
+        nuevosErrores.fechaNacimiento = 'Ingresa una fecha desde el año 1900'
+      }
+    }
+
     if (region === '') nuevosErrores.region = 'Selecciona una región'
     if (comuna === '') nuevosErrores.comuna = 'Selecciona una comuna'
 
@@ -135,6 +146,7 @@ function FormularioUsuario({ modo, usuarioInicial, ocupado = false, onGuardar, o
             tipo="date"
             valor={fechaNacimiento}
             alCambiar={setFechaNacimiento}
+            error={errores.fechaNacimiento}
             ayuda="Opcional."
           />
         </div>

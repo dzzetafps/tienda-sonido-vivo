@@ -130,6 +130,31 @@ describe('Felipe — administración de usuarios y acceso al panel', () => {
     )
   })
 
+  it('Validación de fecha: no acepta una fecha de nacimiento futura ni un año imposible', async () => {
+    const guardar = jasmine.createSpy('guardar')
+    await act(async () => {
+      root.render(<FormularioUsuario modo="nuevo" onGuardar={guardar} onCancelar={() => {}} />)
+    })
+    const fecha = contenedor.querySelector<HTMLInputElement>('#usuario-fecha')!
+
+    await act(async () => {
+      escribir(fecha, '2999-01-01')
+    })
+    await act(async () => {
+      contenedor.querySelector<HTMLButtonElement>('button[type="submit"]')!.click()
+    })
+    expect(contenedor.textContent).toContain('La fecha de nacimiento no puede ser futura')
+
+    await act(async () => {
+      escribir(fecha, '1313-03-31')
+    })
+    await act(async () => {
+      contenedor.querySelector<HTMLButtonElement>('button[type="submit"]')!.click()
+    })
+    expect(contenedor.textContent).toContain('Ingresa una fecha desde el año 1900')
+    expect(guardar).not.toHaveBeenCalled()
+  })
+
   it('TablaUsuariosAdmin muestra el RUT formateado y avisa el id y el nuevo estado al desactivar', async () => {
     const cambiarEstado = jasmine.createSpy('cambiarEstado')
     const administrador: Usuario = { ...cliente, id: 'u-admin', rut: '222222222', nombre: 'Admin', rol: 'administrador' }
