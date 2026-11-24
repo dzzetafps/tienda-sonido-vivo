@@ -9,11 +9,9 @@ import { useAuth } from '../../context/useAuth'
 
 function Navbar() {
   const [menuAbierto, setMenuAbierto] = useState(false)
-
   const [errorSesion, setErrorSesion] = useState('')
 
   const { pathname } = useLocation()
-
   const navegar = useNavigate()
 
   const {
@@ -30,6 +28,7 @@ function Navbar() {
     { ruta: '/blogs', texto: 'Blogs' },
     { ruta: '/contacto', texto: 'Contacto' },
     { ruta: '/carrito', texto: 'Carrito' },
+    { ruta: '/mis-pedidos', texto: 'Mis pedidos' },
     { ruta: '/admin', texto: 'Administración' },
     { ruta: '/admin/pedidos', texto: 'Gestionar pedidos' },
     { ruta: '/login', texto: 'Iniciar sesión' },
@@ -38,21 +37,19 @@ function Navbar() {
 
   const enlacesVisibles = enlaces.filter(({ ruta }) => {
     if (ruta === '/admin') {
-      return (
-        !cargando &&
-        sesion?.rol === 'administrador'
-      )
+      return !cargando && sesion?.rol === 'administrador'
     }
 
     if (ruta === '/admin/pedidos') {
-      return (
-        !cargando &&
-        sesion?.rol === 'vendedor'
-      )
+      return !cargando && sesion?.rol === 'vendedor'
     }
 
     if (ruta === '/login' || ruta === '/registro') {
       return !cargando && !sesion
+    }
+
+    if (ruta === '/mis-pedidos') {
+      return !cargando && sesion?.rol === 'cliente'
     }
 
     if (ruta === '/carrito') {
@@ -76,9 +73,7 @@ function Navbar() {
       setMenuAbierto(false)
 
       navegar('/login', { replace: true })
-
     } catch (error) {
-
       setErrorSesion(
         error instanceof Error
           ? error.message
