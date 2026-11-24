@@ -1,5 +1,9 @@
 import { Route, Routes } from 'react-router-dom'
+
 import Navbar from './componentes/organismos/Navbar'
+import RutaAdmin from './componentes/organismos/RutaAdmin'
+import RutaProtegida from './componentes/organismos/RutaProtegida'
+
 import Inicio from './paginas/Inicio'
 import Productos from './paginas/Productos'
 import Contacto from './paginas/Contacto'
@@ -13,7 +17,6 @@ import CompraError from './paginas/CompraError'
 import CompraExitosa from './paginas/CompraExitosa'
 import Login from './paginas/Login'
 import Registro from './paginas/Registro'
-import RutaAdmin from './componentes/organismos/RutaAdmin'
 import AdminInicio from './paginas/AdminInicio'
 import AdminProductos from './paginas/AdminProductos'
 import AdminFormularioProducto from './paginas/AdminFormularioProducto'
@@ -29,34 +32,155 @@ function App() {
   return (
     <>
       <Navbar />
+
       <main className="container py-5">
         <Routes>
+          {/* Rutas publicas */}
           <Route path="/" element={<Inicio />} />
-          <Route path="/productos" element={<Productos />} />
-          <Route path="/producto/:codigo" element={<DetalleProducto />} />
-          <Route path="/contacto" element={<Contacto />} />
-          <Route path="/nosotros" element={<Nosotros />} />
-          <Route path="/blogs" element={<Blogs />} />
-          <Route path="/blogs/:id" element={<DetalleBlog />} />
-          <Route path="/carrito" element={<Carrito />} />
-          <Route path="/checkout" element={<Checkout />} />
-          <Route path="/compra-error" element={<CompraError />} />
-          <Route path="/compra-exitosa" element={<CompraExitosa />} />
+
+          <Route
+            path="/productos"
+            element={<Productos />}
+          />
+
+          <Route
+            path="/producto/:codigo"
+            element={<DetalleProducto />}
+          />
+
+          <Route
+            path="/nosotros"
+            element={<Nosotros />}
+          />
+
           <Route path="/login" element={<Login />} />
-          <Route path="/registro" element={<Registro />} />
+
+          <Route
+            path="/registro"
+            element={<Registro />}
+          />
+
+          {/* Rutas que requieren autenticacion */}
+          <Route element={<RutaProtegida />}>
+            <Route
+              path="/contacto"
+              element={<Contacto />}
+            />
+
+            <Route
+              path="/blogs"
+              element={<Blogs />}
+            />
+
+            <Route
+              path="/blogs/:id"
+              element={<DetalleBlog />}
+            />
+          </Route>
+
+          {/* Rutas exclusivas del cliente */}
+          <Route
+            element={<RutaAdmin roles={['cliente']} />}
+          >
+            <Route
+              path="/carrito"
+              element={<Carrito />}
+            />
+
+            <Route
+              path="/checkout"
+              element={<Checkout />}
+            />
+
+            <Route
+              path="/compra-error"
+              element={<CompraError />}
+            />
+
+            <Route
+              path="/compra-exitosa"
+              element={<CompraExitosa />}
+            />
+          </Route>
+
+          {/* Rutas exclusivas de administrador */}
           <Route element={<RutaAdmin />}>
-            <Route path="/admin" element={<AdminInicio />} />
-            <Route path="/admin/productos" element={<AdminProductos />} />
-            <Route path="/admin/productos/nuevo" element={<AdminFormularioProducto modo="nuevo" />} />
-            <Route path="/admin/productos/editar/:codigo" element={<AdminFormularioProducto modo="editar" />} />
-            <Route path="/admin/categorias" element={<AdminCategorias />} />
-            <Route path="/admin/reportes" element={<AdminReportes />} />
-            <Route path="/admin/usuarios" element={<AdminUsuarios />} />
-            <Route path="/admin/usuarios/nuevo" element={<AdminFormularioUsuario modo="nuevo" />} />
-            <Route path="/admin/usuarios/editar/:id" element={<AdminFormularioUsuario modo="editar" />} />
-            <Route path="/admin/pedidos" element={<AdminPedidos />} />
-            <Route path="/admin/pedidos/:id" element={<AdminDetallePedido />} />
-            <Route path="/admin/mensajes" element={<AdminMensajes />} />
+            <Route
+              path="/admin"
+              element={<AdminInicio />}
+            />
+
+            <Route
+              path="/admin/productos"
+              element={<AdminProductos />}
+            />
+
+            <Route
+              path="/admin/productos/nuevo"
+              element={
+                <AdminFormularioProducto modo="nuevo" />
+              }
+            />
+
+            <Route
+              path="/admin/productos/editar/:codigo"
+              element={
+                <AdminFormularioProducto modo="editar" />
+              }
+            />
+
+            <Route
+              path="/admin/categorias"
+              element={<AdminCategorias />}
+            />
+
+            <Route
+              path="/admin/reportes"
+              element={<AdminReportes />}
+            />
+
+            <Route
+              path="/admin/usuarios"
+              element={<AdminUsuarios />}
+            />
+
+            <Route
+              path="/admin/usuarios/nuevo"
+              element={
+                <AdminFormularioUsuario modo="nuevo" />
+              }
+            />
+
+            <Route
+              path="/admin/usuarios/editar/:id"
+              element={
+                <AdminFormularioUsuario modo="editar" />
+              }
+            />
+
+            <Route
+              path="/admin/mensajes"
+              element={<AdminMensajes />}
+            />
+          </Route>
+
+          {/* Gestion de pedidos: administrador y vendedor */}
+          <Route
+            element={
+              <RutaAdmin
+                roles={['administrador', 'vendedor']}
+              />
+            }
+          >
+            <Route
+              path="/admin/pedidos"
+              element={<AdminPedidos />}
+            />
+
+            <Route
+              path="/admin/pedidos/:id"
+              element={<AdminDetallePedido />}
+            />
           </Route>
         </Routes>
       </main>

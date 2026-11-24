@@ -1,62 +1,129 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { iniciarSesion } from '../datos/usuariosService.js'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { useAuth } from '../context/useAuth'
 
 function Login() {
   const navegar = useNavigate()
+  const location = useLocation()
+  const { login, cargando } = useAuth()
+
   const [correo, setCorreo] = useState('')
   const [contrasena, setContrasena] = useState('')
-  const [errores, setErrores] = useState({ correo: '', contrasena: '' })
+  const [errores, setErrores] = useState({
+    correo: '',
+    contrasena: '',
+  })
   const [errorSesion, setErrorSesion] = useState('')
   const [ingresando, setIngresando] = useState(false)
 
-  async function validarFormulario(evento: FormEvent<HTMLFormElement>) {
+  async function validarFormulario(
+    evento: FormEvent<HTMLFormElement>,
+  ) {
     evento.preventDefault()
-    if (ingresando) return
+
+    if (ingresando || cargando) return
+
     setErrorSesion('')
-    const nuevosErrores = { correo: '', contrasena: '' }
+
+    const nuevosErrores = {
+      correo: '',
+      contrasena: '',
+    }
+
     const correoIngresado = correo.trim()
 
     if (!correoIngresado) {
       nuevosErrores.correo = 'El correo es obligatorio.'
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correoIngresado)) {
-      nuevosErrores.correo = 'Ingresa un correo electrónico válido.'
+    } else if (
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correoIngresado)
+    ) {
+      nuevosErrores.correo =
+        'Ingresa un correo electrónico válido.'
     } else if (correoIngresado.length > 100) {
-      nuevosErrores.correo = 'El correo no puede superar los 100 caracteres.'
+      nuevosErrores.correo =
+        'El correo no puede superar los 100 caracteres.'
     }
 
     if (!contrasena.trim()) {
-      nuevosErrores.contrasena = 'La contraseña es obligatoria.'
-    } else if (contrasena.length < 4 || contrasena.length > 10) {
-      nuevosErrores.contrasena = 'La contraseña debe tener entre 4 y 10 caracteres.'
+      nuevosErrores.contrasena =
+        'La contraseña es obligatoria.'
+    } else if (
+      contrasena.length < 4 ||
+      contrasena.length > 10
+    ) {
+      nuevosErrores.contrasena =
+        'La contraseña debe tener entre 4 y 10 caracteres.'
     }
 
     setErrores(nuevosErrores)
-    if (nuevosErrores.correo || nuevosErrores.contrasena) return
+
+    if (
+      nuevosErrores.correo ||
+      nuevosErrores.contrasena
+    ) {
+      return
+    }
 
     setIngresando(true)
+
     try {
-      const sesion = await iniciarSesion(correoIngresado, contrasena)
-      navegar(sesion.rol === 'administrador' ? '/admin' : '/', { replace: true })
+      const sesion = await login({
+        correo: correoIngresado,
+        contrasena,
+      })
+
+      const desde = location.state?.desde
+
+      const rutaAnterior =
+        typeof desde === 'string' &&
+        desde.startsWith('/') &&
+        !desde.startsWith('//') &&
+        !desde.includes('\\')
+          ? desde
+          : null
+
+      const destino =
+        rutaAnterior ??
+        (sesion.rol === 'administrador' ? '/admin' : '/')
+
+      navegar(destino, { replace: true })
     } catch (error) {
-      setErrorSesion(error instanceof Error ? error.message : 'No se pudo iniciar sesión. Inténtalo nuevamente.')
+      setErrorSesion(
+        error instanceof Error
+          ? error.message
+          : 'No se pudo iniciar sesión. Inténtalo nuevamente.',
+      )
     } finally {
       setIngresando(false)
     }
   }
 
   return (
-    <section className="row justify-content-center" aria-labelledby="titulo-login">
+    <section
+      className="row justify-content-center"
+      aria-labelledby="titulo-login"
+    >
       <div className="col-12 col-md-8 col-lg-6">
         <div className="card shadow-sm">
           <div className="card-body p-4 p-md-5">
-            <h1 className="h2 mb-3" id="titulo-login">Iniciar sesión</h1>
-            <p className="text-secondary mb-4">Ingresa tus datos para acceder a Sonido Vivo.</p>
+            <h1 className="h2 mb-3" id="titulo-login">
+              Iniciar sesión
+            </h1>
+
+            <p className="text-secondary mb-4">
+              Ingresa tus datos para acceder a Sonido Vivo.
+            </p>
 
             <form onSubmit={validarFormulario} noValidate>
               <div className="mb-3">
-                <label className="form-label" htmlFor="correo">Correo electrónico</label>
+                <label
+                  className="form-label"
+                  htmlFor="correo"
+                >
+                  Correo electrónico
+                </label>
+
                 <input
                   id="correo"
                   name="correo"
@@ -64,7 +131,7 @@ function Login() {
                   autoComplete="email"
                   maxLength={100}
                   required
-                  disabled={ingresando}
+                  disabled={ingresando || cargando}
                   className={`form-control${errores.correo ? ' is-invalid' : ''}`}
                   value={correo}
                   onChange={(evento) => {
@@ -73,15 +140,32 @@ function Login() {
                     setErrorSesion('')
                   }}
                   aria-invalid={Boolean(errores.correo)}
-                  aria-describedby={errores.correo ? 'error-correo' : undefined}
+                  aria-describedby={
+                    errores.correo
+                      ? 'error-correo'
+                      : undefined
+                  }
                 />
+
                 {errores.correo && (
-                  <div id="error-correo" className="invalid-feedback" role="alert">{errores.correo}</div>
+                  <div
+                    id="error-correo"
+                    className="invalid-feedback"
+                    role="alert"
+                  >
+                    {errores.correo}
+                  </div>
                 )}
               </div>
 
               <div className="mb-4">
-                <label className="form-label" htmlFor="contrasena">Contraseña</label>
+                <label
+                  className="form-label"
+                  htmlFor="contrasena"
+                >
+                  Contraseña
+                </label>
+
                 <input
                   id="contrasena"
                   name="contrasena"
@@ -90,31 +174,64 @@ function Login() {
                   minLength={4}
                   maxLength={10}
                   required
-                  disabled={ingresando}
+                  disabled={ingresando || cargando}
                   className={`form-control${errores.contrasena ? ' is-invalid' : ''}`}
                   value={contrasena}
                   onChange={(evento) => {
                     setContrasena(evento.target.value)
-                    setErrores({ ...errores, contrasena: '' })
+                    setErrores({
+                      ...errores,
+                      contrasena: '',
+                    })
                     setErrorSesion('')
                   }}
                   aria-invalid={Boolean(errores.contrasena)}
-                  aria-describedby={errores.contrasena ? 'error-contrasena' : undefined}
+                  aria-describedby={
+                    errores.contrasena
+                      ? 'error-contrasena'
+                      : undefined
+                  }
                 />
+
                 {errores.contrasena && (
-                  <div id="error-contrasena" className="invalid-feedback" role="alert">{errores.contrasena}</div>
+                  <div
+                    id="error-contrasena"
+                    className="invalid-feedback"
+                    role="alert"
+                  >
+                    {errores.contrasena}
+                  </div>
                 )}
               </div>
 
               {errorSesion && (
-                <p className="alert alert-danger" role="alert">{errorSesion}</p>
+                <p
+                  className="alert alert-danger"
+                  role="alert"
+                >
+                  {errorSesion}
+                </p>
               )}
-              <button type="submit" className="btn btn-primary w-100" disabled={ingresando}>
-                {ingresando ? 'Ingresando...' : 'Ingresar'}
+
+              <button
+                type="submit"
+                className="btn btn-primary w-100"
+                disabled={ingresando || cargando}
+              >
+                {ingresando
+                  ? 'Ingresando...'
+                  : cargando
+                    ? 'Verificando sesión...'
+                    : 'Ingresar'}
               </button>
             </form>
 
-            <p className="mt-4 mb-0">¿Aún no te registras? <Link to="/registro">Regístrate aquí</Link></p>
+            <p className="mt-4 mb-0">
+              ¿Aún no te registras?{' '}
+              <Link to="/registro">
+                Regístrate aquí
+              </Link>
+            </p>
           </div>
         </div>
       </div>
