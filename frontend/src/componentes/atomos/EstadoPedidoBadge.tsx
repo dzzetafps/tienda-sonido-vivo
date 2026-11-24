@@ -6,6 +6,7 @@ interface EstadoPedidoBadgeProps {
 }
 
 const clases: Record<EstadoPedido, string> = {
+  pendiente: 'badge text-bg-light border',
   pagado: 'badge text-bg-primary',
   enviado: 'badge text-bg-warning',
   entregado: 'badge text-bg-success',

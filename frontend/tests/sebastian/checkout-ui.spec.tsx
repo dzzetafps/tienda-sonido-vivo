@@ -94,6 +94,7 @@ describe('Sebastián — Checkout y CompraExitosa REST', () => {
       root.render(<MemoryRouter initialEntries={[ruta]}><RutaActual /><Routes>
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/compra-exitosa" element={<CompraExitosa />} />
+        <Route path="/mis-pedidos" element={<section>Historial verificado</section>} />
       </Routes></MemoryRouter>)
     })
     await esperar(() => Boolean(contenedor.querySelector('section')), 'pantalla cargada')
@@ -221,6 +222,20 @@ describe('Sebastián — Checkout y CompraExitosa REST', () => {
       expect(contenedor.querySelector('h1')?.textContent).toContain(estado)
       expect(contenedor.querySelector('#titulo-compra-exitosa')).toBeNull()
     }
+  })
+
+  it('consulta historial si se pierde la respuesta de una compra ya confirmada y no repite el POST', async () => {
+    confirmar = async (datos) => {
+      pedidos = [nuevoPedido(datos)]
+      carrito = { ...carrito, items: [], cantidadTotal: 0, total: 0 }
+      throw new TypeError('Respuesta perdida')
+    }
+    await montar()
+    await completar()
+    await enviar()
+    await esperar(() => contenedor.querySelector('#ruta-prueba')?.textContent === '/mis-pedidos', 'historial tras respuesta perdida')
+    expect(solicitudes.length).toBe(1)
+    expect(pedidos[0].estado).toBe('pagado')
   })
 
   it('permite reintentar después de HTTP 503 tras consultar el estado persistido', async () => {

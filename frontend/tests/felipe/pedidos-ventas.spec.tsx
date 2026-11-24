@@ -55,6 +55,7 @@ describe('Felipe — pedidos y reportes de ventas', () => {
 
   it('resumirPorEstado cuenta pedidos y monto de cada estado en orden', () => {
     expect(resumirPorEstado(pedidos)).toEqual([
+      { estado: 'pendiente', pedidos: 0, total: 0 },
       { estado: 'pagado', pedidos: 1, total: 149970 },
       { estado: 'enviado', pedidos: 0, total: 0 },
       { estado: 'entregado', pedidos: 1, total: 29970 },
@@ -83,13 +84,11 @@ describe('Felipe — pedidos y reportes de ventas', () => {
     expect(fila.querySelector('a')?.getAttribute('href')).toBe('/admin/pedidos/abcdef12-3456-7890-abcd-ef1234567890')
   })
 
-  it('AdminDetallePedido cambia el estado con cambiarEstadoPedido y lo guarda en LocalStorage', async () => {
-    const almacen: Record<string, string> = {
-      'sonido-vivo-ep2-pedidos': JSON.stringify([crearPedido('p-1', 'pagado', [{ ...guitarra, cantidad: 1 }])]),
-    }
-    spyOn(Storage.prototype, 'getItem').and.callFake((clave: string) => almacen[clave] ?? null)
-    spyOn(Storage.prototype, 'setItem').and.callFake((clave: string, valor: string) => {
-      almacen[clave] = valor
+  it('AdminDetallePedido cambia el estado con PATCH /api/pedidos/{id}/estado', async () => {
+    const original = crearPedido('p-1', 'pagado', [{ ...guitarra, cantidad: 1 }])
+    const espia = spyOn(window, 'fetch').and.callFake((_entrada: RequestInfo | URL, opciones?: RequestInit) => {
+      const datos = opciones?.method === 'PATCH' ? { ...original, estado: 'enviado' } : original
+      return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve(datos) } as Response)
     })
 
     await act(async () => {
@@ -100,6 +99,9 @@ describe('Felipe — pedidos y reportes de ventas', () => {
           </Routes>
         </MemoryRouter>,
       )
+    })
+    await act(async () => {
+      await new Promise((resolver) => setTimeout(resolver, 0))
     })
     const boton = contenedor.querySelector<HTMLButtonElement>('button[type="submit"]')!
     expect(boton.disabled).toBeTrue()
@@ -112,8 +114,14 @@ describe('Felipe — pedidos y reportes de ventas', () => {
     await act(async () => {
       boton.click()
     })
+    await act(async () => {
+      await new Promise((resolver) => setTimeout(resolver, 0))
+    })
 
-    expect(JSON.parse(almacen['sonido-vivo-ep2-pedidos'])[0].estado).toBe('enviado')
+    const [url, opciones] = espia.calls.mostRecent().args
+    expect(String(url)).toBe('http://localhost:8080/api/pedidos/p-1/estado')
+    expect(opciones?.method).toBe('PATCH')
+    expect(JSON.parse(String(opciones?.body))).toEqual({ estado: 'enviado' })
     expect(contenedor.textContent).toContain('Estado actualizado a Enviado.')
   })
 })

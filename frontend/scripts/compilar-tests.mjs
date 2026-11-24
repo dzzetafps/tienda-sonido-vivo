@@ -26,6 +26,6 @@ await build({
   jsx: 'automatic',
   target: 'es2023',
   sourcemap: 'inline',
-  define: { 'process.env.NODE_ENV': '"development"' },
+  define: { 'process.env.NODE_ENV': '"development"', 'import.meta.env': '{"DEV":false}' },
   logLevel: 'info',
 })

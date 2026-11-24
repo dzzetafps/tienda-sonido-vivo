@@ -67,6 +67,7 @@ function datosDesdePedido(pedido: PedidoCliente): DatosCliente {
 function Checkout() {
   const navegar = useNavigate()
   const envioEnCurso = useRef(false)
+  const pedidosConocidos = useRef(new Set<string>())
 
   const [datos, setDatos] = useState<DatosCliente>(datosIniciales)
   const [errores, setErrores] = useState<Errores>({})
@@ -85,6 +86,8 @@ function Checkout() {
         const pedidos = await obtenerMisPedidos()
 
         if (!activo) return
+
+        pedidosConocidos.current = new Set(pedidos.map((pedido) => pedido.id))
 
         const pedidoPendiente = pedidos.find(
           (pedido) => pedido.estado === 'pendiente',
@@ -268,6 +271,17 @@ function Checkout() {
           setPendiente(recuperado)
           setDatos(datosDesdePedido(recuperado))
         } else {
+          // La respuesta del POST puede perderse después de confirmar en MySQL.
+          // Si apareció una compra desde que cargamos la pantalla, detenemos
+          // el reenvío y mostramos el historial para verificarla.
+          const confirmado = pedidos.find((pedido) =>
+            !pedidosConocidos.current.has(pedido.id) &&
+            ['pagado', 'enviado', 'entregado'].includes(pedido.estado),
+          )
+          if (confirmado) {
+            navegar('/mis-pedidos', { replace: true })
+            return
+          }
           setPendiente(null)
           setCarrito(await obtenerCarrito())
         }

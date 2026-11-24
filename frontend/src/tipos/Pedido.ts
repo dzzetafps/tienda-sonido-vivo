@@ -1,4 +1,4 @@
-export type EstadoPedido = 'pagado' | 'enviado' | 'entregado' | 'cancelado'
+export type EstadoPedido = 'pendiente' | 'pagado' | 'enviado' | 'entregado' | 'cancelado'
 
 export interface ItemPedido {
   codigo: string
